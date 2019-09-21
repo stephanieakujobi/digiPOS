@@ -1,0 +1,7 @@
+{
+  "name": "FusionCapstone",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}
