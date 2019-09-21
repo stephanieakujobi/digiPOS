@@ -1,3 +1,8 @@
+/*
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/09/20
+*/
+
 import { Component } from '@angular/core';
 
 import { Platform } from '@ionic/angular';
@@ -10,11 +15,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
-  constructor(
-    private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar
-  ) {
+  constructor(private platform: Platform, private splashScreen: SplashScreen, private statusBar: StatusBar) {
     this.initializeApp();
   }
 

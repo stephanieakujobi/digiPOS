@@ -5,11 +5,84 @@
 -->
 
 <ion-header>
-    <ion-toolbar color="primary">
-      <ion-title>Notifications</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  
-  <ion-content class="ion-padding">
-    This is the notifications page.
-  </ion-content>
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="end">
+      <ion-button (click)="openSettingsModal()">
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Notifications</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div id="sort-by-wrapper" class="{{notifications.length == 0 ? 'hidden' : ''}}">
+    <ion-item lines="none">
+      <ion-label>Sort By:</ion-label>
+      <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="newest"
+        (ionChange)="sortNotifs()">
+        <ion-select-option value="newest">Newest</ion-select-option>
+        <ion-select-option value="oldest">Oldest</ion-select-option>
+        <ion-select-option value="unread">Unread</ion-select-option>
+        <ion-select-option value="read">Read</ion-select-option>
+        <ion-select-option value="information">Infos</ion-select-option>
+        <ion-select-option value="alert">Alerts</ion-select-option>
+        <ion-select-option value="error">Errors</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+
+  <ion-list id="notifs-list" lines="full" *ngIf="notifications.length > 0">
+    <ion-item-sliding *ngFor="let n of notifications" #slideItem>
+
+      <div class="notif {{n.isRead ? 'read' : 'unread'}}" #notifElement>
+        <ion-item (click)="viewNotif(n)">
+          <ion-badge></ion-badge>
+          <ion-icon class="notif-icon" name="{{n.icon.name}}" color="{{n.icon.color}}"></ion-icon>
+          <ion-label>
+            <h2>{{n.title}}</h2>
+            <p>
+              <ion-icon name="time"></ion-icon> {{n.dateAsString}}
+            </p>
+          </ion-label>
+        </ion-item>
+      </div>
+
+      <ion-item-options side="start" (ionSwipe)="deleteNotif(n, slideItem, notifElement)">
+        <ion-item-option color="danger" expandable (click)="deleteNotif(n, slideItem, notifElement)">
+          <ion-label name="trash">
+            <ion-icon name="trash" color="secondary"></ion-icon>
+            Delete
+          </ion-label>
+        </ion-item-option>
+      </ion-item-options>
+
+      <ion-item-options side="end" (ionSwipe)="toggleNotifRead(n, slideItem)">
+        <ion-item-option color="tertiary" (click)="toggleNotifRead(n, slideItem)" expandable *ngIf="n.isRead == false">
+          <ion-label>
+            <ion-icon name="mail-open" color="secondary"></ion-icon>
+            Mark as read
+          </ion-label>
+        </ion-item-option>
+        <ion-item-option color="tertiary" (click)="toggleNotifRead(n, slideItem)" expandable *ngIf="n.isRead == true">
+          <ion-label>
+            <ion-icon name="mail" color="secondary"></ion-icon>
+            Mark as unread
+          </ion-label>
+        </ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
+
+  </ion-list>
+
+  <ion-item id="no-notifs-wrapper" lines="none" *ngIf="notifications.length == 0">
+    <div>
+      <ion-label>You have no notifications!</ion-label>
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+    </div>
+  </ion-item>
+
+</ion-content>
