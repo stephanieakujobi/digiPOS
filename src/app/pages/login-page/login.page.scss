@@ -1,0 +1,36 @@
+/*
+    Author:             Adriano Cucci
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/09/20
+*/
+
+#login-form {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  flex-flow: column;
+  padding: 0 10%;
+
+  ion-img {
+    max-height: 30%;
+    margin-bottom: 10%;
+    transform: rotateZ(0deg);
+    transition: 0.4s;
+  }
+
+  @media screen and (max-height: 411px) {
+    ion-img {
+      max-height: 0%;
+      margin-bottom: 0%;
+      transform: rotateZ(-180deg);
+    }
+  }
+
+  ion-button {
+    margin-top: 12%;
+  }
+
+  ion-item.ios {
+    transform: translateX(-9px);
+  }
+}
