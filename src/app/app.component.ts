@@ -20,11 +20,11 @@ export class AppComponent {
       Environment.setEnv({
         // Api key for your server
         // (Make sure the api key should have Website restrictions for your website domain only)
-        //'API_KEY_FOR_BROWSER_RELEASE': 'AIzaSyA4vxx8S_Yd_aNQL6tkRNfcDGkGhcLHLxo',
+        //'API_KEY_FOR_BROWSER_RELEASE': 'API-KEY',
 
         // Api key for local development
         // (Make sure the api key should have Website restrictions for 'http://localhost' only)
-        'API_KEY_FOR_BROWSER_DEBUG': 'AIzaSyA4vxx8S_Yd_aNQL6tkRNfcDGkGhcLHLxo'
+        'API_KEY_FOR_BROWSER_DEBUG': 'API-KEY'
       });
       this.statusBar.styleDefault();
       this.splashScreen.hide();
