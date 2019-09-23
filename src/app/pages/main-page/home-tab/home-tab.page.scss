@@ -1,0 +1,12 @@
+ion-searchbar {
+    position: absolute;
+    padding: 16px;
+    z-index: 1;
+    --background: var(--ion-color-secondary);
+}
+
+#map {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

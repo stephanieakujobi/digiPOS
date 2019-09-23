@@ -16,7 +16,7 @@ import { HomeTabPage } from './home-tab.page';
     IonicModule,
     CommonModule,
     FormsModule,
-    RouterModule.forChild([{ path: '', component: HomeTabPage }])
+    RouterModule.forChild([{ path: '', component: HomeTabPage }]),
   ],
   declarations: [HomeTabPage]
 })
