@@ -1,14 +1,20 @@
 /*
     Author:             Adriano Cucci
     Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/23
+    Date Modified:      2019/09/26
 */
 
 ion-searchbar {
-    position: absolute;
-    padding: 16px;
-    z-index: 1;
-    --background: var(--ion-color-secondary);
+  position: absolute;
+  top: 0;
+  padding: 16px;
+  --background: var(--ion-color-secondary);
+  opacity: 0.6;
+  transition: 0.25s;
+
+  &.searchbar-has-focus {
+    opacity: 1;
+  }
 }
 
 #map {
@@ -18,11 +24,19 @@ ion-searchbar {
 }
 
 ion-fab {
-  margin: 16px 4px;
-  color: red;
-
   ion-fab-button {
     --background: var(--ion-color-secondary);
     --color: var(--google-maps-grey);
+    opacity: 0.7;
+  }
+
+  &#center-location-fab {
+    right: 60px;
+    bottom: 18px;
+  }
+
+  &#scan-businesses-fab {
+    right: 3px;
+    bottom: 95px;
   }
 }
