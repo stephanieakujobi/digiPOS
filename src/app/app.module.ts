@@ -1,3 +1,8 @@
+/*
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/09/28
+*/
+
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
@@ -9,6 +14,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NotificationsSettingsPageModule } from './pages/main-page/notifications-tab/notifications-settings/notifications-settings.module';
+import { NativeStorage } from '@ionic-native/native-storage/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,6 +28,7 @@ import { NotificationsSettingsPageModule } from './pages/main-page/notifications
   providers: [
     StatusBar,
     SplashScreen,
+    NativeStorage,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

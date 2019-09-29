@@ -1,18 +1,17 @@
 /*
     Author:             Adriano Cucci
     Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/20
+    Date Modified:      2019/09/29
 */
 
 import { Component } from "@angular/core";
 import { AlertController, IonItemSliding, ModalController } from "@ionic/angular";
-import { NotificationsManager } from 'src/app/classes/notifications/NotificationsManager';
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-bar.page';
-import { NotifsManagerEvents } from 'src/app/classes/notifications/NotifsManagerEvent';
 import { NotificationSeverity } from 'src/app/classes/notifications/NotificationSeverity';
 import { NotificationsSettingsModal } from './notifications-settings/notifications-settings.modal';
 import { NotificationSettings } from 'src/app/classes/notifications/NotificationSettings';
+import { NotificationsStorageService } from 'src/app/services/notifications-storage.service';
 
 @Component({
   selector: "notifications-home-tab",
@@ -31,16 +30,12 @@ export class NotificationsTabPage {
    * Creates a new NotificationsTabPage.
    * @param alertController The AlertController used to view AppNotifications in a native alert box.
    */
-  constructor(public alertController: AlertController, public modalController: ModalController) {
+  constructor(private alertController: AlertController, private modalController: ModalController) {
     this.settings = new NotificationSettings();
-    NotificationsManager.subscribeTo(NotifsManagerEvents.OnNotifAdded, this.sortNotifs);
   }
 
-  /**
-   * An instance function allowing Angular to interpolate the AppNotifications stored in the NotificationsManager onto the HTML page.
-   */
-  get notifications(): AppNotification[] {
-    return NotificationsManager.notifications;
+  public get notifications(): AppNotification[] {
+    return NotificationsStorageService.notifications;
   }
 
   /**
@@ -52,21 +47,21 @@ export class NotificationsTabPage {
 
     switch(sortSelect.value) {
       default:
-        NotificationsTabPage.sortNotifsByNewest();
+        this.sortNotifsByNewest();
         break;
       case "oldest":
-        NotificationsTabPage.sortNotifsByOldest();
+        this.sortNotifsByOldest();
         break;
       case "unread":
-        NotificationsTabPage.sortNotifsByUnread();
+        this.sortNotifsByUnread();
         break;
       case "read":
-        NotificationsTabPage.sortNotifsByRead();
+        this.sortNotifsByRead();
         break;
       case "information":
       case "alert":
       case "error":
-        NotificationsTabPage.sortNotifsBySeverity(sortSelect.value);
+        this.sortNotifsBySeverity(sortSelect.value);
         break;
     }
   }
@@ -85,7 +80,7 @@ export class NotificationsTabPage {
 
     await notifAlert.present();
 
-    NotificationsManager.markNotifRead(notification, true);
+    notification.isRead = true;
     MainTabBarPage.updateUnreadNotifsBadge();
     this.sortNotifs();
   }
@@ -97,7 +92,7 @@ export class NotificationsTabPage {
    * @param ionItemSliding The ion-item-sliding element in the page wrapped around the AppNotification to close after the action was performed by the user.
    */
   toggleNotifRead(notification: AppNotification, ionItemSliding: IonItemSliding) {
-    NotificationsManager.markNotifRead(notification, !notification.isRead);
+    notification.isRead = !notification.isRead;
     MainTabBarPage.updateUnreadNotifsBadge();
     ionItemSliding.close();
 
@@ -141,7 +136,7 @@ export class NotificationsTabPage {
     notifElement.classList.add("deleting");
 
     setTimeout(() => {
-      NotificationsManager.deleteNotification(notification);
+      this.notifications.splice(this.notifications.indexOf(notification), 1);
       MainTabBarPage.updateUnreadNotifsBadge();
     }, 300);
   }
@@ -149,48 +144,41 @@ export class NotificationsTabPage {
   /**
    * Sorts all AppNotifications in the page by the newest "dateReceived" parameter.
    */
-  private static sortNotifsByNewest() {
-    let notifications = NotificationsManager.notifications;
-
-    notifications.sort((notif1, notif2) => {
-      return notif2.dateReceived.getTime() - notif1.dateReceived.getTime();
+  private sortNotifsByNewest() {
+    this.notifications.sort((notif1, notif2) => {
+      return notif2.dateReceived.rawDate.getTime() - notif1.dateReceived.rawDate.getTime();
     });
   }
 
   /**
    * Sorts all AppNotifications in the page by the oldest "dateReceived" parameter.
    */
-  private static sortNotifsByOldest() {
-    let notifications = NotificationsManager.notifications;
-
-    notifications.sort((notif1, notif2) => {
-      return notif1.dateReceived.getTime() - notif2.dateReceived.getTime();
+  private sortNotifsByOldest() {
+    this.notifications.sort((notif1, notif2) => {
+      return notif1.dateReceived.rawDate.getTime() - notif2.dateReceived.rawDate.getTime();
     });
   }
 
   /**
    * Sorts all AppNotifications in the page by displaying those that are unread at the top of the list.
    */
-  private static sortNotifsByUnread() {
-    let notifications = NotificationsManager.notifications;
-    notifications.sort(notif => (notif.isRead ? 1 : -1));
+  private sortNotifsByUnread() {
+    this.notifications.sort(notif => (notif.isRead ? 1 : -1));
   }
 
   /**
    * Sorts all AppNotifications in the page by displaying those that are read at the top of the list.
    */
-  private static sortNotifsByRead() {
-    let notifications = NotificationsManager.notifications;
-    notifications.sort(notif => (!notif.isRead ? 1 : -1));
+  private sortNotifsByRead() {
+    this.notifications.sort(notif => (!notif.isRead ? 1 : -1));
   }
 
   /**
    * Sorts all AppNotifications in the page by their severity level.
    * @param severity The NotificationSeverity to sort by, of which the matching AppNotifications will be displayed at the top of the list.
    */
-  private static sortNotifsBySeverity(severity: NotificationSeverity) {
-    let notifications = NotificationsManager.notifications;
-    notifications.sort(notif => (notif.severity === severity ? -1 : 1));
+  private sortNotifsBySeverity(severity: NotificationSeverity) {
+    this.notifications.sort(notif => (notif.severity === severity ? -1 : 1));
   }
 
   /**

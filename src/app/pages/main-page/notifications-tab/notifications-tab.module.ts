@@ -1,7 +1,7 @@
 /*
     Author:             Adriano Cucci
     Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/20
+    Date Modified:      2019/09/28
 */
 
 import { IonicModule } from '@ionic/angular';
@@ -10,6 +10,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationsTabPage } from './notifications-tab.page';
+import { NotificationsStorageService } from 'src/app/services/notifications-storage.service';
 
 @NgModule({
   imports: [
@@ -17,6 +18,9 @@ import { NotificationsTabPage } from './notifications-tab.page';
     CommonModule,
     FormsModule,
     RouterModule.forChild([{ path: '', component: NotificationsTabPage }])
+  ],
+  providers: [
+    NotificationsStorageService
   ],
   declarations: [NotificationsTabPage]
 })
