@@ -1,17 +1,17 @@
 /*
     Author:             Adriano Cucci
     Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/29
+    Date Modified:      2019/10/02
 */
 
 import { Component } from "@angular/core";
 import { AlertController, IonItemSliding, ModalController } from "@ionic/angular";
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-bar.page';
-import { NotificationSeverity } from 'src/app/classes/notifications/NotificationSeverity';
-import { NotificationsSettingsModal } from './notifications-settings/notifications-settings.modal';
-import { NotificationSettings } from 'src/app/classes/notifications/NotificationSettings';
-import { NotificationsStorageService } from 'src/app/services/notifications-storage.service';
+import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
+import { NotificationsPrefsModal } from './notifications-prefs-modal/notifications-prefs.modal';
+import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
+import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
 
 @Component({
   selector: "notifications-home-tab",
@@ -24,18 +24,18 @@ import { NotificationsStorageService } from 'src/app/services/notifications-stor
  * Shows the user all the AppNotifications they have received, if any.
  */
 export class NotificationsTabPage {
-  private settings: NotificationSettings;
-
   /**
    * Creates a new NotificationsTabPage.
+   * @param notifsPrefsService The AppNotifsPrefsService used to update the user's notification preferences when changed.
    * @param alertController The AlertController used to view AppNotifications in a native alert box.
+   * @param modalController The ModalController which opens the 
    */
-  constructor(private alertController: AlertController, private modalController: ModalController) {
-    this.settings = new NotificationSettings();
+  constructor(private notifsPrefsService: AppNotifsPrefsService, private alertController: AlertController, private modalController: ModalController) {
+    notifsPrefsService.loadPrefs();
   }
 
-  public get notifications(): AppNotification[] {
-    return NotificationsStorageService.notifications;
+  ionViewDidEnter() {
+    this.sortNotifs();
   }
 
   /**
@@ -107,7 +107,7 @@ export class NotificationsTabPage {
    * @param notifElement The HTMLElement wrapped around the AppNotification to mark as "deleting". This element will shrink in the list of AppNotifications.
    */
   async deleteNotif(notification: AppNotification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
-    if(this.settings.askBeforeDeleteNotif) {
+    if(AppNotifsPrefsService.notifsPrefs.askBeforeDeleteNotif) {
       const confirmationAlert = await this.alertController.create({
         header: "Delete Notification",
         message: "Are you sure you want to delete this notification?",
@@ -177,22 +177,32 @@ export class NotificationsTabPage {
    * Sorts all AppNotifications in the page by their severity level.
    * @param severity The NotificationSeverity to sort by, of which the matching AppNotifications will be displayed at the top of the list.
    */
-  private sortNotifsBySeverity(severity: NotificationSeverity) {
+  private sortNotifsBySeverity(severity: AppNotifSeverity) {
     this.notifications.sort(notif => (notif.severity === severity ? -1 : 1));
   }
 
   /**
    * Called from the page when the user presses the settings icon on the navigation bar.
-   * Opens a modal page containing the settings for Notifications and passes this object's settings property as a property of the modal.
+   * Opens a modal page containing the user preferences for Notifications, allowing the user to edit them.
+   * Once the user closes the modal, their notification preferences are saved.
    */
-  async openSettingsModal() {
+  async openPrefsModal() {
     const modal = await this.modalController.create({
-      component: NotificationsSettingsModal,
-      componentProps: {
-        settings: this.settings
-      }
+      component: NotificationsPrefsModal,
     });
 
-    return await modal.present();
+    await modal.present();
+
+    modal.onWillDismiss().then(({ data }) => {
+      this.notifsPrefsService.savePrefs(data);
+    });
+  }
+
+  /**
+   * Shorthand reference to the AppNotifications stored in AppNotifsStorageService.
+   * Required to display AppNotifications on the page via HTML interpolation.
+   */
+  public get notifications(): AppNotification[] {
+    return AppNotifsStorageService.notifications;
   }
 }

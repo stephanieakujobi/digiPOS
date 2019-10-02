@@ -1,12 +1,13 @@
 /*
     Author:             Adriano Cucci
     Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/29
+    Date Modified:      2019/10/02
 */
 
 import { Component } from '@angular/core';
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
-import { NotificationsStorageService } from 'src/app/services/notifications-storage.service';
+import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
+import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
 
 @Component({
   selector: 'app-main-tab-bar',
@@ -18,27 +19,37 @@ import { NotificationsStorageService } from 'src/app/services/notifications-stor
  * The wrapper page containing the main tab bar displayed at the bottom of the app after the user logs in.
  */
 export class MainTabBarPage {
-  constructor(private notifsStorage: NotificationsStorageService) { }
+  constructor(private notifsStorage: AppNotifsStorageService) { }
 
   /**
    * Ionic callback function called when the page has finished rendering content.
    * See https://ionicframework.com/docs/angular/lifecycle for more info.
    */
   async ionViewDidEnter() {
-    // await this.notifsStorage.loadAll();
-    // MainTabBarPage.updateUnreadNotifsBadge();
-
+    await this.testSaveNotifs(); //TEMPORARY
     await this.loadNotifications();
   }
 
-  private async loadNotifications() {
-    let notifs: AppNotification[] = [new AppNotification("TITLE", "SUMMARY"), new AppNotification("TITLE 2", "SUMMARY 2")];
-    let didSucceed = await this.notifsStorage.saveAll(notifs);
+  /**
+   * TEMPORARY TEST METHOD.
+   */
+  private async testSaveNotifs() {
+    let notifs: AppNotification[] = [
+      new AppNotification("TITLE", "SUMMARY"),
+      new AppNotification("TITLE 2", "SUMMARY 2"),
+      new AppNotification("TITLE 3", "SUMMARY 3", AppNotifSeverity.Alert, new Date(2019, 10, 20)),
+      new AppNotification("TITLE 4", "SUMMARY 4", AppNotifSeverity.Error, new Date(2019, 10, 10))
+    ];
 
-    if(didSucceed) {
-      await this.notifsStorage.loadAll();
-      MainTabBarPage.updateUnreadNotifsBadge();
-    }
+    await this.notifsStorage.saveNotifs(notifs);
+  }
+
+  /**
+   * Loads the user's saved notifications upon successful login.
+   */
+  private async loadNotifications() {
+    await this.notifsStorage.loadNotifs();
+    MainTabBarPage.updateUnreadNotifsBadge();
   }
 
   /**
@@ -46,7 +57,7 @@ export class MainTabBarPage {
    */
   public static updateUnreadNotifsBadge() {
     const badge = document.getElementById("notifs-badge") as HTMLIonBadgeElement;
-    const unreadNotifsLength = NotificationsStorageService.notifications.filter(notif => !notif.isRead).length;
+    const unreadNotifsLength = AppNotifsStorageService.notifications.filter(notif => !notif.isRead).length;
 
     badge.innerText = unreadNotifsLength.toString();
 

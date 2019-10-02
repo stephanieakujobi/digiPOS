@@ -1,30 +1,30 @@
 /*
     Author:             Adriano Cucci
     Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/29
+    Date Modified:      2019/10/01
 */
 
-import { NotificationSeverity } from './NotificationSeverity';
+import { AppNotifSeverity } from './AppNotifSeverity';
 
 /**
- * A NotificationIcon is the icon that is displayed on the left of AppNotifications when viewed in the notifications tab page.
+ * A AppNotifIcon is the icon that is displayed on the left of AppNotifications when viewed in the notifications tab page.
  * The icon's appearance depends on how severe the AppNotification is.
  */
-export class NotificationIcon {
+export class AppNotifIcon {
     public name: string;
     public color: string;
 
     /**
-     * Creates a new NotificationIcon.
-     * @param iconType The type of icon to display represented by a NotificationSeverity value.
+     * Creates a new AppNotifIcon.
+     * @param iconType The type of icon to display represented by an AppNotifSeverity value.
      *                 "Information" will display a blue "i", "Alert" will display a yellow "!", and "Error" will display a red "X".
      */
-    public constructor(iconType: NotificationSeverity) {
-        if(iconType == NotificationSeverity.Information) {
+    public constructor(iconType: AppNotifSeverity) {
+        if(iconType == AppNotifSeverity.Information) {
             this.name = "information-circle";
             this.color = "primary"
         }
-        else if(iconType == NotificationSeverity.Alert) {
+        else if(iconType == AppNotifSeverity.Alert) {
             this.name = "alert";
             this.color = "warning"
         }
