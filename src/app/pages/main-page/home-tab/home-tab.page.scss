@@ -1,0 +1,42 @@
+/*
+    Author:             Adriano Cucci
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/09/26
+*/
+
+ion-searchbar {
+  position: absolute;
+  top: 0;
+  padding: 16px;
+  --background: var(--ion-color-secondary);
+  opacity: 0.6;
+  transition: 0.25s;
+
+  &.searchbar-has-focus {
+    opacity: 1;
+  }
+}
+
+#map {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+ion-fab {
+  ion-fab-button {
+    --background: var(--ion-color-secondary);
+    --color: var(--google-maps-grey);
+    opacity: 0.7;
+  }
+
+  &#center-location-fab {
+    right: 60px;
+    bottom: 18px;
+  }
+
+  &#scan-businesses-fab {
+    right: 3px;
+    bottom: 95px;
+  }
+}
