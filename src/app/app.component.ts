@@ -1,3 +1,8 @@
+/*
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/09/20
+*/
+
 import { Component } from '@angular/core';
 
 import { Platform } from '@ionic/angular';

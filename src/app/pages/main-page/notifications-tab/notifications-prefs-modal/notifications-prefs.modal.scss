@@ -1,0 +1,16 @@
+/*
+    Author:             Adriano Cucci
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/09/20
+*/
+
+ion-list {
+  ion-checkbox {
+    --border-color-checked: var(--ion-color-primary-tint);
+    --background-checked: var(--ion-color-primary-tint);
+  }
+
+  &.ios {
+    margin-top: 16px;
+  }
+}

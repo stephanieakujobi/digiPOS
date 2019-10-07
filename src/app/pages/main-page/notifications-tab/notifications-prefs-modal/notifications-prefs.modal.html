@@ -1,0 +1,45 @@
+<!--
+    Author:             Adriano Cucci
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/10/02
+-->
+
+<ion-header>
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Notifications Preferences</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-item lines="full" (click)="prefs.enableNotifs = !prefs.enableNotifs">
+    <ion-label>Enable notifications</ion-label>
+    <ion-checkbox slot="start" id="chk-enable-notifications" checked="{{prefs.enableNotifs}}"></ion-checkbox>
+  </ion-item>
+
+  <ion-list id="settings-list">
+
+    <ion-item (click)="prefs.enablePushNotifs = !prefs.enablePushNotifs">
+      <ion-label>Enable push notifications</ion-label>
+      <ion-checkbox slot="start" disabled="{{!prefs.enableNotifs}}" checked="{{prefs.enablePushNotifs}}"></ion-checkbox>
+    </ion-item>
+
+    <ion-item (click)="prefs.vibrateOnNotifReceived = !prefs.vibrateOnNotifReceived">
+      <ion-label>Vibrate when notification received</ion-label>
+      <ion-checkbox slot="start" disabled="{{!prefs.enableNotifs}}" checked="{{prefs.vibrateOnNotifReceived}}"></ion-checkbox>
+    </ion-item>
+
+    <ion-item (click)="prefs.askBeforeDeleteNotif = !prefs.askBeforeDeleteNotif">
+      <ion-label>Ask before deleting notifications</ion-label>
+      <ion-checkbox slot="start" checked="{{prefs.askBeforeDeleteNotif}}"></ion-checkbox>
+    </ion-item>
+
+  </ion-list>
+</ion-content>

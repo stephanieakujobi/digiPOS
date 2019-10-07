@@ -1,0 +1,139 @@
+/*
+    Author:             Adriano Cucci
+    Last Modified By:   Adriano Cucci
+    Date Modified:      2019/09/20
+*/
+
+.hidden {
+  display: none;
+}
+
+#sort-by-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  ion-item {
+    --color: white;
+    --background: var(--ion-color-primary-tint);
+
+    ion-select.md {
+      margin-top: 4px;
+    }
+  }
+}
+
+ion-list {
+  margin: 0;
+
+  .notif {
+    ion-item {
+      display: flex;
+      height: 64px;
+
+      ion-badge {
+        display: block;
+        padding: 5px 3px;
+        margin-right: 10px;
+        border-radius: 50%;
+        transition: 0.25s;
+        opacity: 0;
+      }
+
+      ion-icon.notif-icon {
+        margin-right: 10px;
+      }
+
+      ion-icon[name="time"] {
+        transform: translateY(1.5px);
+      }
+
+      &:active {
+        --background: var(--ion-color-secondary-shade);
+      }
+    }
+
+    &.unread ion-item ion-badge {
+      opacity: 1;
+    }
+
+    &.deleting ion-item {
+      transition: 0.3s;
+      height: 0px;
+      pointer-events: none;
+    }
+  }
+
+  ion-item-option {
+    ion-label {
+      width: 75px;
+
+      color: var(--ion-color-secondary);
+      font-size: 10px;
+      text-align: center;
+
+      ion-icon {
+        display: block;
+        padding: 0 10px;
+        margin: auto;
+        margin-bottom: 5px;
+        font-size: 25px;
+      }
+
+      &.md {
+        font-size: 8px;
+      }
+    }
+  }
+
+  &.list-md {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+#no-notifs-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --color: var(--ion-color-primary-tint);
+  font-weight: bold;
+  text-align: center;
+  opacity: 0;
+  animation: noNotifsIntro 0.5s forwards;
+
+  div {
+    width: 100%;
+    padding: 16px;
+
+    ion-label {
+      font-size: 3vmax;
+    }
+    ion-icon {
+      margin-top: 20px;
+      font-size: 20vmax;
+      animation: noNotifsIconIntro 0.6s cubic-bezier(0.65, 0.34, 0.51, 1.67);
+    }
+  }
+}
+
+@keyframes noNotifsIntro {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes noNotifsIconIntro {
+  from {
+    transform: scale(0) rotateZ(180deg);
+  }
+  to {
+    transform: scale(1) rotateZ(0deg);
+  }
+}
