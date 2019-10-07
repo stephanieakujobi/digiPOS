@@ -1,15 +1,63 @@
 <!--
     Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/20
+    Last Modified By:   Sarah Dey
+    Date Modified:      2019/10/05
 -->
-
 <ion-header> 
   <ion-toolbar color="primary">
     <ion-title>My Profile</ion-title>
+    
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  This is the profile page.
+ 
+   
+ 
+<!-- Readonly input -->
+<ion-icon name="contacts"></ion-icon>
+<ion-input value="Fullname" readonly></ion-input>
+
+<!-- Input with placeholder -->
+<ion-input value="John Smith" readonly></ion-input>
+
+<!-- Readonly input -->
+<ion-icon name="mail"></ion-icon>
+<ion-input value="Email Address" readonly></ion-input>
+
+<!-- Input with placeholder -->
+<ion-input value= "JohnSmith@gmail.com" readonly></ion-input>
+
+<!-- Readonly input -->
+<ion-icon name="call"></ion-icon>
+<ion-input value="PhoneNumber" readonly></ion-input>
+
+<!-- Input with placeholder -->
+<ion-input value="345-345-2345" readonly></ion-input>
+
+
+<ion-icon name="pin"></ion-icon>
+<ion-input value="Location" readonly></ion-input>
+
+<!-- Input with placeholder -->
+<ion-input value= "17 Woodtree drive" readonly></ion-input>
+
+<ion-icon name="cog"></ion-icon>
+<ion-item>
+    <ion-label position="fixed">Settings</ion-label>
+    <ion-input></ion-input>
+  </ion-item>
+
+  <ion-button color="warning">Edit</ion-button>
+
+  <ion-button expand="block">Saved</ion-button>
+  <ion-content>
+      <ion-infinite-scroll>
+        <ion-infinite-scroll-content
+          loadingSpinner="bubbles"
+          loadingText="Loading more data…">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    </ion-content>
 </ion-content>
+
