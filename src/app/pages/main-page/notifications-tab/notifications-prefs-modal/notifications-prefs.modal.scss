@@ -1,0 +1,10 @@
+ion-list {
+  ion-checkbox {
+    --border-color-checked: var(--ion-color-primary-tint);
+    --background-checked: var(--ion-color-primary-tint);
+  }
+
+  &.ios {
+    margin-top: 16px;
+  }
+}

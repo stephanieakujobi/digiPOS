@@ -1,15 +1,25 @@
-<!--
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/20
--->
-
 <ion-header>
   <ion-toolbar color="primary">
     <ion-title>Home</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  This is the home page.
+<ion-content>
+  <div id="map"></div>
+
+  <div id="controls" *ngIf="mapLoaded">
+    <ion-searchbar placeholder="Search nearby businesses..." animated></ion-searchbar>
+
+    <ion-fab id="scan-businesses-fab" vertical="bottom" horizontal="end">
+      <ion-fab-button size="small" (click)="scanNearbyBusinesses()">
+        <ion-icon name="pin"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <ion-fab id="center-location-fab" vertical="bottom" horizontal="end">
+      <ion-fab-button (click)="centerMapOnUserLocation()">
+        <ion-icon name="locate"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </div>
 </ion-content>

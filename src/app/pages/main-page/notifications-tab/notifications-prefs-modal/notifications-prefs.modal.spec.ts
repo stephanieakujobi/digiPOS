@@ -1,21 +1,22 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainTabBarPage } from './main-tab-bar.page';
+import { NotificationsPrefsModal } from './notifications-prefs.modal';
 
-describe('MainTabBarPage', () => {
-  let component: MainTabBarPage;
-  let fixture: ComponentFixture<MainTabBarPage>;
+describe('NotificationsPrefsModal', () => {
+  let component: NotificationsPrefsModal;
+  let fixture: ComponentFixture<NotificationsPrefsModal>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [MainTabBarPage],
+      declarations: [NotificationsPrefsModal],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    })
+      .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MainTabBarPage);
+    fixture = TestBed.createComponent(NotificationsPrefsModal);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
