@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/02
-*/
-
 import { Injectable } from '@angular/core';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { AppNotification } from '../../../classes/notifications/AppNotification';

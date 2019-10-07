@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/02
-*/
-
 import { Component } from '@angular/core';
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';

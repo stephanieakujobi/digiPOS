@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/20
-*/
-
 import { IonicModule } from '@ionic/angular';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';

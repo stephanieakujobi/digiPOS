@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/09/29
-*/
-
 import { AppNotifIcon } from './AppNotifIcon';
 import { AppNotifSeverity as AppNotifSeverity } from './AppNotifSeverity';
 import { AppNotifDate } from './AppNotifDate';

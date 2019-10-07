@@ -1,8 +1,3 @@
-/*
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/02
-*/
-
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';

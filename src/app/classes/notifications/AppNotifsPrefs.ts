@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/01
-*/
-
 /**
  * The AppNotifPrefs is a container class for holding the data for a user's notification settings.
  */

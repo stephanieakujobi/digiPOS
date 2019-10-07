@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/01
-*/
-
 import { AppNotifSeverity } from './AppNotifSeverity';
 
 /**

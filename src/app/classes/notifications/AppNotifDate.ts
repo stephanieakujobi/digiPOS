@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/01
-*/
-
 /**
  * The date that an AppNotification was recieved, containing the raw Date object for internal operations and
  * the date formatted as a string for displaying onto the page.

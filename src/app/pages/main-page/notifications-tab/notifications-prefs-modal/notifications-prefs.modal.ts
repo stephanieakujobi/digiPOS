@@ -1,9 +1,3 @@
-/*
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/02
-*/
-
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
