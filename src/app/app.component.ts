@@ -29,7 +29,7 @@ export class AppComponent {
 
         // Api key for local development
         // (Make sure the api key should have Website restrictions for 'http://localhost' only)
-        'API_KEY_FOR_BROWSER_DEBUG': 'API-KEY'
+        'API_KEY_FOR_BROWSER_DEBUG': ''
       });
       this.statusBar.styleDefault();
       this.splashScreen.hide();
