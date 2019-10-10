@@ -1,3 +1,9 @@
+#map {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 ion-searchbar {
   position: absolute;
   top: 0;
@@ -9,12 +15,6 @@ ion-searchbar {
   &.searchbar-has-focus {
     opacity: 1;
   }
-}
-
-#map {
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
 ion-fab {

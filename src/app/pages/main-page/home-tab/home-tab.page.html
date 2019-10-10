@@ -5,19 +5,21 @@
 </ion-header>
 
 <ion-content>
+  <ion-progress-bar color="primary" type="indeterminate" *ngIf="!gmapsService.mapLoaded"></ion-progress-bar>
+
   <div id="map"></div>
 
-  <div id="controls" *ngIf="mapLoaded">
-    <ion-searchbar placeholder="Search nearby businesses..." animated></ion-searchbar>
+  <div id="controls" *ngIf="gmapsService.mapLoaded">
+    <ion-searchbar placeholder="Search nearby businesses..." animated (keyup.enter)="enterKeyUp()"></ion-searchbar>
 
     <ion-fab id="scan-businesses-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button size="small" (click)="scanNearbyBusinesses()">
+      <ion-fab-button size="small" (click)="gmapsService.scanNearbyBusinesses()">
         <ion-icon name="pin"></ion-icon>
       </ion-fab-button>
     </ion-fab>
 
     <ion-fab id="center-location-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button (click)="centerMapOnUserLocation()">
+      <ion-fab-button (click)="gmapsService.centerMapOnUserLocation()">
         <ion-icon name="locate"></ion-icon>
       </ion-fab-button>
     </ion-fab>
