@@ -25,7 +25,7 @@ import { BusinessLocation } from 'src/app/classes/google-maps/BusinessLocation';
 })
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
-  private userPosition: Geoposition;
+  private userPosition: LatLng;
   private mapLoaded: boolean; //Interpolated in home-tab-page.html
   private mapShouldFollowUser: boolean;
 
@@ -47,7 +47,7 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   private markerTest() {
-    this.map.addMarker({ position: { lat: this.userPosition.coords.latitude, lng: this.userPosition.coords.longitude } }).then((marker: Marker) => {
+    this.map.addMarker({ position: this.userPosition }).then((marker: Marker) => {
       let bs = new BusinessLocation("Name", "Address", false);
       let infoWindow = InfoWindow.ForBusinessLocation(bs,
         () => {
@@ -87,10 +87,11 @@ export class GoogleMapsService implements OnDestroy {
 
     this.map = GoogleMaps.create(mapElementId, mapOptions);
 
-    this.userPosition = await this.geolocation.getCurrentPosition();
+    let userGeoPos = await this.geolocation.getCurrentPosition();
+    this.userPosition = new LatLng(userGeoPos.coords.latitude, userGeoPos.coords.longitude);
 
     await this.map.moveCamera({
-      target: new LatLng(this.userPosition.coords.latitude, this.userPosition.coords.longitude),
+      target: this.userPosition,
       zoom: 18
     });
   }
@@ -101,11 +102,11 @@ export class GoogleMapsService implements OnDestroy {
   private subscribeEvents() {
     //Event called in intervals, tracking the user's current location.
     this.subscriptions.add(this.geolocation.watchPosition({ enableHighAccuracy: true }).subscribe((pos: Geoposition) => {
-      this.userPosition = pos;
+      this.userPosition =  new LatLng(pos.coords.latitude, pos.coords.longitude);
 
       if(this.mapShouldFollowUser) {
         this.map.animateCamera({
-          target: new LatLng(pos.coords.latitude, pos.coords.longitude),
+          target: this.userPosition,
           duration: 100
         });
       }
@@ -122,7 +123,7 @@ export class GoogleMapsService implements OnDestroy {
    */
   public async centerMapOnUserLocation() {
     await this.map.animateCamera({
-      target: new LatLng(this.userPosition.coords.latitude, this.userPosition.coords.longitude),
+      target: this.userPosition,
       duration: 500
     });
 
