@@ -43,13 +43,12 @@ export class AppNotifsStorageService {
     let didSucceed: boolean = false;
 
     await this.nativeStorage.getItem(AppNotifsStorageService.storageKey).then(
-      notifications => {
-        AppNotifsStorageService._notifications = notifications;
+      data => {
+        AppNotifsStorageService._notifications = [];
 
-        //This is necessary for Date functions to exist after AppNotification objects have been loaded from storage.
-        //Without this, they cannot be sorted by date unless a new Date object is created.
-        AppNotifsStorageService._notifications.forEach((notif) => {
-          notif.dateReceived.rawDate = new Date(notif.dateReceived.rawDate);
+        data.forEach(element => {
+          let notif = new AppNotification(element._title, element._summary, element._severity, new Date(element._dateReceived.rawDate));
+          AppNotifsStorageService._notifications.push(notif);
         });
 
         didSucceed = true;
