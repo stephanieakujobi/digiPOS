@@ -1,239 +1,73 @@
-<!--
-    Author:             Adriano Cucci
-    Last Modified By:   Adriano Cucci
-    Date Modified:      2019/10/06
--->
-
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>My Businesses</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="openBusinessEditModal()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+      <ion-button (click)="openPrefsModal()">
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Saved Businesses</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-list id="saved-businesses-list" lines="full" *ngIf="businessStorage.businesses.length > 0">
+    <ion-item-sliding *ngFor="let b of businessStorage.businesses" #slideItem>
 
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>Freshco</h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        12:05 PM
-      </ion-note>
-    </ion-item>
+      <div class="business {{b.isStarred ? 'starred' : ''}}" #businessElement>
+        <ion-item (click)="editBusinessInfo(b, slideItem)">
+          <ion-icon class="business-star-icon" name="star" color="primary"></ion-icon>
+          <ion-label>
+            <h2>{{b.name}}</h2>
+            <p>
+              <ion-icon name="pin"></ion-icon> {{b.address.fullAddress}}
+            </p>
+          </ion-label>
+        </ion-item>
+      </div>
 
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
+      <ion-item-options side="start" (ionSwipe)="deleteBusiness(b, slideItem, businessElement)">
+        <ion-item-option color="danger" expandable (click)="deleteBusiness(b, slideItem, businessElement)">
+          <ion-label>
+            <ion-icon name="trash" color="secondary"></ion-icon>
+            Delete
+          </ion-label>
+        </ion-item-option>
+      </ion-item-options>
 
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
+      <ion-item-options side="end" (ionSwipe)="toggleStarBusiness(b, slideItem)">
+        <ion-item-option color="primary" (click)="editBusinessInfo(b, slideItem)">
+          <ion-label>
+            <ion-icon name="create" color="secondary"></ion-icon>
+            Edit Info
+          </ion-label>
+        </ion-item-option>
+        <ion-item-option color="primary" (click)="viewBusinessOnMap(b, slideItem)">
+          <ion-label>
+            <ion-icon name="pin" color="secondary"></ion-icon>
+            View on Map
+          </ion-label>
+        </ion-item-option>
 
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>Food Basics</h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        10:20 AM
-      </ion-note>
-    </ion-item>
+        <ion-item-option color="tertiary" (click)="toggleStarBusiness(b, slideItem)" expandable *ngIf="!b.isStarred">
+          <ion-label>
+            <ion-icon name="star-outline" color="secondary"></ion-icon>
+            Star
+          </ion-label>
+        </ion-item-option>
+        <ion-item-option color="tertiary" (click)="toggleStarBusiness(b, slideItem)" expandable *ngIf="b.isStarred">
+          <ion-label>
+            <ion-icon name="star" color="secondary"></ion-icon>
+            Un-Star
+          </ion-label>
+        </ion-item-option>
+      </ion-item-options>
 
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
+    </ion-item-sliding>
 
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
-
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>Oceans Food Mart </h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        10:45 AM
-      </ion-note>
-    </ion-item>
-
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
-
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>Chick fil A</h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        10:45 AM
-      </ion-note>
-    </ion-item>
-
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
-
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>Wendy's</h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        10:45 AM
-      </ion-note>
-    </ion-item>
-
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
-
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>Jack Astors</h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        10:45 AM
-      </ion-note>
-    </ion-item>
-
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
-
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>Sobey's</h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        10:45 AM
-      </ion-note>
-    </ion-item>
-
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
-
-  <ion-item-sliding>
-    <ion-item>
-      <ion-thumbnail>
-        <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>McDonald's</h2>
-        <p>A new message in your network</p>
-        <p>Oceanic Next has joined your network</p>
-      </ion-label>
-      <ion-note slot="end">
-        10:45 PM
-      </ion-note>
-    </ion-item>
-
-    <ion-item-options side="start">
-      <ion-item-option color="danger" expandable>
-        <ion-icon slot="icon-only" name="trash"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-
-    <ion-item-options side="end">
-      <ion-item-option color="tertiary" expandable>
-        <ion-icon slot="icon-only" name="star" color="secondary"></ion-icon>
-      </ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
-
+  </ion-list>
 </ion-content>

@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BusinessesTabPage } from './businesses-tab.page';
+import { SavedBusinessesStorageService } from 'src/app/services/businesses/storage/saved-businesses-storage.service';
 
 @NgModule({
   imports: [
@@ -11,6 +12,9 @@ import { BusinessesTabPage } from './businesses-tab.page';
     CommonModule,
     FormsModule,
     RouterModule.forChild([{ path: '', component: BusinessesTabPage }])
+  ],
+  providers: [
+    SavedBusinessesStorageService
   ],
   declarations: [BusinessesTabPage]
 })

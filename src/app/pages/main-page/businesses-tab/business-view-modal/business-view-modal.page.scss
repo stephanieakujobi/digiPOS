@@ -1,0 +1,17 @@
+form {
+  padding-bottom: 56px;
+
+  ion-item {
+    margin-bottom: 20px;
+  }
+
+  ion-button[type="submit"] {
+    position: fixed;
+    bottom: 16px;
+    right: 18px;
+    width: 56px;
+    height: 56px;
+    --border-radius: 50%;
+    z-index: 10;
+  }
+}

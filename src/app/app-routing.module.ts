@@ -14,7 +14,8 @@ const routes: Routes = [
       import("./pages/main-page/main-tab-bar/main-tab-bar.module").then(
         m => m.MainTabBarModule
       )
-  }
+  },  { path: 'business-view-modal', loadChildren: './pages/main-page/businesses-tab/business-view-modal/business-view-modal.module#BusinessViewModalPageModule' }
+
 ];
 @NgModule({
   imports: [

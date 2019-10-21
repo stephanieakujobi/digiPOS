@@ -1,5 +1,60 @@
-ion-item-sliding {
-    ion-label {
-        padding-left: 10px;
+ion-list {
+    margin: 0;
+  
+    .business {
+      ion-item {
+        display: flex;
+        height: 64px;
+
+        ion-icon.business-star-icon {
+          padding-right: 10px;
+        }
+  
+        ion-icon[name="pin"] {
+          transform: translateY(1.5px);
+        }
+  
+        &:active {
+          --background: var(--ion-color-secondary-shade);
+        }
+      }
+
+      &:not(.starred) {
+        ion-icon.business-star-icon {
+          opacity: 0;
+        }
+      }
+  
+      &.deleting ion-item {
+        transition: 0.3s;
+        height: 0px;
+        pointer-events: none;
+      }
     }
-}
+  
+    ion-item-option {
+      ion-label {
+        width: 75px;
+        color: var(--ion-color-secondary);
+        font-size: 10px;
+        text-align: center;
+  
+        ion-icon {
+          display: block;
+          padding: 0 10px;
+          margin: auto;
+          margin-bottom: 5px;
+          font-size: 25px;
+        }
+  
+        &.md {
+          font-size: 8px;
+        }
+      }
+    }
+  
+    &.list-md {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
