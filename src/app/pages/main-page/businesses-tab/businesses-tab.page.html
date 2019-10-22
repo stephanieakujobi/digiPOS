@@ -20,12 +20,12 @@
 
       <div class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}} {{b.wasManuallySaved ? 'manually-saved' : ''}}"
         #businessElement>
-        <ion-item (click)="editBusinessInfo(b, slideItem)">
+        <ion-item (click)="editBusinessInfo(b)">
           <ion-icon class="list-item-icon" name="star" color="primary"></ion-icon>
           <ion-label>
             <h2>{{b.name}}</h2>
             <p>
-              <ion-icon class="list-item-sub-icon" name="pin"></ion-icon> {{b.address.fullAddress}}
+              <ion-icon class="list-item-sub-icon" name="pin"></ion-icon> {{b.address.shortAddress}}
             </p>
           </ion-label>
         </ion-item>

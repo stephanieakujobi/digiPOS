@@ -2,7 +2,10 @@ import { Contact } from './Contact';
 import { Address } from './Address';
 import { BusinessSaveState } from './BusinessSaveState';
 
-export class Business {
+/**
+ * The representation of a Business that the user can view on the map, save under their profile, edit information, and report to CPOS's CRM service.
+ */
+export class Business implements ICloneable<Business> {
     private _name: string;
     private _address: Address;
     private _owner: Contact;
@@ -13,48 +16,42 @@ export class Business {
     private _wasManuallySaved: boolean;
     private _isReported: boolean;
 
+    /**
+     * Creates a new Business
+     * @param name The name of this Business.
+     * @param address The physical address of this Business.
+     * @param owner The Contact information of the owner of this Business.
+     * @param contactPerson The Contact information of a representitive of this Business who may be in high-contact to discuss business details.
+     * @param currentProvider The current point-of-sale provider that this Business uses.
+     * @param notes Any additional notes that the user might want to comment on about this business.
+     */
     public constructor(name = "", address = new Address(), owner = new Contact(), contactPerson = new Contact(), currentProvider = "", notes = "") {
-        this.name = name;
-        this.address = address
-        this.owner = owner
-        this.contactPerson = contactPerson;
-        this.currentProvider = currentProvider;
-        this.notes = notes;
-        
-        this.saveState = BusinessSaveState.Unsaved;
-        this.wasManuallySaved = false;
-        this.isReported = false;
+        this._name = name;
+        this._address = address
+        this._owner = owner
+        this._contactPerson = contactPerson;
+        this._currentProvider = currentProvider;
+        this._notes = notes;
+
+        this._saveState = BusinessSaveState.Unsaved;
+        this._wasManuallySaved = false;
+        this._isReported = false;
     }
 
-    public static copyOf(business: Business): Business {
-        const copy = new Business(
-            business.name,
-            new Address(
-                business.address.street,
-                business.address.city,
-                business.address.region
-            ),
-            new Contact(
-                business.owner.name,
-                business.owner.email,
-                business.owner.phoneNumber
-            ),
-            new Contact(
-                business.contactPerson.name,
-                business.contactPerson.email,
-                business.contactPerson.phoneNumber
-            ),
-            business.currentProvider
-        );
+    public clone(): Business {
+        const clone = new Business(this.name, this.address.clone(), this.owner.clone(), this.contactPerson.clone(), this.currentProvider, this.notes);
 
-        copy.notes = business.notes;
-        copy.saveState = business.saveState;
-        copy.wasManuallySaved = business.wasManuallySaved;
-        copy.isReported = business.isReported;
+        clone.saveState = this.saveState;
+        clone.wasManuallySaved = this.wasManuallySaved;
+        clone.isReported = this.isReported;
 
-        return copy;
+        return clone;
     }
 
+    /**
+     * Toggles the saveState of this Business between "Saved" and "Starred".
+     * Will not perform any action if the saveState is "Unsaved" - a Business must be saved before it can be starred.
+     */
     public toggleStarred() {
         if(this.saveState == BusinessSaveState.Saved) {
             this.saveState = BusinessSaveState.Starred;
@@ -64,20 +61,33 @@ export class Business {
         }
     }
 
+    /**
+     * The name of this Business.
+     */
     public get name(): string {
         return this._name;
     }
     public set name(value: string) {
-        this._name = value;
+        if(this.wasManuallySaved) {
+            this._name = value;
+        }
     }
 
+    /**
+     * The physical address of this Business.
+     */
     public get address(): Address {
         return this._address;
     }
     public set address(value: Address) {
-        this._address = value;
+        if(this.wasManuallySaved) {
+            this._address = value;
+        }
     }
 
+    /**
+     * The Contact information of the owner of this Business.
+     */
     public get owner(): Contact {
         return this._owner;
     }
@@ -85,6 +95,9 @@ export class Business {
         this._owner = value;
     }
 
+    /**
+     * The Contact information of a representitive of this Business who may be in high-contact to discuss business details.
+     */
     public get contactPerson(): Contact {
         return this._contactPerson;
     }
@@ -92,6 +105,9 @@ export class Business {
         this._contactPerson = value;
     }
 
+    /**
+     * The current point-of-sale provider that this Business uses.
+     */
     public get currentProvider(): string {
         return this._currentProvider;
     }
@@ -99,6 +115,9 @@ export class Business {
         this._currentProvider = value;
     }
 
+    /**
+     * Any additional notes that the user might want to comment on about this business.
+     */
     public get notes(): string {
         return this._notes;
     }
@@ -106,6 +125,10 @@ export class Business {
         this._notes = value;
     }
 
+    /**
+     * The current save-state of this business.
+     * A Business can be marked as "Unsaved", "Saved", or "Starred".
+     */
     public get saveState(): BusinessSaveState {
         return this._saveState;
     }
@@ -113,6 +136,10 @@ export class Business {
         this._saveState = value;
     }
 
+    /**
+     * Whether or not this Business was saved manually by the user, instead of being saved from the map.
+     * A manually saved Business can have its name and Address changed, whereas a Business saved from the map cannot.
+     */
     public get wasManuallySaved(): boolean {
         return this._wasManuallySaved;
     }
@@ -120,6 +147,9 @@ export class Business {
         this._wasManuallySaved = value;
     }
 
+    /**
+     * Whether or not this Business has been reported to CPOS's CRM service by the user.
+     */
     public get isReported(): boolean {
         return this._isReported;
     }

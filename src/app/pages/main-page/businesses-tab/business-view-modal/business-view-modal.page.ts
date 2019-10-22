@@ -16,12 +16,14 @@ export class BusinessViewModalPage {
   /**
    * Creates a new BusinessViewModalPage
    * @param modalController The reference to the ModalController that created this modal.
+   * @param navParams Any possible parameters passed to this modal upon creation. Used to check if this modal is viewing a new or existing business.
+   * @param alertController The AlertController used to prompt the user for confirmation when they close this modal without saving changes.
    */
   constructor(private modalController: ModalController, navParams: NavParams, private alertController: AlertController) {
     let savedBusiness = navParams.get("savedBusiness") as Business;
 
     if(savedBusiness != null) {
-      this.business = Business.copyOf(savedBusiness);
+      this.business = savedBusiness.clone();
       this.isViewingSavedBusiness = true;
       this.modalTitle = "Edit Business";
     }
@@ -33,6 +35,9 @@ export class BusinessViewModalPage {
     }
   }
 
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
   ionViewWillEnter() {
     (document.getElementById("modal-title") as HTMLIonTitleElement).textContent = this.modalTitle;
     this.validateForm();
@@ -40,7 +45,8 @@ export class BusinessViewModalPage {
 
   /**
    * Called from the page when the user clicks the "X" button on the navigation bar.
-   * Closes this modal page and returns back to the BusinessesTabPage.
+   * Prompts the user if they're sure they want to close this modal without saving their changes,
+   * and returns back to the BusinessesTabPage if so.
    */
   async onCloseButtonClicked() {
     const confirmationAlert = await this.alertController.create({
@@ -61,6 +67,10 @@ export class BusinessViewModalPage {
     await confirmationAlert.present();
   }
 
+  /**
+   * Checks if the form on this modal is valid by verifying that the Business has been given a name and address.
+   * All other fields are optional.
+   */
   validateForm() {
     this.formIsValid =
       this.business.name != ""
@@ -68,7 +78,11 @@ export class BusinessViewModalPage {
       && this.business.address.city != ""
       && this.business.address.region != "";
   }
-  
+
+  /**
+   * Called from the page when the user clicks on the checkmark button to submit the form.
+   * Dismisses this modal and passes its Business back.
+   */
   onFormSubmit() {
     this.modalController.dismiss(this.business);
   }
