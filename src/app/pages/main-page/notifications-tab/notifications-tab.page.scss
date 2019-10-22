@@ -18,71 +18,10 @@
 }
 
 ion-list {
-  margin: 0;
-
-  .notif {
-    ion-item {
-      display: flex;
-      height: 64px;
-
-      ion-badge {
-        display: block;
-        padding: 5px 3px;
-        margin-right: 10px;
-        border-radius: 50%;
-        transition: 0.25s;
-        opacity: 0;
-      }
-
-      ion-icon.notif-icon {
-        margin-right: 10px;
-      }
-
-      ion-icon[name="time"] {
-        transform: translateY(1.5px);
-      }
-
-      &:active {
-        --background: var(--ion-color-secondary-shade);
-      }
-    }
-
+  .list-item {
     &.unread ion-item ion-badge {
       opacity: 1;
     }
-
-    &.deleting ion-item {
-      transition: 0.3s;
-      height: 0px;
-      pointer-events: none;
-    }
-  }
-
-  ion-item-option {
-    ion-label {
-      width: 75px;
-
-      color: var(--ion-color-secondary);
-      font-size: 10px;
-      text-align: center;
-
-      ion-icon {
-        display: block;
-        padding: 0 10px;
-        margin: auto;
-        margin-bottom: 5px;
-        font-size: 25px;
-      }
-
-      &.md {
-        font-size: 8px;
-      }
-    }
-  }
-
-  &.list-md {
-    padding-top: 0;
-    padding-bottom: 0;
   }
 }
 
