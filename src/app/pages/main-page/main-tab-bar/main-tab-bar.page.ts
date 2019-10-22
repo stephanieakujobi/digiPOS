@@ -23,19 +23,10 @@ export class MainTabBarPage {
    * See https://ionicframework.com/docs/angular/lifecycle for more info.
    */
   async ionViewDidEnter() {
-    await this.testSaveBusinesses(); //TEMPORARY
     await this.testSaveNotifs(); //TEMPORARY
 
     await this.businessesStorage.loadBusinesses();
     await this.loadNotifications();
-  }
-
-  /**
-  * TEMPORARY TEST METHOD.
-  */
-  private async testSaveBusinesses() {
-    await this.businessesStorage.addBusiness(new Business("TEST", new Address("123 Test St.", "Brampton", "ON")));
-    await this.businessesStorage.addBusiness(new Business("TEST2", new Address("456 Test2 Dr.", "Mississauga", "ON")));
   }
 
   /**

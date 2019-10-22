@@ -1,5 +1,6 @@
 import { Contact } from './Contact';
 import { Address } from './Address';
+import { BusinessSaveState } from './BusinessSaveState';
 
 export class Business {
     private _name: string;
@@ -8,38 +9,59 @@ export class Business {
     private _contactPerson: Contact;
     private _currentProvider: string;
     private _notes: string;
-    private _isSaved: boolean;
-    private _isStarred: boolean;
+    private _saveState: BusinessSaveState;
+    private _wasManuallySaved: boolean;
     private _isReported: boolean;
 
-    public constructor(name = "", address = new Address(), owner = new Contact(), contactPerson = new Contact(), currentProvider = "") {
+    public constructor(name = "", address = new Address(), owner = new Contact(), contactPerson = new Contact(), currentProvider = "", notes = "") {
         this.name = name;
         this.address = address
         this.owner = owner
         this.contactPerson = contactPerson;
         this.currentProvider = currentProvider;
-
-        this.notes = "";
-        this.isSaved = false;
-        this.isStarred = false;
+        this.notes = notes;
+        
+        this.saveState = BusinessSaveState.Unsaved;
+        this.wasManuallySaved = false;
         this.isReported = false;
     }
 
     public static copyOf(business: Business): Business {
         const copy = new Business(
             business.name,
-            business.address,
-            business.owner,
-            business.contactPerson,
+            new Address(
+                business.address.street,
+                business.address.city,
+                business.address.region
+            ),
+            new Contact(
+                business.owner.name,
+                business.owner.email,
+                business.owner.phoneNumber
+            ),
+            new Contact(
+                business.contactPerson.name,
+                business.contactPerson.email,
+                business.contactPerson.phoneNumber
+            ),
             business.currentProvider
         );
 
         copy.notes = business.notes;
-        copy.isSaved = business.isSaved;
-        copy.isStarred = business.isStarred;
+        copy.saveState = business.saveState;
+        copy.wasManuallySaved = business.wasManuallySaved;
         copy.isReported = business.isReported;
 
         return copy;
+    }
+
+    public toggleStarred() {
+        if(this.saveState == BusinessSaveState.Saved) {
+            this.saveState = BusinessSaveState.Starred;
+        }
+        else if(this.saveState == BusinessSaveState.Starred) {
+            this.saveState = BusinessSaveState.Saved;
+        }
     }
 
     public get name(): string {
@@ -84,18 +106,18 @@ export class Business {
         this._notes = value;
     }
 
-    public get isSaved(): boolean {
-        return this._isSaved;
+    public get saveState(): BusinessSaveState {
+        return this._saveState;
     }
-    public set isSaved(value: boolean) {
-        this._isSaved = value;
+    public set saveState(value: BusinessSaveState) {
+        this._saveState = value;
     }
 
-    public get isStarred(): boolean {
-        return this._isStarred && this._isSaved;
+    public get wasManuallySaved(): boolean {
+        return this._wasManuallySaved;
     }
-    public set isStarred(value: boolean) {
-        this._isStarred = value && this._isSaved;
+    public set wasManuallySaved(value: boolean) {
+        this._wasManuallySaved = value;
     }
 
     public get isReported(): boolean {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalController, IonItemSliding } from '@ionic/angular';
+import { ModalController, IonItemSliding, ToastController } from '@ionic/angular';
 import { BusinessViewModalPage } from './business-view-modal/business-view-modal.page';
 import { Business } from 'src/app/classes/businesses/Business';
 import { SavedBusinessesStorageService } from 'src/app/services/businesses/storage/saved-businesses-storage.service';
@@ -14,7 +14,7 @@ import { SavedBusinessesStorageService } from 'src/app/services/businesses/stora
  * The page displayed to the user when they select the "Businesses" tab.
  */
 export class BusinessesTabPage {
-  constructor(private businessStorage: SavedBusinessesStorageService, private modalController: ModalController) { }
+  constructor(private businessStorage: SavedBusinessesStorageService, private modalController: ModalController, private toastController: ToastController) { }
 
   deleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
     ionItemSliding.close();
@@ -27,25 +27,59 @@ export class BusinessesTabPage {
 
   editBusinessInfo(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
     ionItemSliding.close();
-    this.openBusinessEditModal(business);
+    this.openBusinessViewModal(business);
   }
 
   async toggleStarBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
     ionItemSliding.close();
-    business.isStarred = !business.isStarred;
-    await this.businessStorage.updateSavedBusinesses();
+    business.toggleStarred();
+    await this.businessStorage.updateAllSavedBusinesses();
   }
 
-  async openBusinessEditModal(existingBusiness: Business = null) {
+  async openBusinessViewModal(existingBusiness: Business = null) {
     const modal = await this.modalController.create({
       component: BusinessViewModalPage,
       backdropDismiss: false,
       componentProps: {
-        existingBusiness: Business.copyOf(existingBusiness)
+        savedBusiness: existingBusiness
       }
     });
 
     await modal.present();
+
+    await modal.onWillDismiss().then(async ({ data }) => {
+      if(data != null) {
+        if(existingBusiness == null) {
+          this.addBusiness(data);
+        }
+        else {
+          this.updateBusiness(existingBusiness, data);
+        }
+      }
+    });
+  }
+
+  private async addBusiness(business: Business) {
+    let didSucceed = await this.businessStorage.addBusiness(business);
+
+    const toast = await this.createToast(didSucceed ? "Business added successfully." : "An error occurred while adding business.");
+    toast.present();
+  }
+
+  private async updateBusiness(original: Business, updated: Business) {
+    let didSucceed = await this.businessStorage.updateBusiness(original, updated);
+    
+    const toast = await this.createToast(didSucceed ? "Business updated successfully." : "An error occurred while updating business.");
+    toast.present();
+  }
+
+  private async createToast(message: string): Promise<HTMLIonToastElement> {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000
+    });
+
+    return toast;
   }
 
   // /**

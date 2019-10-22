@@ -2,7 +2,7 @@
   <ion-toolbar color="primary">
 
     <ion-buttons slot="end">
-      <ion-button (click)="openBusinessEditModal()">
+      <ion-button (click)="openBusinessViewModal()">
         <ion-icon slot="icon-only" name="add"></ion-icon>
       </ion-button>
       <ion-button (click)="openPrefsModal()">
@@ -18,13 +18,14 @@
   <ion-list id="saved-businesses-list" lines="full" *ngIf="businessStorage.businesses.length > 0">
     <ion-item-sliding *ngFor="let b of businessStorage.businesses" #slideItem>
 
-      <div class="business {{b.isStarred ? 'starred' : ''}}" #businessElement>
+      <div class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}} {{b.wasManuallySaved ? 'manually-saved' : ''}}"
+        #businessElement>
         <ion-item (click)="editBusinessInfo(b, slideItem)">
-          <ion-icon class="business-star-icon" name="star" color="primary"></ion-icon>
+          <ion-icon class="list-item-icon" name="star" color="primary"></ion-icon>
           <ion-label>
             <h2>{{b.name}}</h2>
             <p>
-              <ion-icon name="pin"></ion-icon> {{b.address.fullAddress}}
+              <ion-icon class="list-item-sub-icon" name="pin"></ion-icon> {{b.address.fullAddress}}
             </p>
           </ion-label>
         </ion-item>
@@ -53,13 +54,15 @@
           </ion-label>
         </ion-item-option>
 
-        <ion-item-option color="tertiary" (click)="toggleStarBusiness(b, slideItem)" expandable *ngIf="!b.isStarred">
+        <ion-item-option color="tertiary" (click)="toggleStarBusiness(b, slideItem)" expandable
+          *ngIf="b.saveState != 'Starred'">
           <ion-label>
             <ion-icon name="star-outline" color="secondary"></ion-icon>
             Star
           </ion-label>
         </ion-item-option>
-        <ion-item-option color="tertiary" (click)="toggleStarBusiness(b, slideItem)" expandable *ngIf="b.isStarred">
+        <ion-item-option color="tertiary" (click)="toggleStarBusiness(b, slideItem)" expandable
+          *ngIf="b.saveState == 'Starred'">
           <ion-label>
             <ion-icon name="star" color="secondary"></ion-icon>
             Un-Star
