@@ -5,11 +5,11 @@
 </ion-header>
 
 <ion-content>
-  <ion-progress-bar color="primary" type="indeterminate" *ngIf="!gmapsService.mapLoaded"></ion-progress-bar>
+  <ion-progress-bar color="primary" type="indeterminate" *ngIf="!gmapsService.mapFinishedCreating"></ion-progress-bar>
 
   <div id="map"></div>
 
-  <div id="controls" *ngIf="gmapsService.mapLoaded">
+  <div id="controls" *ngIf="gmapsService.mapFinishedCreating">
     <ion-searchbar placeholder="Search nearby businesses..." animated (keyup.enter)="enterKeyUp()"></ion-searchbar>
 
     <ion-fab id="scan-businesses-fab" vertical="bottom" horizontal="end">

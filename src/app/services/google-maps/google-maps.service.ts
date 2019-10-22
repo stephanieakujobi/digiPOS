@@ -19,33 +19,45 @@ import {
 import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
 import { BusinessLocation } from 'src/app/classes/google-maps/BusinessLocation';
 
-
 @Injectable({
   providedIn: 'root'
 })
+
+/**
+ * The GoogleMapsService provides the functions the app needs for the user interacting with a GooleMap.
+ */
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
   private userPosition: LatLng;
-  private mapLoaded: boolean; //Interpolated in home-tab-page.html
   private mapShouldFollowUser: boolean;
-
   private subscriptions: Subscription;
+  private _mapFinishedCreating: boolean;
 
+  /**
+   * Creates a new GoogleMapsService.
+   * @param platform The Platform used to detect when the native device is ready for native system calls to be made.
+   * @param geolocation The Geolocation used to track the user's device.
+   */
   constructor(private platform: Platform, private geolocation: Geolocation) {
-    this.mapLoaded = false;
     this.mapShouldFollowUser = false;
     this.subscriptions = new Subscription();
+    this._mapFinishedCreating = false;
   }
 
-  public async createMap(mapElementId: string) {
+  /**
+   * Creates a new GoogleMap centered on the user's current location.
+   * @param mapElementId The id attribute of an HTML element to insert the map.
+   */
+  public async initMap(mapElementId: string) {
     await this.platform.ready();
-    await this.loadMap(mapElementId);
+    await this.createMap(mapElementId);
     this.subscribeEvents();
-    this.mapLoaded = true;
+    this._mapFinishedCreating = true;
 
-    this.markerTest();
+    this.markerTest(); //TEMPORARY
   }
 
+  //TEMPORARY TEST METHOD.
   private markerTest() {
     this.map.addMarker({ position: this.userPosition }).then((marker: Marker) => {
       let bs = new BusinessLocation("Name", "Address", false);
@@ -76,7 +88,7 @@ export class GoogleMapsService implements OnDestroy {
   /**
    * Creates a new map on the page and centers the camera & user marker to the user's current location when initialized.
    */
-  private async loadMap(mapElementId: string) {
+  private async createMap(mapElementId: string) {
     let mapOptions: GoogleMapOptions = {
       controls: {
         myLocationButton: false,
@@ -97,12 +109,13 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   /**
-   * Initializes the subscribed events that can occur on the page.
+   * Initializes the subscribed events that can occur with the service.
+   * Events are subsribed so that they can be later disposed to prevent memory leaks.
    */
   private subscribeEvents() {
     //Event called in intervals, tracking the user's current location.
     this.subscriptions.add(this.geolocation.watchPosition({ enableHighAccuracy: true }).subscribe((pos: Geoposition) => {
-      this.userPosition =  new LatLng(pos.coords.latitude, pos.coords.longitude);
+      this.userPosition = new LatLng(pos.coords.latitude, pos.coords.longitude);
 
       if(this.mapShouldFollowUser) {
         this.map.animateCamera({
@@ -118,7 +131,6 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   /**
-   * Called from the page when the user selects the bottom-right floating action button.
    * Centers the map's camera on the user's current location.
    */
   public async centerMapOnUserLocation() {
@@ -130,7 +142,17 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = true;
   }
 
+  /**
+   * @todo Implement method
+   */
   public querySearchPlace(queryString: string) {
+    throw new Error("Method not implemented.");
+  }
 
+  /**
+   * Whether the GoogleMap has finished creating after calling the initMap function.
+   */
+  public get mapFinishedCreating(): boolean {
+    return this._mapFinishedCreating;
   }
 }

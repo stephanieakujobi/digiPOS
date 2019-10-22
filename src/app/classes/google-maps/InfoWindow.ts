@@ -1,10 +1,23 @@
 import { HtmlInfoWindow } from '@ionic-native/google-maps';
 import { BusinessLocation } from './BusinessLocation';
 
+/**
+ * A static utility class for providing Google Maps HtmlInfoWindow templates for specific use-cases.
+ */
 export class InfoWindow {
+    /**
+     * Private constructor prevents InfoWindow objects from being instantiated.
+     */
     private constructor() { }
 
-    public static ForBusinessLocation(businessLocation: BusinessLocation, saveButtonClicked: () => void, routeButtonClicked: () => void): HtmlInfoWindow {
+    /**
+     * Creates an HtmlInfoWindow for a Business selected by the user on the map.
+     * @param businessLocation The Business that was selected.
+     * @param onSaveBtnClicked The callback function for when the user presses the "save/unsave business" button in the HtmlInfoWindow.
+     * @param onRouteBtnClicked The callback function for when the user presses the "start a route" button in the HtmlInfoWindow.
+     * @returns A pre-content-filled HtmlInfoWindow object.
+     */
+    public static ForBusinessLocation(businessLocation: BusinessLocation, onSaveBtnClicked: () => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
         let infoWindow = new HtmlInfoWindow();
         let content: HTMLElement = document.createElement("div");
 
@@ -26,10 +39,10 @@ export class InfoWindow {
             let buttonIcon = businessLocation.isSaved ? "close-circle" : "add-circle";
 
             this.innerHTML = `<ion-icon slot="start" name="${buttonIcon}"></ion-icon>${buttonText}`;
-            saveButtonClicked();
+            onSaveBtnClicked();
         });
 
-        content.getElementsByTagName("ion-button")[1].addEventListener("click", function() { routeButtonClicked(); });
+        content.getElementsByTagName("ion-button")[1].addEventListener("click", function() { onRouteBtnClicked(); });
 
         infoWindow.setContent(content, {
             width: "250px",
@@ -39,7 +52,13 @@ export class InfoWindow {
         return infoWindow;
     }
 
-    private static infoWindowButton(buttonText: string, iconName: string) {
+    /**
+     * An internal function used for creating and adding IonButtons to HtmlInfoWindows.
+     * @param buttonText The text to display in the IonButton.
+     * @param iconName The IonIcon to display in the IconButton.
+     * @returns an HTML string representation of an IonButton with an IonIcon.
+     */
+    private static infoWindowButton(buttonText: string, iconName: string): string {
         return `<ion-button expand="block" style="margin-right: 11px;">
         <ion-icon slot="start" name="${iconName}"></ion-icon>
         ${buttonText}

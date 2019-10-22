@@ -12,12 +12,20 @@ import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.serv
  * Shows the user their current location on the map and provides them options to search for nearby businesses to report.
  */
 export class HomeTabPage implements OnInit {
+  /**
+   * Creates a new HomeTabPage
+   * @param gmapsService The GoogleMapsService used to display an interactable GoogleMap to the user.
+   */
   constructor(private gmapsService: GoogleMapsService) { }
 
+  /**
+   * @see https://angular.io/api/core/OnInit.
+   */
   async ngOnInit() {
-    this.gmapsService.createMap("map");
+    this.gmapsService.initMap("map");
   }
 
+  //TEMPORARY TEST METHOD
   enterKeyUp() {
     console.log("ENTER");
   }

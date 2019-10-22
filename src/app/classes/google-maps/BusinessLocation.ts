@@ -1,3 +1,6 @@
+/**
+ * @deprecated Will be replaced with the "Business" class from the business-features branch.
+ */
 export class BusinessLocation {
     private _name: string;
     private _address: string;
