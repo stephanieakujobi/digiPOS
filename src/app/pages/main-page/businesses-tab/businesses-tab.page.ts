@@ -3,6 +3,7 @@ import { ModalController, IonItemSliding, ToastController } from '@ionic/angular
 import { BusinessViewModalPage } from './business-view-modal/business-view-modal.page';
 import { Business } from 'src/app/classes/businesses/Business';
 import { SavedBusinessesStorageService } from 'src/app/services/businesses/storage/saved-businesses-storage.service';
+import { Address } from 'src/app/classes/businesses/Address';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -14,7 +15,18 @@ import { SavedBusinessesStorageService } from 'src/app/services/businesses/stora
  * The page displayed to the user when they select the "Businesses" tab.
  */
 export class BusinessesTabPage {
-  constructor(private businessStorage: SavedBusinessesStorageService, private modalController: ModalController, private toastController: ToastController) { }
+  constructor(private businessStorage: SavedBusinessesStorageService, private modalController: ModalController, private toastController: ToastController) {
+
+    //TEMPORARY TEST OF ADDING A BUSINESS NON-MANUALLY.
+    this.businessStorage.addBusiness(new Business(
+      "A Saved Business",
+      new Address(
+        "123 Test St.",
+        "Brampton",
+        "ON"
+      )
+    ));
+  }
 
   deleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
     ionItemSliding.close();
