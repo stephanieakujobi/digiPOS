@@ -7,6 +7,7 @@ import { Address } from 'src/app/classes/businesses/Address';
 import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.page';
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
 import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
+import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -39,15 +40,106 @@ export class BusinessesTabPage implements OnInit {
 
     //TEMPORARY TEST OF ADDING A BUSINESS NON-MANUALLY.
     this.storageService.addBusiness(new Business(
-      "A Saved Business",
-      new Address(
-        "123 Test St.",
-        "Brampton",
-        "ON",
-        "Canada",
-        "L8D1K7"
-      )
+      "Sony",
+      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
     ));
+    this.storageService.addBusiness(new Business(
+      "Microsoft",
+      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
+    ));
+    this.storageService.addBusiness(new Business(
+      "Amazon",
+      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
+    ));
+    this.storageService.addBusiness(new Business(
+      "Google",
+      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
+    ));
+  }
+
+  ionViewDidEnter() {
+    this.sortBusinesses();
+  }
+
+  /**
+   * A function called from the page when the user sorts their saved Businesses.
+   * Reads the value of the ion-select element on the page and calls the appropriate sort function.
+   */
+  sortBusinesses() {
+    const sortSelect = document.getElementById("sort-by-select") as HTMLIonSelectElement;
+
+    switch(sortSelect.value) {
+      default:
+        this.sortBusinessesAscDesc(true);
+        break;
+      case "descending":
+        this.sortBusinessesAscDesc(false);
+        break;
+      case "closest":
+        this.sortBusinessesByClosest();
+        break;
+      case "starred":
+        this.sortBusinessesByStarred();
+        break;
+      case "savedMap":
+        this.sortBusinessesByMapSave();
+        break;
+      case "savedManual":
+        this.sortBusinessesByManualSave();
+        break;
+    }
+  }
+
+  private sortBusinessesAscDesc(ascending: boolean) {
+    this.storageService.businesses.sort((b1, b2) => {
+      let result: number;
+      const b1Name = b1.name.toLowerCase();
+      const b2Name = b2.name.toLowerCase();
+
+      if(b1Name < b2Name) {
+        result = ascending ? -1 : 1;
+      }
+      else if(b1Name > b2Name) {
+        result = ascending ? 1 : -1;
+      }
+      else {
+        result = 0;
+      }
+
+      return result;
+    });
+  }
+
+  private sortBusinessesByClosest() {
+    //TODO
+  }
+
+  private sortBusinessesByStarred() {
+    this.storageService.businesses.sort(b => b.saveState == BusinessSaveState.Starred ? -1 : 0);
+  }
+
+  private sortBusinessesByMapSave() {
+    this.storageService.businesses.sort(b => !b.wasManuallySaved ? -1 : 0);
+  }
+
+  private sortBusinessesByManualSave() {
+    this.storageService.businesses.sort(b => b.wasManuallySaved ? -1 : 0);
+  }
+
+  searchBusinessesByName(event: CustomEvent) {
+    const searchQuery = (event.detail.value as string).toLowerCase();
+    const listItems = Array.from(document.querySelectorAll(".list-item")) as HTMLElement[];
+
+    listItems.forEach(item => {
+      const itemName = (item.querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
+
+      if(itemName.includes(searchQuery)) {
+        item.classList.remove("deleting");
+      }
+      else {
+        item.classList.add("deleting");
+      }
+    });
   }
 
   /**
@@ -87,6 +179,7 @@ export class BusinessesTabPage implements OnInit {
     businessElement.classList.add("deleting");
 
     setTimeout(async () => {
+      this.sortBusinesses();
       await this.storageService.deleteBusiness(business);
     }, 300);
   }
@@ -110,10 +203,11 @@ export class BusinessesTabPage implements OnInit {
    * @param business The business to star/un-star
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    */
-  async toggleStarBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
-    ionItemSliding.close();
+  toggleStarBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
     business.toggleStarred();
-    await this.storageService.synchronize();
+    ionItemSliding.close();
+    this.sortBusinesses();
+    this.storageService.synchronize();
   }
 
   async openPrefsModal() {
@@ -168,6 +262,7 @@ export class BusinessesTabPage implements OnInit {
   private async addSavedBusiness(business: Business) {
     let didSucceed = await this.storageService.addBusiness(business);
     this.presentToast(didSucceed ? "Business added successfully." : "An error occurred while adding business.");
+    this.sortBusinesses();
   }
 
   /**
