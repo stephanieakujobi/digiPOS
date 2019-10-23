@@ -15,8 +15,8 @@
 </ion-header>
 
 <ion-content>
-  <ion-list class="ion-item-sliding-list" lines="full" *ngIf="businessStorage.businesses.length > 0">
-    <ion-item-sliding *ngFor="let b of businessStorage.businesses" #slideItem>
+  <ion-list class="ion-item-sliding-list" lines="full" *ngIf="storageService.businesses.length > 0">
+    <ion-item-sliding *ngFor="let b of storageService.businesses" #slideItem>
 
       <div
         class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}} {{b.wasManuallySaved ? 'manually-saved' : ''}}"
@@ -32,8 +32,8 @@
         </ion-item>
       </div>
 
-      <ion-item-options side="start" (ionSwipe)="deleteBusiness(b, slideItem, businessElement)">
-        <ion-item-option color="danger" expandable (click)="deleteBusiness(b, slideItem, businessElement)">
+      <ion-item-options side="start" (ionSwipe)="onDeleteBusiness(b, slideItem, businessElement)">
+        <ion-item-option color="danger" expandable (click)="onDeleteBusiness(b, slideItem, businessElement)">
           <ion-label>
             <ion-icon name="trash" color="secondary"></ion-icon>
             Delete
@@ -75,7 +75,7 @@
 
   </ion-list>
 
-  <ion-item class="empty-list-content" lines="none" *ngIf="businessStorage.businesses.length == 0">
+  <ion-item class="empty-list-content" lines="none" *ngIf="storageService.businesses.length == 0">
     <div>
       <ion-label>You have no saved businesses</ion-label>
       <ion-icon name="globe"></ion-icon>

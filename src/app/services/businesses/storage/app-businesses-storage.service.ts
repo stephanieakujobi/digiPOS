@@ -10,14 +10,14 @@ import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState'
 })
 
 /**
- * The SavedBusinessesStorageService provides a way to store Businesses under the currently logged-in user's profile.
+ * The AppBusinessesStorageService provides a way to store Businesses under the currently logged-in user's profile.
  */
-export class SavedBusinessesStorageService {
+export class AppBusinessesStorageService {
   private static _businesses: Business[] = [];
   private static readonly storageKey = "saved_businesses";
 
   /**
-   * Creates a new SavedBusinessesStorageService instance.
+   * Creates a new AppBusinessesStorageService instance.
    * @param nativeStorage The NativeStorage used to perform CRUD operations on Businesses.
    */
   constructor(private nativeStorage: NativeStorage) { }
@@ -83,9 +83,9 @@ export class SavedBusinessesStorageService {
   public async loadBusinesses(): Promise<boolean> {
     let didSucceed: boolean = false;
 
-    await this.nativeStorage.getItem(SavedBusinessesStorageService.storageKey).then(
+    await this.nativeStorage.getItem(AppBusinessesStorageService.storageKey).then(
       loadedBusinesses => {
-        SavedBusinessesStorageService._businesses = [];
+        AppBusinessesStorageService._businesses = [];
 
         loadedBusinesses.forEach(b => {
           const business = new Business(
@@ -119,7 +119,7 @@ export class SavedBusinessesStorageService {
   public async synchronize(): Promise<boolean> {
     let didSucceed: boolean = false;
 
-    await this.nativeStorage.setItem(SavedBusinessesStorageService.storageKey, this.businesses).then(
+    await this.nativeStorage.setItem(AppBusinessesStorageService.storageKey, this.businesses).then(
       () => didSucceed = true,
       error => console.error('Error updating businesses', error)
     );
@@ -131,6 +131,6 @@ export class SavedBusinessesStorageService {
    * The user's current saved Businesses.
    */
   public get businesses(): Business[] {
-    return SavedBusinessesStorageService._businesses;
+    return AppBusinessesStorageService._businesses;
   }
 }

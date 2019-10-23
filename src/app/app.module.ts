@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { BusinessViewModalPageModule } from './pages/main-page/businesses-tab/business-view-modal/business-view-modal.module';
 import { NotificationsPrefsModalModule } from './pages/main-page/notifications-tab/notifications-prefs-modal/notifications-prefs.module';
+import { BusinessPrefsModalPageModule } from './pages/main-page/businesses-tab/business-prefs/business-prefs-modal.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -20,6 +21,7 @@ import { NotificationsPrefsModalModule } from './pages/main-page/notifications-t
     IonicModule.forRoot(),
     AppRoutingModule,
     BusinessViewModalPageModule,
+    BusinessPrefsModalPageModule,
     NotificationsPrefsModalModule
   ],
   providers: [

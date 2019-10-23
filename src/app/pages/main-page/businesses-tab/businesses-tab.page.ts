@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
-import { ModalController, IonItemSliding, ToastController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { ModalController, ToastController, AlertController } from '@ionic/angular';
 import { BusinessViewModalPage } from './business-view-modal/business-view-modal.page';
 import { Business } from 'src/app/classes/businesses/Business';
-import { SavedBusinessesStorageService } from 'src/app/services/businesses/storage/saved-businesses-storage.service';
+import { AppBusinessesStorageService } from 'src/app/services/businesses/storage/app-businesses-storage.service';
 import { Address } from 'src/app/classes/businesses/Address';
+import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.page';
+import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
+import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -14,17 +17,28 @@ import { Address } from 'src/app/classes/businesses/Address';
 /**
  * The page displayed to the user when they select the "Businesses" tab.
  */
-export class BusinessesTabPage {
+export class BusinessesTabPage implements OnInit {
+  private prefs: AppBusinessesPrefs;
+
   /**
    * Creates a new BusinessTabPage
-   * @param businessStorage The SavedBusinessesStorageService used to perform CRUD operations for Businesses under the current user's profile.
+   * @param storageService The SavedBusinessesStorageService used to perform CRUD operations for Businesses under the current user's profile.
    * @param modalController The ModalController used to create modals for this page.
    * @param toastController The ToastController used to create toast messages for this page.
    */
-  constructor(private businessStorage: SavedBusinessesStorageService, private modalController: ModalController, private toastController: ToastController) {
+  constructor(
+    private storageService: AppBusinessesStorageService,
+    private prefsService: AppBusinessesPrefsService,
+    private modalController: ModalController,
+    private alertController: AlertController,
+    private toastController: ToastController
+  ) { }
+
+  async ngOnInit() {
+    this.prefs = await this.prefsService.loadPrefs();
 
     //TEMPORARY TEST OF ADDING A BUSINESS NON-MANUALLY.
-    this.businessStorage.addBusiness(new Business(
+    this.storageService.addBusiness(new Business(
       "A Saved Business",
       new Address(
         "123 Test St.",
@@ -43,12 +57,37 @@ export class BusinessesTabPage {
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    * @param businessElement The HTMLElement to animate upon deletion.
    */
-  deleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
+  async onDeleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
+    if(this.prefs.askBeforeDelete) {
+      const confirmationAlert = await this.alertController.create({
+        header: "Delete Business",
+        message: "Are you sure you want to delete this business?",
+        buttons: [
+          {
+            text: "Yes",
+            handler: () => this.doDeleteBusiness(business, ionItemSliding, businessElement)
+          },
+          {
+            text: "No",
+            role: "cancel",
+            handler: () => ionItemSliding.close()
+          },
+        ]
+      });
+
+      await confirmationAlert.present();
+    }
+    else {
+      this.doDeleteBusiness(business, ionItemSliding, businessElement);
+    }
+  }
+
+  private doDeleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
     ionItemSliding.close();
     businessElement.classList.add("deleting");
 
     setTimeout(async () => {
-      await this.businessStorage.deleteBusiness(business);
+      await this.storageService.deleteBusiness(business);
     }, 300);
   }
 
@@ -74,7 +113,23 @@ export class BusinessesTabPage {
   async toggleStarBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
     ionItemSliding.close();
     business.toggleStarred();
-    await this.businessStorage.synchronize();
+    await this.storageService.synchronize();
+  }
+
+  async openPrefsModal() {
+    const modal = await this.modalController.create({
+      component: BusinessPrefsModalPage,
+      backdropDismiss: false,
+      componentProps: {
+        prefs: this.prefs
+      }
+    });
+
+    await modal.present();
+
+    await modal.onWillDismiss().then(({ data }) => {
+      this.prefsService.savePrefs(data);
+    });
   }
 
   /**
@@ -111,7 +166,7 @@ export class BusinessesTabPage {
    * @param business The new business to save.
    */
   private async addSavedBusiness(business: Business) {
-    let didSucceed = await this.businessStorage.addBusiness(business);
+    let didSucceed = await this.storageService.addBusiness(business);
     this.presentToast(didSucceed ? "Business added successfully." : "An error occurred while adding business.");
   }
 
@@ -122,7 +177,7 @@ export class BusinessesTabPage {
    * @param updated The new Business to replace with the original Business.
    */
   private async updateSavedBusiness(original: Business, updated: Business) {
-    let didSucceed = await this.businessStorage.updateBusiness(original, updated);
+    let didSucceed = await this.storageService.updateBusiness(original, updated);
     this.presentToast(didSucceed ? "Business updated successfully." : "An error occurred while updating business.");
   }
 
