@@ -9,7 +9,7 @@ import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
 /**
  * The AppNotifsPrefsService provides a way to save and load user notification preferences locally on the user's device.
  */
-export class AppNotifsPrefsService {
+export class AppNotifsPrefsService implements IAppPrefsService<AppNotifsPrefs> {
   private static readonly storageKey = "notifications_preferences";
 
   /**
