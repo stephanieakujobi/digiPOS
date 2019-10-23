@@ -57,6 +57,7 @@ ion-list.ion-item-sliding-list {
       ion-item {
         display: flex;
         height: 64px;
+        transition: 0.3s;
   
         ion-icon.list-item-icon {
           margin-right: 10px;
@@ -72,7 +73,6 @@ ion-list.ion-item-sliding-list {
       }
   
       &.deleting ion-item {
-        transition: 0.3s;
         height: 0px;
         pointer-events: none;
       }
