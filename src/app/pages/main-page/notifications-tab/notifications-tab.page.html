@@ -28,17 +28,17 @@
     </ion-item>
   </div>
 
-  <ion-list id="notifs-list" lines="full" *ngIf="notifications.length > 0">
+  <ion-list class="ion-item-sliding-list" lines="full" *ngIf="notifications.length > 0">
     <ion-item-sliding *ngFor="let n of notifications" #slideItem>
 
-      <div class="notif {{n.isRead ? 'read' : 'unread'}}" #notifElement>
+      <div class="list-item {{n.isRead ? 'read' : 'unread'}}" #notifElement>
         <ion-item (click)="viewNotif(n)">
           <ion-badge></ion-badge>
-          <ion-icon class="notif-icon" name="{{n.icon.name}}" color="{{n.icon.color}}"></ion-icon>
+          <ion-icon class="list-item-icon" name="{{n.icon.name}}" color="{{n.icon.color}}"></ion-icon>
           <ion-label>
             <h2>{{n.title}}</h2>
             <p>
-              <ion-icon name="time"></ion-icon> {{n.dateReceived.stringDate}}
+              <ion-icon class="list-item-sub-icon" name="time"></ion-icon> {{n.dateReceived.stringDate}}
             </p>
           </ion-label>
         </ion-item>
@@ -72,7 +72,7 @@
 
   </ion-list>
 
-  <ion-item id="no-notifs-wrapper" lines="none" *ngIf="notifications.length == 0">
+  <ion-item class="empty-list-content" lines="none" *ngIf="notifications.length == 0">
     <div>
       <ion-label>You have no notifications!</ion-label>
       <ion-icon name="checkmark-circle-outline"></ion-icon>

@@ -24,3 +24,111 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+ion-toast {
+  --background: var(--ion-color-dark);
+  color: var(--ion-color-secondary);
+  transform: translateY(-70px);
+}
+
+ion-list.ion-item-sliding-list {
+    margin: 0;
+  
+    .list-item {
+      ion-item {
+        display: flex;
+        height: 64px;
+  
+        ion-icon.list-item-icon {
+          margin-right: 10px;
+        }
+  
+        ion-icon.list-item-sub-icon {
+          transform: translateY(1.5px);
+        }
+  
+        &:active {
+          --background: var(--ion-color-secondary-shade);
+        }
+      }
+  
+      &.deleting ion-item {
+        transition: 0.3s;
+        height: 0px;
+        pointer-events: none;
+      }
+    }
+  
+    ion-item-option {
+      ion-label {
+        width: 75px;
+  
+        color: var(--ion-color-secondary);
+        font-size: 10px;
+        text-align: center;
+  
+        ion-icon {
+          display: block;
+          padding: 0 10px;
+          margin: auto;
+          margin-bottom: 5px;
+          font-size: 25px;
+        }
+  
+        &.md {
+          font-size: 8px;
+        }
+      }
+    }
+  
+    &.list-md {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  ion-item.empty-list-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --color: var(--ion-color-primary-tint);
+    font-weight: bold;
+    text-align: center;
+    opacity: 0;
+    animation: emptyListIntro 0.5s forwards;
+  
+    div {
+      width: 100%;
+      padding: 16px;
+  
+      ion-label {
+        font-size: 3vmax;
+      }
+      ion-icon {
+        margin-top: 20px;
+        font-size: 20vmax;
+        animation: emptyListIconIntro 0.6s cubic-bezier(0.65, 0.34, 0.51, 1.67);
+      }
+    }
+  }
+
+  @keyframes emptyListIntro {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes emptyListIconIntro {
+    from {
+      transform: scale(0) rotateZ(180deg);
+    }
+    to {
+      transform: scale(1) rotateZ(0deg);
+    }
+  }
