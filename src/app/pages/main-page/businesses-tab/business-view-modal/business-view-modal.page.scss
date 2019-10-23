@@ -7,6 +7,10 @@ ion-item#map-saved-info {
   ion-icon {
     margin-right: 6px;
   }
+
+  ion-label {
+    white-space: inherit;
+  }
 }
 
 form {

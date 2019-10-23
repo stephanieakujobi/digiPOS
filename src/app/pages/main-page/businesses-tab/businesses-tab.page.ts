@@ -31,7 +31,7 @@ export class BusinessesTabPage {
         "Brampton",
         "ON",
         "Canada",
-        "L8D 1K7"
+        "L8D1K7"
       )
     ));
   }

@@ -12,35 +12,50 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-item id="map-saved-info" *ngIf="!business.wasManuallySaved" lines="none">
+  <ion-item id="map-saved-info" lines="none">
     <ion-icon name="information-circle"></ion-icon>
-    <ion-label>
-      Businesses saved from the map cannot<br/>
-      have their name or address changed.
+    <ion-label *ngIf="!business.wasManuallySaved">
+      Businesses saved from the map cannot have their name or address changed.
+    </ion-label>
+    <ion-label *ngIf="business.wasManuallySaved">
+      * Required fields.
     </ion-label>
   </ion-item>
 
   <form id="add-business-form" (ngSubmit)="onFormSubmit()">
     <ion-item>
       <ion-label position="stacked">
-        <ion-icon name="pricetag"></ion-icon> Business Name (Required)
+        <ion-icon name="pricetag"></ion-icon> Business Name
       </ion-label>
       <ion-input type="text" clearInput required name="business-name" [(ngModel)]="business.name"
-        (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved"></ion-input>
+        (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+        *&nbsp;&nbsp;
+      </ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label position="stacked">
-        <ion-icon name="pin"></ion-icon> Business Address (Required)
+        <ion-icon name="pin"></ion-icon> Business Address
       </ion-label>
-      <ion-input type="text" clearInput required placeholder="Street name" name="street-name"
+      <ion-input type="text" clearInput required placeholder="Street" name="street"
         [(ngModel)]="business.address.street" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+        *&nbsp;&nbsp;
       </ion-input>
-      <ion-input type="text" clearInput required placeholder="City name" name="city-name"
-        [(ngModel)]="business.address.city" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+      <ion-input type="text" clearInput required placeholder="City" name="city" [(ngModel)]="business.address.city"
+        (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+        *&nbsp;&nbsp;
       </ion-input>
-      <ion-input type="text" clearInput required placeholder="Region name" name="region-name"
+      <ion-input type="text" clearInput required placeholder="Province/State" name="region"
         [(ngModel)]="business.address.region" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+        *&nbsp;&nbsp;
+      </ion-input>
+      <ion-input type="text" clearInput required placeholder="Country" name="country"
+        [(ngModel)]="business.address.country" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+        *&nbsp;&nbsp;
+      </ion-input>
+      <ion-input type="text" clearInput placeholder="Postal Code" name="postal-code"
+        [(ngModel)]="business.address.postalCode" [readonly]="!business.wasManuallySaved" min="6" maxlength="6">
+        &nbsp;&nbsp;&nbsp;
       </ion-input>
     </ion-item>
 
@@ -49,11 +64,15 @@
         <ion-icon name="contact"></ion-icon> Business Owner
       </ion-label>
       <ion-input type="text" clearInput placeholder="Name" name="owner-name" [(ngModel)]="business.owner.name">
+        &nbsp;&nbsp;&nbsp;
       </ion-input>
       <ion-input type="email" clearInput placeholder="Email" name="owner-email" [(ngModel)]="business.owner.email">
+        &nbsp;&nbsp;&nbsp;
       </ion-input>
       <ion-input type="tel" min="10" maxlength="10" clearInput placeholder="Phone Number" name="owner-phone-number"
-        [(ngModel)]="business.owner.phoneNumber"></ion-input>
+        [(ngModel)]="business.owner.phoneNumber">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
     </ion-item>
 
     <ion-item>
@@ -63,19 +82,25 @@
       </ion-label>
       <ion-input type="text" clearInput placeholder="Name" name="contact-name"
         [(ngModel)]="business.contactPerson.name">
+        &nbsp;&nbsp;&nbsp;
       </ion-input>
       <ion-input type="email" clearInput placeholder="Email" name="contact-email"
         [(ngModel)]="business.contactPerson.email">
+        &nbsp;&nbsp;&nbsp;
       </ion-input>
       <ion-input type="tel" min="10" maxlength="10" clearInput placeholder="Phone Number" name="contact-phone-number"
-        [(ngModel)]="business.contactPerson.phoneNumber"></ion-input>
+        [(ngModel)]="business.contactPerson.phoneNumber">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label position="stacked">
         <ion-icon name="cash"></ion-icon> Current POS Provider
       </ion-label>
-      <ion-input type="text" clearInput name="current-provider" [(ngModel)]="business.currentProvider"></ion-input>
+      <ion-input type="text" clearInput name="current-provider" [(ngModel)]="business.currentProvider">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
     </ion-item>
 
     <ion-item>
