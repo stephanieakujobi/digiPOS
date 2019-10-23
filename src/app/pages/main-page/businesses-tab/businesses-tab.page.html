@@ -15,20 +15,33 @@
 </ion-header>
 
 <ion-content>
+  <div id="sort-by-wrapper" class="{{storageService.businesses.length == 0 ? 'hidden' : ''}}">
+    <ion-item lines="none">
+      <ion-label>Sort By:</ion-label>
+      <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="newest"
+        (ionChange)="sortNotifs()">
+        <ion-select-option value="newest">Newest</ion-select-option>
+        <ion-select-option value="oldest">Oldest</ion-select-option>
+        <ion-select-option value="information">Starred</ion-select-option>
+        <ion-select-option value="unread">Saved from map</ion-select-option>
+        <ion-select-option value="read">Saved manually</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+
   <ion-list class="ion-item-sliding-list" lines="full" *ngIf="storageService.businesses.length > 0">
     <ion-item-sliding *ngFor="let b of storageService.businesses" #slideItem>
 
-      <div
-        class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}} {{b.wasManuallySaved ? 'manually-saved' : ''}}"
-        #businessElement>
+      <div class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}}" #businessElement>
         <ion-item (click)="editBusinessInfo(b)">
-          <ion-icon class="list-item-icon" name="star" color="primary"></ion-icon>
+          <ion-icon class="saved-type-icon" [name]="b.wasManuallySaved ? 'create' : 'map'" color="primary"></ion-icon>
           <ion-label>
             <h2>{{b.name}}</h2>
             <p>
               <ion-icon class="list-item-sub-icon" name="pin"></ion-icon> {{b.address.shortAddress}}
             </p>
           </ion-label>
+          <ion-icon class="list-item-icon" name="star" color="tertiary"></ion-icon>
         </ion-item>
       </div>
 
