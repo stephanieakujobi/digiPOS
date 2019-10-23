@@ -8,7 +8,7 @@ import { Business } from 'src/app/classes/businesses/Business';
   styleUrls: ['./business-view-modal.page.scss'],
 })
 export class BusinessViewModalPage {
-  private viewingBusiness: Business;
+  private business: Business;
   private originalBusiness: Business;
   private modalTitle: string;
   private isViewingSavedBusiness: boolean; //Interpolated in business-view-modal.page.html
@@ -24,18 +24,18 @@ export class BusinessViewModalPage {
     let savedBusiness = navParams.get("savedBusiness") as Business;
 
     if(savedBusiness != null) {
-      this.viewingBusiness = savedBusiness.clone();
+      this.business = savedBusiness.clone();
       this.isViewingSavedBusiness = true;
       this.modalTitle = "Edit Business";
     }
     else {
-      this.viewingBusiness = new Business();
-      this.viewingBusiness.wasManuallySaved = true;
+      this.business = new Business();
+      this.business.wasManuallySaved = true;
       this.isViewingSavedBusiness = false;
       this.modalTitle = "Add Business";
     }
 
-    this.originalBusiness = this.viewingBusiness.clone();
+    this.originalBusiness = this.business.clone();
   }
 
   /**
@@ -52,7 +52,7 @@ export class BusinessViewModalPage {
    * close this modal without saving their changes, else just closes the modal.
    */
   async onCloseButtonClicked() {
-    const changesWereMade = JSON.stringify(this.viewingBusiness) !== JSON.stringify(this.originalBusiness);
+    const changesWereMade = JSON.stringify(this.business) !== JSON.stringify(this.originalBusiness);
 
     if(changesWereMade) {
       const confirmationAlert = await this.alertController.create({
@@ -83,11 +83,11 @@ export class BusinessViewModalPage {
    */
   validateForm() {
     this.formIsValid =
-      this.viewingBusiness.name != ""
-      && this.viewingBusiness.address.street != ""
-      && this.viewingBusiness.address.city != ""
-      && this.viewingBusiness.address.region != ""
-      && this.viewingBusiness.address.country != "";
+      this.business.name != ""
+      && this.business.address.street != ""
+      && this.business.address.city != ""
+      && this.business.address.region != ""
+      && this.business.address.country != "";
   }
 
   /**
@@ -95,6 +95,6 @@ export class BusinessViewModalPage {
    * Dismisses this modal and passes its Business back.
    */
   onFormSubmit() {
-    this.modalController.dismiss(this.viewingBusiness);
+    this.modalController.dismiss(this.business);
   }
 }
