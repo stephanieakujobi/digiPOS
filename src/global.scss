@@ -25,6 +25,25 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
+.hidden {
+  display: none;
+}
+
+.sort-by-container {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  ion-item {
+    --color: white;
+    --background: var(--ion-color-primary-tint);
+
+    ion-select.md {
+      margin-top: 4px;
+    }
+  }
+}
+
 ion-toast {
   --background: var(--ion-color-dark);
   color: var(--ion-color-secondary);

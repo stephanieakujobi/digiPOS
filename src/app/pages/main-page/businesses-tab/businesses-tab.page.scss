@@ -1,22 +1,3 @@
-.hidden {
-  display: none;
-}
-
-#sort-by-wrapper {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-
-  ion-item {
-    --color: white;
-    --background: var(--ion-color-primary-tint);
-
-    ion-select.md {
-      margin-top: 4px;
-    }
-  }
-}
-
 ion-list .list-item {
   ion-icon.saved-type-icon {
     margin-right: 16px;
