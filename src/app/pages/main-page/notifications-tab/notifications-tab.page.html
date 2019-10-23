@@ -44,8 +44,8 @@
         </ion-item>
       </div>
 
-      <ion-item-options side="start" (ionSwipe)="deleteNotif(n, slideItem, notifElement)">
-        <ion-item-option color="danger" expandable (click)="deleteNotif(n, slideItem, notifElement)">
+      <ion-item-options side="start" (ionSwipe)="onDeleteNotif(n, slideItem, notifElement)">
+        <ion-item-option color="danger" expandable (click)="onDeleteNotif(n, slideItem, notifElement)">
           <ion-label>
             <ion-icon name="trash" color="secondary"></ion-icon>
             Delete
