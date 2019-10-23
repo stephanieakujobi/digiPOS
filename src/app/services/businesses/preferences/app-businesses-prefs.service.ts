@@ -5,7 +5,7 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 @Injectable({
   providedIn: 'root'
 })
-export class AppBusinessesPrefsService {
+export class AppBusinessesPrefsService implements IAppPrefsService<AppBusinessesPrefs> {
   private static readonly storageKey = "businesses_preferences";
 
   /**
