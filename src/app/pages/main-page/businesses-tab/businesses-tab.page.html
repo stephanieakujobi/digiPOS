@@ -15,10 +15,11 @@
 </ion-header>
 
 <ion-content>
-  <ion-list id="saved-businesses-list" lines="full" *ngIf="businessStorage.businesses.length > 0">
+  <ion-list class="ion-item-sliding-list" lines="full" *ngIf="businessStorage.businesses.length > 0">
     <ion-item-sliding *ngFor="let b of businessStorage.businesses" #slideItem>
 
-      <div class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}} {{b.wasManuallySaved ? 'manually-saved' : ''}}"
+      <div
+        class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}} {{b.wasManuallySaved ? 'manually-saved' : ''}}"
         #businessElement>
         <ion-item (click)="editBusinessInfo(b)">
           <ion-icon class="list-item-icon" name="star" color="primary"></ion-icon>
@@ -73,4 +74,11 @@
     </ion-item-sliding>
 
   </ion-list>
+
+  <ion-item class="empty-list-content" lines="none" *ngIf="businessStorage.businesses.length == 0">
+    <div>
+      <ion-label>You have no saved businesses</ion-label>
+      <ion-icon name="globe"></ion-icon>
+    </div>
+  </ion-item>
 </ion-content>
