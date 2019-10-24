@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { AlertController, IonItemSliding, ModalController } from "@ionic/angular";
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-bar.page';
@@ -6,6 +6,7 @@ import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity
 import { NotificationsPrefsModal } from './notifications-prefs-modal/notifications-prefs.modal';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
 import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
+import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
 
 @Component({
   selector: "notifications-home-tab",
@@ -17,15 +18,19 @@ import { AppNotifsPrefsService } from 'src/app/services/notifications/preference
  * The page displayed to the user when they select the "Notifications" tab.
  * Shows the user all the AppNotifications they have received, if any.
  */
-export class NotificationsTabPage {
+export class NotificationsTabPage implements OnInit {
+  private prefs: AppNotifsPrefs;
+
   /**
    * Creates a new NotificationsTabPage.
-   * @param notifsPrefsService The AppNotifsPrefsService used to update the user's notification preferences when changed.
+   * @param prefsService The AppNotifsPrefsService used to update the user's notification preferences when changed.
    * @param alertController The AlertController used to view AppNotifications in a native alert box.
    * @param modalController The ModalController which opens the 
    */
-  constructor(private notifsPrefsService: AppNotifsPrefsService, private alertController: AlertController, private modalController: ModalController) {
-    notifsPrefsService.loadPrefs();
+  constructor(private prefsService: AppNotifsPrefsService, private alertController: AlertController, private modalController: ModalController) { }
+
+  async ngOnInit() {
+    this.prefs = await this.prefsService.loadPrefs();
   }
 
   ionViewDidEnter() {
@@ -83,7 +88,7 @@ export class NotificationsTabPage {
    * A function called from the page when the user marks an AppNotification as read or unread.
    * Toggles the AppNotification's "isRead" property.
    * @param notification The AppNotification to mark as read or unread.
-   * @param ionItemSliding The ion-item-sliding element in the page wrapped around the AppNotification to close after the action was performed by the user.
+   * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    */
   toggleNotifRead(notification: AppNotification, ionItemSliding: IonItemSliding) {
     notification.isRead = !notification.isRead;
@@ -95,13 +100,13 @@ export class NotificationsTabPage {
 
   /**
    * A funtion called from the page when the user deletes an AppNotification.
-   * Shrinks the notification in the list before deleting its reference from the NotificationsManager.
+   * Checks the user's notification preferences to see if the user should be prompted before deleting the AppNotification.
    * @param notification The AppNotification to delete.
-   * @param ionItemSliding The ion-item-sliding element in the page wrapped around the AppNotification to close after the action was performed by the user.
-   * @param notifElement The HTMLElement wrapped around the AppNotification to mark as "deleting". This element will shrink in the list of AppNotifications.
+   * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
+   * @param notifElement The HTMLElement to animate upon deletion.
    */
-  async deleteNotif(notification: AppNotification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
-    if(AppNotifsPrefsService.notifsPrefs.askBeforeDeleteNotif) {
+  async onDeleteNotif(notification: AppNotification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
+    if(this.prefs.askBeforeDelete) {
       const confirmationAlert = await this.alertController.create({
         header: "Delete Notification",
         message: "Are you sure you want to delete this notification?",
@@ -125,6 +130,13 @@ export class NotificationsTabPage {
     }
   }
 
+  /**
+   * Called from onDeleteNotif after it has been confirmed that an AppNotification can be deleted.
+   * Animates the AppNotification deleting before removing it from storage.
+   * @param notification The AppNotification to delete.
+   * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
+   * @param notifElement The HTMLElement to animate upon deletion.
+   */
   private doDeleteNotif(notification: AppNotification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
     ionItemSliding.close();
     notifElement.classList.add("deleting");
@@ -183,12 +195,16 @@ export class NotificationsTabPage {
   async openPrefsModal() {
     const modal = await this.modalController.create({
       component: NotificationsPrefsModal,
+      backdropDismiss: false,
+      componentProps: {
+        prefs: this.prefs
+      }
     });
 
     await modal.present();
 
     modal.onWillDismiss().then(({ data }) => {
-      this.notifsPrefsService.savePrefs(data);
+      this.prefsService.savePrefs(data);
     });
   }
 

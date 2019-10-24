@@ -5,7 +5,7 @@ export class AppNotifsPrefs {
     public enableNotifs: boolean;
     public enablePushNotifs: boolean;
     public vibrateOnNotifReceived: boolean;
-    public askBeforeDeleteNotif: boolean;
+    public askBeforeDelete: boolean;
 
     /**
      * Creates a new AppNotifPrefs instance.
@@ -15,6 +15,6 @@ export class AppNotifsPrefs {
         this.enableNotifs = true;
         this.enablePushNotifs = true;
         this.vibrateOnNotifReceived = true;
-        this.askBeforeDeleteNotif = true;
+        this.askBeforeDelete = true;
     }
 }

@@ -1,0 +1,37 @@
+ion-item#map-saved-info {
+  display: block;
+  width: 100%;
+  color: var(--ion-color-medium);
+  font-size: 13px;
+
+  ion-icon {
+    margin-right: 6px;
+  }
+
+  ion-label {
+    white-space: inherit;
+  }
+}
+
+form {
+  padding-bottom: 56px;
+
+  ion-item {
+    margin-bottom: 20px;
+
+    ion-input[ng-reflect-readonly="true"] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  ion-button[type="submit"] {
+    position: fixed;
+    bottom: 16px;
+    right: 18px;
+    width: 56px;
+    height: 56px;
+    --border-radius: 50%;
+    z-index: 10;
+  }
+}
