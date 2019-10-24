@@ -51,20 +51,22 @@ export class BusinessesTabPage implements OnInit {
     //TEMPORARY TEST OF ADDING A BUSINESS NON-MANUALLY.
     this.storageService.addBusiness(new Business(
       "Sony",
-      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
+      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K6")
     ));
     this.storageService.addBusiness(new Business(
       "Microsoft",
-      new Address("234 Test St.", "Brampton", "ON", "Canada", "L8D1K8")
+      new Address("234 Test Rd.", "Brampton", "ON", "Canada", "L8D1K7")
     ));
     this.storageService.addBusiness(new Business(
       "Amazon",
-      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
+      new Address("456 Test Dr.", "Brampton", "ON", "Canada", "L8D1K8")
     ));
     this.storageService.addBusiness(new Business(
       "Google",
-      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
+      new Address("567 Test Ave.", "Brampton", "ON", "Canada", "L8D1K9")
     ));
+
+    console.log(this.storageService.businesses);
   }
 
   /**
@@ -283,11 +285,20 @@ export class BusinessesTabPage implements OnInit {
    * @param business The business to star/un-star
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    */
-  toggleStarBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
+  async toggleStarBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
     business.toggleStarred();
+    let result: CRUDResult = await this.storageService.synchronize();
+
+    if(!result.wasSuccessful) {
+      business.toggleStarred();
+      this.presentToast(result.message);
+    }
+    else {
+      this.sortBusinesses();
+      this.presentToast(`${business.saveState == BusinessSaveState.Starred ? "Starred" : "Un-Starred"} business.`);
+    }
+
     ionItemSliding.close();
-    this.sortBusinesses();
-    this.storageService.synchronize();
   }
 
   /**
