@@ -83,7 +83,7 @@ export class BusinessesTabPage implements OnInit {
     //Without this, list items can sometimes not be found when newly added.
     setTimeout(() => {
       this.businessListItems = [];
-      const elements = Array.from(document.querySelectorAll(".list-item")) as HTMLElement[];
+      const elements = Array.from(document.querySelectorAll(".list-item.business")) as HTMLElement[];
       const arrLength = elements.length;
 
       for(let i = 0; i < arrLength; i++) {

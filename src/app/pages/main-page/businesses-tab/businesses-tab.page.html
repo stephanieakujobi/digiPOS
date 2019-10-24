@@ -39,7 +39,7 @@
   <ion-list class="ion-item-sliding-list" lines="full" *ngIf="storageService.businesses.length > 0">
     <ion-item-sliding *ngFor="let b of storageService.businesses" #slideItem>
 
-      <div class="list-item {{b.saveState == 'Starred' ? 'starred' : ''}}" #businessElement>
+      <div class="list-item business {{b.saveState == 'Starred' ? 'starred' : ''}}" #businessElement>
         <ion-item (click)="editBusinessInfo(b)">
           <ion-icon class="saved-type-icon" [name]="b.wasManuallySaved ? 'create' : 'map'" color="primary"></ion-icon>
           <ion-label>

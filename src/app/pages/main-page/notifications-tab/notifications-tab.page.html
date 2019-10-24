@@ -12,7 +12,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="sort-by-container {{notifications.length == 0 ? 'hidden' : ''}}">
+  <div class="sticky-controls-container {{notifications.length == 0 ? 'hidden' : ''}}">
     <ion-item lines="none">
       <ion-label>Sort By:</ion-label>
       <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="newest"
