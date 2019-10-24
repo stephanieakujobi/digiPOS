@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HomeTabPage } from './home-tab.page';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
     RouterModule.forChild([{ path: '', component: HomeTabPage }]),
   ],
   providers: [
-    Geolocation
+    Geolocation,
+    GoogleMapsService
   ],
   declarations: [HomeTabPage]
 })
