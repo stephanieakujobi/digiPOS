@@ -15,24 +15,28 @@
 </ion-header>
 
 <ion-content>
-  <div class="sort-by-container {{storageService.businesses.length == 0 ? 'hidden' : ''}}">
-    <ion-item lines="none">
-      <ion-label>Sort By:</ion-label>
-      <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="ascending"
-        (ionChange)="sortBusinesses()">
-        <ion-select-option value="ascending">Ascending</ion-select-option>
-        <ion-select-option value="descending">Descending</ion-select-option>
-        <ion-select-option value="closest">Closest to me</ion-select-option>
-        <ion-select-option value="starred">Starred</ion-select-option>
-        <ion-select-option value="savedMap">Saved from map</ion-select-option>
-        <ion-select-option value="savedManual">Saved manually</ion-select-option>
-      </ion-select>
-    </ion-item>
-  </div>
+  <div class="{{storageService.businesses.length == 0 ? 'hidden' : ''}}">
 
-  <ion-searchbar class="{{storageService.businesses.length == 0 ? 'hidden' : ''}}" type="text"
-    placeholder="Search businesses by name" animated debounce="250" (ionChange)="searchBusinessesByName($event)">
-  </ion-searchbar>
+    <div class="sort-by-container">
+      <ion-item lines=" none">
+        <ion-label>Sort By:</ion-label>
+        <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="ascending"
+          (ionChange)="sortBusinesses()">
+          <ion-select-option value="ascending">Ascending</ion-select-option>
+          <ion-select-option value="descending">Descending</ion-select-option>
+          <ion-select-option value="closest">Closest to me</ion-select-option>
+          <ion-select-option value="starred">Starred</ion-select-option>
+          <ion-select-option value="savedMap">Saved from map</ion-select-option>
+          <ion-select-option value="savedManual">Saved manually</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+
+    <ion-searchbar type="text" placeholder="Search businesses by name" animated debounce="250"
+      (ionChange)="searchBusinessesByName($event)">
+    </ion-searchbar>
+    
+  </div>
 
   <ion-list class="ion-item-sliding-list" lines="full" *ngIf="storageService.businesses.length > 0">
     <ion-item-sliding *ngFor="let b of storageService.businesses" #slideItem>

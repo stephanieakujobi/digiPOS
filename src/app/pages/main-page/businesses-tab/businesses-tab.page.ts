@@ -8,6 +8,7 @@ import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.pa
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
 import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
 import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
+import { HTMLBusinessElement } from 'src/app/classes/businesses/HTMLBusinessElement';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -19,6 +20,7 @@ import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState'
  * The page displayed to the user when they select the "Businesses" tab.
  */
 export class BusinessesTabPage implements OnInit {
+  private businessListItems: HTMLBusinessElement[];
   private prefs: AppBusinessesPrefs;
 
   /**
@@ -35,6 +37,9 @@ export class BusinessesTabPage implements OnInit {
     private toastController: ToastController
   ) { }
 
+  /**
+   * @see https://angular.io/api/core/OnInit
+   */
   async ngOnInit() {
     this.prefs = await this.prefsService.loadPrefs();
 
@@ -57,8 +62,31 @@ export class BusinessesTabPage implements OnInit {
     ));
   }
 
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
   ionViewDidEnter() {
+    this.updateBusinessListReferences();
     this.sortBusinesses();
+  }
+
+  /**
+   * Query-selects all DOM elements with the "list-item" class, and stores them as HTMLBusinessElements, with the
+   * business name being query-selected from each element's child element containing a "business-name" class.
+   */
+  private updateBusinessListReferences() {
+    //Waiting 50 miliseconds before searching the DOM for new list items.
+    //Without this, list items can sometimes not be found when newly added.
+    setTimeout(() =>{
+      this.businessListItems = [];
+      const elements = Array.from(document.querySelectorAll(".list-item")) as HTMLElement[];
+      const arrLength = elements.length;
+  
+      for (let i = 0; i < arrLength; i++) {
+        const businessName = (elements[i].querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
+        this.businessListItems[i] = new HTMLBusinessElement(elements[i], businessName);
+      }
+    }, 50);
   }
 
   /**
@@ -90,6 +118,10 @@ export class BusinessesTabPage implements OnInit {
     }
   }
 
+  /**
+   * Sorts the list of saved Businesses by name in ascending or descending order.
+   * @param ascending If true, the list will be sorted in ascending order, else in descending order.
+   */
   private sortBusinessesAscDesc(ascending: boolean) {
     this.storageService.businesses.sort((b1, b2) => {
       let result: number;
@@ -111,40 +143,52 @@ export class BusinessesTabPage implements OnInit {
   }
 
   private sortBusinessesByClosest() {
-    //TODO
+    //TODO: Geolocate the user's current location and compare it with the addresses in each saved Business,
+    //      then sort the list by the closest address to the user's current location.
   }
 
+  /**
+   * Sorts the list of saved Businesses by displaying all starred Businesses at the top of the list first.
+   */
   private sortBusinessesByStarred() {
     this.storageService.businesses.sort(b => b.saveState == BusinessSaveState.Starred ? -1 : 0);
   }
 
+  /**
+   * Sorts the list of saved Businesses by displaying all Businesses saved from the map first.
+   */
   private sortBusinessesByMapSave() {
     this.storageService.businesses.sort(b => !b.wasManuallySaved ? -1 : 0);
   }
 
+  /**
+   * Sorts the list of saved Businesses by displaying all Businesses saved manually by the user first.
+   */
   private sortBusinessesByManualSave() {
     this.storageService.businesses.sort(b => b.wasManuallySaved ? -1 : 0);
   }
 
+  /**
+   * Called from the page when the user inputs into the ion-searchbar on the page.
+   * Filters the list of saved Businesses, hiding the ones whose names do not match the string that the user has inputted.
+   * @param event The input event passed, containing the ion-searchbar's value.
+   */
   searchBusinessesByName(event: CustomEvent) {
     const searchQuery = (event.detail.value as string).toLowerCase();
-    const listItems = Array.from(document.querySelectorAll(".list-item")) as HTMLElement[];
 
-    listItems.forEach(item => {
-      const itemName = (item.querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
-
-      if(itemName.includes(searchQuery)) {
-        item.classList.remove("deleting");
+    this.businessListItems.forEach(item => {
+      if(item.businessName.includes(searchQuery)) {
+        item.nativeElement.classList.remove("deleting");
       }
       else {
-        item.classList.add("deleting");
+        item.nativeElement.classList.add("deleting");
       }
     });
   }
 
   /**
-   * Called from the page when the user swipes right on a Business to delete it.
-   * Deletes the business saved under their profile.
+   * Called from the page when the user attempts to delete a Business.
+   * Checks the user's businesses preferences to see if the user should be prompted before deleting the Business.
    * @param business The Business to delete.
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    * @param businessElement The HTMLElement to animate upon deletion.
@@ -174,6 +218,13 @@ export class BusinessesTabPage implements OnInit {
     }
   }
 
+  /**
+   * Called from onDeleteBusiness after it has been confirmed that Business can be deleted.
+   * Animates the Business deleting before removing it from storage.
+   * @param business The Business to delete.
+   * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
+   * @param businessElement The HTMLElement to animate upon deletion.
+   */
   private doDeleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
     ionItemSliding.close();
     businessElement.classList.add("deleting");
@@ -181,6 +232,8 @@ export class BusinessesTabPage implements OnInit {
     setTimeout(async () => {
       this.sortBusinesses();
       await this.storageService.deleteBusiness(business);
+
+      this.updateBusinessListReferences();
     }, 300);
   }
 
@@ -210,6 +263,11 @@ export class BusinessesTabPage implements OnInit {
     this.storageService.synchronize();
   }
 
+  /**
+   * Called from the page when the user presses the settings icon on the navigation bar.
+   * Opens a modal page containing the user preferences for saved Businesses, allowing the user to edit them.
+   * Once the user closes the modal, their preferences are saved.
+   */
   async openPrefsModal() {
     const modal = await this.modalController.create({
       component: BusinessPrefsModalPage,
@@ -262,6 +320,7 @@ export class BusinessesTabPage implements OnInit {
   private async addSavedBusiness(business: Business) {
     let didSucceed = await this.storageService.addBusiness(business);
     this.presentToast(didSucceed ? "Business added successfully." : "An error occurred while adding business.");
+    this.updateBusinessListReferences();
     this.sortBusinesses();
   }
 
@@ -273,6 +332,7 @@ export class BusinessesTabPage implements OnInit {
    */
   private async updateSavedBusiness(original: Business, updated: Business) {
     let didSucceed = await this.storageService.updateBusiness(original, updated);
+    this.sortBusinesses();
     this.presentToast(didSucceed ? "Business updated successfully." : "An error occurred while updating business.");
   }
 
