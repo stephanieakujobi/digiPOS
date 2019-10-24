@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
-import { Business } from 'src/app/classes/businesses/Business';
-import { Address } from 'src/app/classes/businesses/Address';
-import { Contact } from 'src/app/classes/businesses/Contact';
-import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
+import { Business } from 'src/app/models/businesses/Business';
+import { Address } from 'src/app/models/businesses/Address';
+import { Contact } from 'src/app/models/businesses/Contact';
+import { BusinessSaveState } from 'src/app/models/businesses/BusinessSaveState';
 
 @Injectable({
   providedIn: 'root'

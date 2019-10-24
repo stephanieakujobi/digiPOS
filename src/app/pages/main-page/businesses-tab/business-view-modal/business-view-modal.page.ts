@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams, AlertController } from '@ionic/angular';
-import { Business } from 'src/app/classes/businesses/Business';
+import { Business } from 'src/app/models/businesses/Business';
 
 @Component({
   selector: 'app-business-view-modal',

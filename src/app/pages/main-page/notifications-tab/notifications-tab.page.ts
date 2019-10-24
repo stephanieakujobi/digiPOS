@@ -1,12 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import { AlertController, IonItemSliding, ModalController } from "@ionic/angular";
-import { AppNotification } from 'src/app/classes/notifications/AppNotification';
+import { AppNotification } from 'src/app/models/notifications/AppNotification';
 import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-bar.page';
-import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
+import { AppNotifSeverity } from 'src/app/models/notifications/AppNotifSeverity';
 import { NotificationsPrefsModal } from './notifications-prefs-modal/notifications-prefs.modal';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
 import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
-import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
+import { AppNotifsPrefs } from 'src/app/models/notifications/AppNotifsPrefs';
 
 @Component({
   selector: "notifications-home-tab",

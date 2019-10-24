@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
+import { AppBusinessesPrefs } from 'src/app/models/businesses/AppBusinessesPrefs';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 
 @Injectable({

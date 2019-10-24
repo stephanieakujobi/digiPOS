@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController, ToastController, AlertController } from '@ionic/angular';
 import { BusinessViewModalPage } from './business-view-modal/business-view-modal.page';
-import { Business } from 'src/app/classes/businesses/Business';
+import { Business } from 'src/app/models/businesses/Business';
 import { AppBusinessesStorageService } from 'src/app/services/businesses/storage/app-businesses-storage.service';
-import { Address } from 'src/app/classes/businesses/Address';
+import { Address } from 'src/app/models/businesses/Address';
 import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.page';
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
-import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
-import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
-import { HTMLBusinessElement } from 'src/app/classes/businesses/HTMLBusinessElement';
+import { AppBusinessesPrefs } from 'src/app/models/businesses/AppBusinessesPrefs';
+import { BusinessSaveState } from 'src/app/models/businesses/BusinessSaveState';
+import { HTMLBusinessElement } from 'src/app/models/businesses/HTMLBusinessElement';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 
