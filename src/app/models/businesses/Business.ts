@@ -1,11 +1,12 @@
 import { Contact } from './Contact';
 import { Address } from './Address';
 import { BusinessSaveState } from './BusinessSaveState';
+import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 
 /**
  * The representation of a Business that the user can view on the map, save under their profile, edit information, and report to CPOS's CRM service.
  */
-export class Business implements ICloneable<Business> {
+export class Business implements IBusiness, ICloneable<Business> {
     private _name: string;
     private _address: Address;
     private _owner: Contact;

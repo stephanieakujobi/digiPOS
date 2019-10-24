@@ -4,6 +4,7 @@ import { Business } from 'src/app/models/businesses/Business';
 import { Address } from 'src/app/models/businesses/Address';
 import { Contact } from 'src/app/models/businesses/Contact';
 import { BusinessSaveState } from 'src/app/models/businesses/BusinessSaveState';
+import { CRUDResult } from 'src/app/models/CRUDResult';
 
 @Injectable({
   providedIn: 'root'
@@ -23,20 +24,46 @@ export class AppBusinessesStorageService {
   constructor(private nativeStorage: NativeStorage) { }
 
   /**
-   * Adds a Business under the user's profile. Will not add duplicate Businesses.
+   * Adds a Business under the user's profile. Will not add a Businesses if its Address is the same as an existing Business's Address.
    * @param business The Business to save.
    * @returns A true or false result representing if the save was successful or not respectively.
    */
-  public async addBusiness(business: Business): Promise<boolean> {
-    let didSucceed: boolean = false;
+  public async addBusiness(business: Business): Promise<CRUDResult> {
+    let result: CRUDResult;
+    let isDuplicate: boolean;
 
-    if(!this.businesses.includes(business)) {
-      this.businesses.push(business);
-      business.saveState = BusinessSaveState.Saved;
-      didSucceed = await this.synchronize();
+    const arrLength = this.businesses.length;
+    for(let i = 0; i < arrLength; i++) {
+      const savedBusiness = this.businesses[i];
+
+      if(savedBusiness.address.postalCode != "" && business.address.postalCode != "") {
+        isDuplicate = savedBusiness.address.postalCode === business.address.postalCode;
+        break;
+      }
+      else {
+        isDuplicate = savedBusiness.address.shortAddress === business.address.shortAddress;
+        break;
+      }
     }
 
-    return didSucceed;
+    if(isDuplicate) {
+      result = new CRUDResult(false, "Failed to save - business address already exists.");
+    }
+    else {
+      this.businesses.push(business);
+      business.saveState = BusinessSaveState.Saved;
+      const didSucceed = await this.synchronize();
+
+      if(!didSucceed) {
+        this.businesses.splice(this.businesses.indexOf(business), 1);
+        result = new CRUDResult(false, "Failed to save - internal server error.");
+      }
+      else {
+        result = new CRUDResult(true, "Business saved successfully.");
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -44,18 +71,26 @@ export class AppBusinessesStorageService {
    * @param business The Business to delete.
    * @returns A true or false result representing if the deletion was successful or not respectively.
    */
-  public async deleteBusiness(business: Business): Promise<boolean> {
-    let didSucceed: boolean = false;
+  public async deleteBusiness(business: Business): Promise<CRUDResult> {
+    let result: CRUDResult;
 
     await this.nativeStorage.remove(JSON.stringify(business)).then(
       async () => {
         this.businesses.splice(this.businesses.indexOf(business), 1);
-        didSucceed = await this.synchronize();
-      },
-      error => console.error(error)
-    )
+        const syncResult: CRUDResult = await this.synchronize();
 
-    return didSucceed;
+        if(!syncResult.wasSuccessful) {
+          this.businesses.push(business);
+          result = new CRUDResult(false, "Failed to delete - internal server error.");
+        }
+        else {
+          result = new CRUDResult(true, "Business deleted successfully.");
+        }
+      },
+      error => result = new CRUDResult(false, "Failed to delete - " + error)
+    );
+
+    return result;
   }
 
   /**
@@ -64,24 +99,35 @@ export class AppBusinessesStorageService {
    * @param updated The updated Business to replace with the original Business.
    * @returns A true or false result representing if the update was successful or not respectively.
    */
-  public async updateBusiness(original: Business, updated: Business): Promise<boolean> {
-    let didSucceed = false;
+  public async updateBusiness(original: Business, updated: Business): Promise<CRUDResult> {
+    let result: CRUDResult;
     let existingBusiness = this.businesses.find(b => b === original);
 
-    if(existingBusiness != null) {
+    if(existingBusiness == null) {
+      result = new CRUDResult(false, "Failed to update - original business does not exist.");
+    }
+    else {
       Object.assign(original, updated);
-      didSucceed = await this.synchronize();
+      const syncResult: CRUDResult = await this.synchronize();
+
+      if(!syncResult.wasSuccessful) {
+        Object.assign(updated, original);
+        result = new CRUDResult(false, "Failed to update - internal server error.")
+      }
+      else {
+        result = new CRUDResult(true, "Business updated successfully.");
+      }
     }
 
-    return didSucceed;
+    return result;
   }
 
   /**
    * Loads all of the user's saved Businesses from their profile.
    * @returns A true or false result representing if the load was successful or not respectively.
    */
-  public async loadBusinesses(): Promise<boolean> {
-    let didSucceed: boolean = false;
+  public async loadBusinesses(): Promise<CRUDResult> {
+    let result: CRUDResult;
 
     await this.nativeStorage.getItem(AppBusinessesStorageService.storageKey).then(
       loadedBusinesses => {
@@ -104,27 +150,27 @@ export class AppBusinessesStorageService {
           this.businesses.push(business);
         });
 
-        didSucceed = true;
+        result = new CRUDResult(true, "Saved businesses loaded successfully.");
       },
-      error => console.error(error)
+      error =>  result = new CRUDResult(false, "Failed to load saved businesses - " + error)
     );
 
-    return didSucceed;
+    return result;
   }
 
   /**
    * Updates the user's saved businesses stored server-side on their profile.
    * @returns A true or false result representing if the process was successful or not respectively.
    */
-  public async synchronize(): Promise<boolean> {
-    let didSucceed: boolean = false;
+  public async synchronize(): Promise<CRUDResult> {
+    let result: CRUDResult;
 
     await this.nativeStorage.setItem(AppBusinessesStorageService.storageKey, this.businesses).then(
-      () => didSucceed = true,
-      error => console.error('Error updating businesses', error)
+      () => result = new CRUDResult(true, "Database synchronized successfully."),
+      error => result = new CRUDResult(false, "Failed to syncronize: " + error)
     );
 
-    return didSucceed;
+    return result;
   }
 
   /**

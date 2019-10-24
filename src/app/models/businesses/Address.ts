@@ -1,7 +1,9 @@
+import { IAddress } from 'src/app/interfaces/businesses/IAddress';
+
 /**
  * The representation of a physical address.
  */
-export class Address implements ICloneable<Address> {
+export class Address implements IAddress, ICloneable<Address> {
     private _street: string;
     private _city: string;
     private _region: string;

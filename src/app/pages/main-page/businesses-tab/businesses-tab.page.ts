@@ -11,6 +11,7 @@ import { BusinessSaveState } from 'src/app/models/businesses/BusinessSaveState';
 import { HTMLBusinessElement } from 'src/app/models/businesses/HTMLBusinessElement';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
+import { CRUDResult } from 'src/app/models/CRUDResult';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -54,7 +55,7 @@ export class BusinessesTabPage implements OnInit {
     ));
     this.storageService.addBusiness(new Business(
       "Microsoft",
-      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K7")
+      new Address("234 Test St.", "Brampton", "ON", "Canada", "L8D1K8")
     ));
     this.storageService.addBusiness(new Business(
       "Amazon",
@@ -250,10 +251,16 @@ export class BusinessesTabPage implements OnInit {
     businessElement.classList.add("deleting");
 
     setTimeout(async () => {
-      this.sortBusinesses();
-      await this.storageService.deleteBusiness(business);
+      const result: CRUDResult = await this.storageService.deleteBusiness(business);
+      this.presentToast(result.message);
 
-      this.updateBusinessListReferences();
+      if(!result.wasSuccessful) {
+        businessElement.classList.remove("deleting");
+      }
+      else {
+        this.sortBusinesses();
+        this.updateBusinessListReferences();
+      }
     }, 300);
   }
 
@@ -338,10 +345,13 @@ export class BusinessesTabPage implements OnInit {
    * @param business The new business to save.
    */
   private async addSavedBusiness(business: Business) {
-    let didSucceed = await this.storageService.addBusiness(business);
-    this.presentToast(didSucceed ? "Business added successfully." : "An error occurred while adding business.");
-    this.updateBusinessListReferences();
-    this.sortBusinesses();
+    const result: CRUDResult = await this.storageService.addBusiness(business);
+    this.presentToast(result.message);
+
+    if(result.wasSuccessful) {
+      this.updateBusinessListReferences();
+      this.sortBusinesses();
+    }
   }
 
   /**
@@ -351,9 +361,12 @@ export class BusinessesTabPage implements OnInit {
    * @param updated The new Business to replace with the original Business.
    */
   private async updateSavedBusiness(original: Business, updated: Business) {
-    let didSucceed = await this.storageService.updateBusiness(original, updated);
-    this.sortBusinesses();
-    this.presentToast(didSucceed ? "Business updated successfully." : "An error occurred while updating business.");
+    const result: CRUDResult = await this.storageService.updateBusiness(original, updated);
+    this.presentToast(result.message);
+
+    if(result.wasSuccessful) {
+      this.sortBusinesses();
+    }
   }
 
   /**

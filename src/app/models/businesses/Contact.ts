@@ -1,7 +1,9 @@
+import { IContact } from 'src/app/interfaces/businesses/IContact';
+
 /**
  * The representation of a person who can be contacted by the user or CPOS.
  */
-export class Contact implements ICloneable<Contact> {
+export class Contact implements IContact, ICloneable<Contact> {
     private _name: string;
     private _email: string;
     private _phoneNumber: string;
