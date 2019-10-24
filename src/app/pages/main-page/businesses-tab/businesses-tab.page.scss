@@ -1,5 +1,12 @@
-ion-item-sliding {
-    ion-label {
-        padding-left: 10px;
+ion-list .list-item {
+  ion-icon.saved-type-icon {
+    margin-right: 16px;
+    margin-left: 5px;
+  }
+
+  &:not(.starred) {
+    ion-icon.list-item-icon {
+      opacity: 0;
     }
+  }
 }

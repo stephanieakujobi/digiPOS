@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="end">
+      <ion-button (click)="onCloseButtonClicked()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Business Preferences</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item lines="full" (click)="prefs.askBeforeDelete = !prefs.askBeforeDelete">
+    <ion-label>Ask before deleting business</ion-label>
+    <ion-checkbox slot="start" id="chk-enable-notifications" checked="{{prefs.askBeforeDelete}}"></ion-checkbox>
+  </ion-item>
+</ion-content>
