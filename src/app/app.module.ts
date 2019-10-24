@@ -8,8 +8,10 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NotificationsPrefsModalModule } from './pages/main-page/notifications-tab/notifications-prefs-modal/notifications-prefs.module';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
+import { BusinessViewModalPageModule } from './pages/main-page/businesses-tab/business-view-modal/business-view-modal.module';
+import { NotificationsPrefsModalModule } from './pages/main-page/notifications-tab/notifications-prefs-modal/notifications-prefs.module';
+import { BusinessPrefsModalPageModule } from './pages/main-page/businesses-tab/business-prefs/business-prefs-modal.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -18,6 +20,8 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
+    BusinessViewModalPageModule,
+    BusinessPrefsModalPageModule,
     NotificationsPrefsModalModule
   ],
   providers: [
