@@ -6,12 +6,12 @@ import { AppNotifDate } from './AppNotifDate';
  * AppNotifications hold the information about notifications that users can receive and interact with on the Notification's tab page of the app.
  */
 export class AppNotification {
-    public title: string;
-    public summary: string;
-    public severity: AppNotifSeverity;
-    public dateReceived: AppNotifDate;
-    public isRead: boolean;
-    public icon: AppNotifIcon;
+    private _title: string;
+    private _summary: string;
+    private _severity: AppNotifSeverity;
+    private _dateReceived: AppNotifDate;
+    private _icon: AppNotifIcon;
+    private _isRead: boolean;
 
     /**
      * Creates a new AppNotification.
@@ -21,11 +21,39 @@ export class AppNotification {
      * @param dateReceived The optional custom Date this AppNotification has been received by the user. If unset, today's date will be used.
      */
     public constructor(title: string, summary: string, severity = AppNotifSeverity.Information, dateReceived = new Date()) {
-        this.title = title;
-        this.summary = summary;
-        this.severity = severity;
-        this.dateReceived = new AppNotifDate(dateReceived);
-        this.isRead = false;
-        this.icon = new AppNotifIcon(severity);
+        this._title = title;
+        this._summary = summary;
+        this._severity = severity;
+        this._dateReceived = new AppNotifDate(dateReceived);
+        this._icon = new AppNotifIcon(severity);
+        this._isRead = false;
+    }
+
+    public get title(): string {
+        return this._title;
+    }
+
+    public get summary(): string {
+        return this._summary;
+    }
+
+    public get severity(): AppNotifSeverity {
+        return this._severity;
+    }
+
+    public get dateReceived(): AppNotifDate {
+        return this._dateReceived;
+    }
+
+    public get icon(): AppNotifIcon {
+        return this._icon;
+    }
+
+    public get isRead(): boolean {
+        return this._isRead;
+    }
+
+    public set isRead(value: boolean) {
+        this._isRead = value;
     }
 }

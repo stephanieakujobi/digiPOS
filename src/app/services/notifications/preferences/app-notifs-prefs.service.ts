@@ -9,8 +9,7 @@ import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
 /**
  * The AppNotifsPrefsService provides a way to save and load user notification preferences locally on the user's device.
  */
-export class AppNotifsPrefsService {
-  private static _notifsPrefs: AppNotifsPrefs;
+export class AppNotifsPrefsService implements IAppPrefsService<AppNotifsPrefs> {
   private static readonly storageKey = "notifications_preferences";
 
   /**
@@ -18,25 +17,6 @@ export class AppNotifsPrefsService {
    * @param nativeStorage The NativeStorage used to save and load notifiation preferences.
    */
   constructor(private nativeStorage: NativeStorage) { }
-
-  /**
-   * Updates the user's notification preferences.
-   * @param prefs The new set of preferences to save.
-   * @returns A true or false result representing if the save was successful or not respectively.
-   */
-  public async savePrefs(prefs: AppNotifsPrefs): Promise<boolean> {
-    let didSucceed: boolean = false;
-
-    await this.nativeStorage.setItem(AppNotifsPrefsService.storageKey, prefs).then(
-      () => {
-        AppNotifsPrefsService._notifsPrefs = prefs;
-        didSucceed = true;
-      },
-      error => console.error('Error storing item', error)
-    );
-
-    return didSucceed;
-  }
 
   /**
    * Loads the user's notification preferences.
@@ -57,14 +37,24 @@ export class AppNotifsPrefsService {
       }
     );
 
-    AppNotifsPrefsService._notifsPrefs = prefsResult;
     return prefsResult;
   }
 
   /**
-   * The user's current notification preferences.
+   * Updates the user's notification preferences.
+   * @param prefs The new set of preferences to save.
+   * @returns A true or false result representing if the save was successful or not respectively.
    */
-  public static get notifsPrefs() {
-    return this._notifsPrefs;
+  public async savePrefs(prefs: AppNotifsPrefs): Promise<boolean> {
+    let didSucceed: boolean = false;
+
+    await this.nativeStorage.setItem(AppNotifsPrefsService.storageKey, prefs).then(
+      () => {
+        didSucceed = true;
+      },
+      error => console.error('Error storing item', error)
+    );
+
+    return didSucceed;
   }
 }

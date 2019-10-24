@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavParams } from '@ionic/angular';
 import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
 import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
 
@@ -18,16 +18,18 @@ export class NotificationsPrefsModal {
   /**
    * Creates a new NotificationsSettingsModal
    * @param modalController The reference to the ModalController that created this modal.
+   * @param navParams The NavParams used to check for existing AppNotifPrefs to display.
    */
-  constructor(private modalController: ModalController) { 
-    this.prefs = AppNotifsPrefsService.notifsPrefs;
+  constructor(private modalController: ModalController, navParams: NavParams) {
+    let existingPrefs = navParams.get("prefs") as AppNotifsPrefs;
+    this.prefs = existingPrefs != null? existingPrefs : new AppNotifsPrefs();
   }
 
   /**
    * Called from the page when the user clicks the "X" button on the navigation bar.
    * Closes this modal page and returns back to the NotificationsTabPage.
    */
-  async dismiss() {
+  onCloseButtonClicked() {
     this.modalController.dismiss(this.prefs);
   }
 }

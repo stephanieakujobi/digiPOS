@@ -12,7 +12,7 @@
 </ion-header>
 
 <ion-content>
-  <div id="sort-by-wrapper" class="{{notifications.length == 0 ? 'hidden' : ''}}">
+  <div class="sort-by-container {{notifications.length == 0 ? 'hidden' : ''}}">
     <ion-item lines="none">
       <ion-label>Sort By:</ion-label>
       <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="newest"
@@ -44,9 +44,9 @@
         </ion-item>
       </div>
 
-      <ion-item-options side="start" (ionSwipe)="deleteNotif(n, slideItem, notifElement)">
-        <ion-item-option color="danger" expandable (click)="deleteNotif(n, slideItem, notifElement)">
-          <ion-label name="trash">
+      <ion-item-options side="start" (ionSwipe)="onDeleteNotif(n, slideItem, notifElement)">
+        <ion-item-option color="danger" expandable (click)="onDeleteNotif(n, slideItem, notifElement)">
+          <ion-label>
             <ion-icon name="trash" color="secondary"></ion-icon>
             Delete
           </ion-label>
@@ -54,13 +54,13 @@
       </ion-item-options>
 
       <ion-item-options side="end" (ionSwipe)="toggleNotifRead(n, slideItem)">
-        <ion-item-option color="tertiary" (click)="toggleNotifRead(n, slideItem)" expandable *ngIf="n.isRead == false">
+        <ion-item-option color="tertiary" (click)="toggleNotifRead(n, slideItem)" expandable *ngIf="!n.isRead">
           <ion-label>
             <ion-icon name="mail-open" color="secondary"></ion-icon>
             Mark as read
           </ion-label>
         </ion-item-option>
-        <ion-item-option color="tertiary" (click)="toggleNotifRead(n, slideItem)" expandable *ngIf="n.isRead == true">
+        <ion-item-option color="tertiary" (click)="toggleNotifRead(n, slideItem)" expandable *ngIf="n.isRead">
           <ion-label>
             <ion-icon name="mail" color="secondary"></ion-icon>
             Mark as unread
