@@ -9,6 +9,8 @@ import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferenc
 import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
 import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
 import { HTMLBusinessElement } from 'src/app/classes/businesses/HTMLBusinessElement';
+import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
+import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -34,7 +36,9 @@ export class BusinessesTabPage implements OnInit {
     private prefsService: AppBusinessesPrefsService,
     private modalController: ModalController,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private geolocation: Geolocation,
+    private geocoder: NativeGeocoder
   ) { }
 
   /**
@@ -77,12 +81,12 @@ export class BusinessesTabPage implements OnInit {
   private updateBusinessListReferences() {
     //Waiting 50 miliseconds before searching the DOM for new list items.
     //Without this, list items can sometimes not be found when newly added.
-    setTimeout(() =>{
+    setTimeout(() => {
       this.businessListItems = [];
       const elements = Array.from(document.querySelectorAll(".list-item")) as HTMLElement[];
       const arrLength = elements.length;
-  
-      for (let i = 0; i < arrLength; i++) {
+
+      for(let i = 0; i < arrLength; i++) {
         const businessName = (elements[i].querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
         this.businessListItems[i] = new HTMLBusinessElement(elements[i], businessName);
       }
@@ -103,9 +107,6 @@ export class BusinessesTabPage implements OnInit {
       case "descending":
         this.sortBusinessesAscDesc(false);
         break;
-      case "closest":
-        this.sortBusinessesByClosest();
-        break;
       case "starred":
         this.sortBusinessesByStarred();
         break;
@@ -114,6 +115,9 @@ export class BusinessesTabPage implements OnInit {
         break;
       case "savedManual":
         this.sortBusinessesByManualSave();
+        break;
+      case "closest":
+        this.sortBusinessesByClosest();
         break;
     }
   }
@@ -142,9 +146,25 @@ export class BusinessesTabPage implements OnInit {
     });
   }
 
-  private sortBusinessesByClosest() {
-    //TODO: Geolocate the user's current location and compare it with the addresses in each saved Business,
-    //      then sort the list by the closest address to the user's current location.
+
+  /**
+   * @todo Geolocate the user's current location and compare it with the addresses in each saved Business,
+   *       then sort the list by the closest address to the user's current location.
+   *       A service will likely need to be created for this.
+   * @see  https://ionicframework.com/docs/native/native-geocoder
+   */
+  private async sortBusinessesByClosest() {
+    // let userPosition: Coordinates = (await this.geolocation.getCurrentPosition()).coords;
+    // console.log(userPosition);
+
+    // let options: NativeGeocoderOptions = {
+    //   useLocale: true,
+    //   maxResults: 1
+    // };
+
+    // this.geocoder.forwardGeocode('Berlin', options)
+    //   .then((result: NativeGeocoderResult[]) => console.log('The coordinates are latitude=' + result[0].latitude + ' and longitude=' + result[0].longitude))
+    //   .catch((error: any) => console.log(error));
   }
 
   /**
