@@ -65,8 +65,6 @@ export class BusinessesTabPage implements OnInit {
       "Google",
       new Address("567 Test Ave.", "Brampton", "ON", "Canada", "L8D1K9")
     ));
-
-    console.log(this.storageService.businesses);
   }
 
   /**
