@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams, AlertController } from '@ionic/angular';
 import { Business } from 'src/app/models/businesses/Business';
+import { FirebaseService } from 'src/app/services/firebase/firebase.service';
 
 @Component({
   selector: 'app-business-view-modal',

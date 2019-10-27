@@ -12,6 +12,7 @@ import { HTMLBusinessElement } from 'src/app/models/businesses/HTMLBusinessEleme
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { CRUDResult } from 'src/app/models/CRUDResult';
+import { FirebaseService } from 'src/app/services/firebase/firebase.service';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -39,7 +40,8 @@ export class BusinessesTabPage implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private geolocation: Geolocation,
-    private geocoder: NativeGeocoder
+    private geocoder: NativeGeocoder,
+    private fbService: FirebaseService,
   ) { }
 
   /**
@@ -345,6 +347,33 @@ export class BusinessesTabPage implements OnInit {
           this.updateSavedBusiness(existingBusiness, data);
         }
       }
+
+      /////////////////////////////////////////////////////////////////////////////////////////////////
+      this.fbService.tryLogin("john.smith@cpos.ca", "123abc", result => {
+        console.log(result);
+
+        setTimeout(async () => {
+          const result = await this.fbService.addBusiness({
+            name: "New Business",
+            address: {
+              street: "123 Test St.",
+              city: "Brampton",
+              region: "ON",
+              country: "Canada",
+              postalCode: "L7V1J8"
+            },
+            owner: null,
+            contactPerson: null,
+            currentProvider: null,
+            saveState: BusinessSaveState.Saved,
+            notes: "Some information about this business here...",
+            wasManuallySaved: false,
+            isReported: false
+          });
+
+          console.log(result);
+        }, 200);
+      });
     });
   }
 

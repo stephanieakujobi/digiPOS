@@ -36,7 +36,14 @@
 
   </div>
 
-  <ion-list class="ion-item-sliding-list" lines="full" *ngIf="storageService.businesses.length > 0">
+  <ul *ngIf="fbService.salesRepIsAuthenticated">
+    <h1>AUTHENTICATED: {{fbService.salesRep.info.name}}</h1>
+    <li *ngFor="let b of fbService.salesRep.savedBusinesses">
+      {{ b.name }}
+    </li>
+  </ul>
+
+  <!-- <ion-list class="ion-item-sliding-list" lines="full" *ngIf="storageService.businesses.length > 0">
     <ion-item-sliding *ngFor="let b of storageService.businesses" #slideItem>
 
       <div class="list-item business {{b.saveState == 'Starred' ? 'starred' : ''}}" #businessElement>
@@ -93,7 +100,7 @@
 
     </ion-item-sliding>
 
-  </ion-list>
+  </ion-list> -->
 
   <ion-item class="empty-list-content" lines="none" *ngIf="storageService.businesses.length == 0">
     <div>

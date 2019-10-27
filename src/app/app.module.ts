@@ -13,6 +13,10 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { BusinessViewModalPageModule } from './pages/main-page/businesses-tab/business-view-modal/business-view-modal.module';
 import { BusinessPrefsModalPageModule } from './pages/main-page/businesses-tab/business-prefs/business-prefs-modal.module';
 
+import { AngularFireModule } from '@angular/fire';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { FIREBASE_CREDENTIALS } from './credentials/firebase.credentials';
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -22,7 +26,9 @@ import { BusinessPrefsModalPageModule } from './pages/main-page/businesses-tab/b
     AppRoutingModule,
     BusinessViewModalPageModule,
     BusinessPrefsModalPageModule,
-    NotificationsPrefsModalModule
+    NotificationsPrefsModalModule,
+    AngularFireModule.initializeApp(FIREBASE_CREDENTIALS),
+    AngularFirestoreModule
   ],
   providers: [
     StatusBar,
