@@ -15,7 +15,7 @@ import { BusinessPrefsModalPageModule } from './pages/main-page/businesses-tab/b
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
-import { FIREBASE_CREDENTIALS } from './credentials/firebase.credentials';
+import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 
 @NgModule({
   declarations: [AppComponent],

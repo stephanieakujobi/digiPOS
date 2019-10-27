@@ -6,6 +6,7 @@ import { ISalesRep } from 'src/app/interfaces/ISalesRep';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { IContact } from 'src/app/interfaces/businesses/IContact';
 import { BusinessSaveState } from 'src/app/models/businesses/BusinessSaveState';
+import { Business } from 'src/app/models/businesses/Business';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class FirebaseService {
 
   private salesRepDocument: AngularFirestoreDocument<ISalesRep>;
   private salesRepObservable$: Observable<ISalesRep>;
-  private _salesRep: ISalesRep;
+  private static _salesRep: ISalesRep;
 
   private subscriptions: Subscription;
 
@@ -59,7 +60,7 @@ export class FirebaseService {
         this.salesRepObservable$ = this.salesRepDocument.valueChanges();
 
         this.salesRepObservable$.subscribe(salesRep => {
-          this._salesRep = salesRep;
+          FirebaseService._salesRep = salesRep;
         });
       }
 
@@ -77,11 +78,14 @@ export class FirebaseService {
     this.afs.collection<ISalesRep>(this.salesRepsCollection).add(newSalesRep);
   }
 
-  public async addBusiness(business: IBusiness): Promise<CRUDResult> {
+  public async addBusiness(business: Business): Promise<CRUDResult> {
     let result: CRUDResult;
 
     if(!this.salesRepIsAuthenticated) {
-      result = new CRUDResult(false, "No authenticated sales rep.");
+      result = new CRUDResult(false, "Authentication error - user not logged in.");
+    }
+    else if(this.salesRepHasBusiness(business)) {
+      result = new CRUDResult(false, "Failed to save business - address already exists.");
     }
     else {
       business.saveState = BusinessSaveState.Saved;
@@ -100,11 +104,53 @@ export class FirebaseService {
     return result;
   }
 
+  public async deleteBusiness(business: Business): Promise<CRUDResult> {
+    let result: CRUDResult;
+
+    if(!this.salesRepIsAuthenticated) {
+      result = new CRUDResult(false, "Authentication error - user not logged in.");
+    }
+    else if(!this.salesRepHasBusiness(business)) {
+      result = new CRUDResult(false, "Failed to delete business - does not exist.");
+    }
+    else {
+      this.salesRep.savedBusinesses.splice(this.salesRep.savedBusinesses.indexOf(business), 1);
+
+      await this.salesRepDocument.update(this.salesRep)
+        .catch(() => {
+          result = new CRUDResult(false, "Failed to delete business - internal server error.");
+          this.salesRep.savedBusinesses.push(business);
+        })
+        .then(() => {
+          result = new CRUDResult(true, "Business deleted successfully.");
+        });
+    }
+
+    return result;
+  }
+
+  private salesRepHasBusiness(business: IBusiness): boolean {
+    let result: boolean = false;
+
+    for(const savedBusiness of this.salesRep.savedBusinesses) {
+      if(business.address.postalCode != null && business.address.postalCode == savedBusiness.address.postalCode) {
+        result = true;
+        break;
+      }
+      else if(business.address.countryAddress == savedBusiness.address.countryAddress) {
+        result = true;
+        break;
+      }
+    }
+
+    return result;
+  }
+
   public get salesRep(): ISalesRep {
-    return this._salesRep;
+    return FirebaseService._salesRep;
   }
 
   public get salesRepIsAuthenticated(): boolean {
-    return this._salesRep != null;
+    return FirebaseService._salesRep != null;
   }
 }

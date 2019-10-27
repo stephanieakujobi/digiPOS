@@ -41,7 +41,7 @@ export class AppBusinessesStorageService {
         break;
       }
       else {
-        isDuplicate = savedBusiness.address.shortAddress === business.address.shortAddress;
+        isDuplicate = savedBusiness.address.regionalAddress === business.address.regionalAddress;
         break;
       }
     }

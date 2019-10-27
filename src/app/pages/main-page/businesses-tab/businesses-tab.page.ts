@@ -50,23 +50,28 @@ export class BusinessesTabPage implements OnInit {
   async ngOnInit() {
     this.prefs = await this.prefsService.loadPrefs();
 
-    //TEMPORARY TEST OF ADDING A BUSINESS NON-MANUALLY.
-    this.storageService.addBusiness(new Business(
-      "Sony",
-      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K6")
-    ));
-    this.storageService.addBusiness(new Business(
-      "Microsoft",
-      new Address("234 Test Rd.", "Brampton", "ON", "Canada", "L8D1K7")
-    ));
-    this.storageService.addBusiness(new Business(
-      "Amazon",
-      new Address("456 Test Dr.", "Brampton", "ON", "Canada", "L8D1K8")
-    ));
-    this.storageService.addBusiness(new Business(
-      "Google",
-      new Address("567 Test Ave.", "Brampton", "ON", "Canada", "L8D1K9")
-    ));
+    //TEMPORARY
+    this.fbService.tryLogin("john.smith@cpos.ca", "123abc", result => {
+      console.log(result.message);
+    });
+
+    // //TEMPORARY TEST OF ADDING A BUSINESS NON-MANUALLY.
+    // this.storageService.addBusiness(new Business(
+    //   "Sony",
+    //   new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K6")
+    // ));
+    // this.storageService.addBusiness(new Business(
+    //   "Microsoft",
+    //   new Address("234 Test Rd.", "Brampton", "ON", "Canada", "L8D1K7")
+    // ));
+    // this.storageService.addBusiness(new Business(
+    //   "Amazon",
+    //   new Address("456 Test Dr.", "Brampton", "ON", "Canada", "L8D1K8")
+    // ));
+    // this.storageService.addBusiness(new Business(
+    //   "Google",
+    //   new Address("567 Test Ave.", "Brampton", "ON", "Canada", "L8D1K9")
+    // ));
   }
 
   /**
@@ -253,7 +258,7 @@ export class BusinessesTabPage implements OnInit {
     businessElement.classList.add("deleting");
 
     setTimeout(async () => {
-      const result: CRUDResult = await this.storageService.deleteBusiness(business);
+      const result: CRUDResult = await this.fbService.deleteBusiness(business);
       this.presentToast(result.message);
 
       if(!result.wasSuccessful) {
@@ -344,36 +349,9 @@ export class BusinessesTabPage implements OnInit {
           this.addSavedBusiness(data);
         }
         else {
-          this.updateSavedBusiness(existingBusiness, data);
+          ///this.updateSavedBusiness(existingBusiness, data);
         }
       }
-
-      /////////////////////////////////////////////////////////////////////////////////////////////////
-      this.fbService.tryLogin("john.smith@cpos.ca", "123abc", result => {
-        console.log(result);
-
-        setTimeout(async () => {
-          const result = await this.fbService.addBusiness({
-            name: "New Business",
-            address: {
-              street: "123 Test St.",
-              city: "Brampton",
-              region: "ON",
-              country: "Canada",
-              postalCode: "L7V1J8"
-            },
-            owner: null,
-            contactPerson: null,
-            currentProvider: null,
-            saveState: BusinessSaveState.Saved,
-            notes: "Some information about this business here...",
-            wasManuallySaved: false,
-            isReported: false
-          });
-
-          console.log(result);
-        }, 200);
-      });
     });
   }
 
@@ -383,7 +361,7 @@ export class BusinessesTabPage implements OnInit {
    * @param business The new business to save.
    */
   private async addSavedBusiness(business: Business) {
-    const result: CRUDResult = await this.storageService.addBusiness(business);
+    const result: CRUDResult = await this.fbService.addBusiness(business);
     this.presentToast(result.message);
 
     if(result.wasSuccessful) {

@@ -81,16 +81,23 @@ export class Address implements IAddress, ICloneable<Address> {
     }
 
     /**
-     * @readonly A string representation of this Address in "(street), (city), (region)" format.
+     * @readonly Returns the street, city, and region of this Address in a formatted string.
      */
-    public get shortAddress(): string {
+    public regionalAddress(): string {
         return `${this._street}, ${this._city}, ${this._region}`;
     }
 
     /**
-     * @readonly A string representation of this Address in "(street), (city), (region), (country), (postal code)" format.
+     * @readonly Returns the street, city, region, and country of this Address in a formatted string.
      */
-    public get fullAddress(): string {
-        return `${this.shortAddress}, ${this._country}, ${this._postalCode}`;
+    public countryAddress(): string {
+        return `${this.regionalAddress}, ${this._country}`;
+    }
+
+    /**
+     * @readonly Returns the street, city, region, country, and postal code of this Address in a formatted string.
+     */
+    public fullAddress(): string {
+        return `${this.countryAddress}, ${this._postalCode}`;
     }
 }
