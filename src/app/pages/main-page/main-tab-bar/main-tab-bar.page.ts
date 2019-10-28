@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { AppNotification } from 'src/app/models/notifications/AppNotification';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
 import { AppNotifSeverity } from 'src/app/models/notifications/AppNotifSeverity';
-import { AppBusinessesStorageService } from 'src/app/services/businesses/storage/app-businesses-storage.service';
 
 @Component({
   selector: 'app-main-tab-bar',
@@ -14,7 +13,7 @@ import { AppBusinessesStorageService } from 'src/app/services/businesses/storage
  * The wrapper page containing the main tab bar displayed at the bottom of the app after the user logs in.
  */
 export class MainTabBarPage {
-  constructor(private businessesStorage: AppBusinessesStorageService, private notifsStorage: AppNotifsStorageService) { }
+  constructor(private notifsStorage: AppNotifsStorageService) { }
 
   /**
    * Ionic callback function called when the page has finished rendering content.
@@ -22,8 +21,6 @@ export class MainTabBarPage {
    */
   async ionViewDidEnter() {
     await this.testSaveNotifs(); //TEMPORARY
-
-    await this.businessesStorage.loadBusinesses();
     await this.loadNotifications();
   }
 
