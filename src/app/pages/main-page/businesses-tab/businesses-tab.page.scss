@@ -1,3 +1,12 @@
+ion-content {
+  &.md .scroll-container {
+    height: calc(100vh - 219px);
+  }
+  &.ios .scroll-container {
+    height: calc(100vh - 199px);
+  }
+}
+
 ion-list .list-item {
   ion-icon.saved-type-icon {
     margin-right: 16px;

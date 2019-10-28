@@ -11,7 +11,9 @@ import { FirebaseAuthService } from '../authentication/firebase-auth.service';
 /**
  * The FirebaseBusinessService provides real-time data streaming to a Firebase CloudFirestore.
  * It is used to perform CRUD operations on the saved Businesses of sales representitives, and stores these Businesses server-side.
- * When a user is authenticated, their saved Businessws will be retrieved from the CloudFirestore.
+ * This service works in conjunction with the FirebaseAuthService. A user must first be authenticated into the app before an instance of a FirebaseBusinessService
+ * can exist, else an error is thrown. 
+ * When a user is authenticated, their saved Businesses will be retrieved from the CloudFirestore.
  */
 export class FirebaseBusinessService {
   constructor(private authService: FirebaseAuthService) { 

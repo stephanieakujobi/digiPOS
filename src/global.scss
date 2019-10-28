@@ -30,9 +30,7 @@
 }
 
 .sticky-controls-container {
-  position: sticky;
-  top: 0;
-  background-color: var(--ion-color-secondary);
+  background-color: var(--ion-color-primary-tint);
   z-index: 1;
 
   ion-item {
@@ -43,6 +41,10 @@
       margin-top: 4px;
     }
   }
+}
+
+.scroll-container {
+  overflow: scroll;
 }
 
 ion-toast {

@@ -4,8 +4,6 @@ import { BusinessViewModalPage } from './business-view-modal/business-view-modal
 import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.page';
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
 import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
-import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
-import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { FirebaseBusinessService } from 'src/app/services/firebase/businesses/firebase-business.service';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
@@ -33,9 +31,7 @@ export class BusinessesTabPage implements OnInit {
     private modalController: ModalController,
     private alertController: AlertController,
     private toastController: ToastController,
-    private geolocation: Geolocation,
-    private geocoder: NativeGeocoder,
-    private fbService: FirebaseBusinessService,
+    private fbbService: FirebaseBusinessService
   ) { }
 
   /**
@@ -57,7 +53,7 @@ export class BusinessesTabPage implements OnInit {
    * Reads the value of the ion-select element on the page and calls the appropriate sort function.
    */
   sortBusinesses() {
-    if(this.fbService.businesses != null) {
+    if(this.fbbService.businesses != null) {
       const sortSelect = document.getElementById("sort-by-select") as HTMLIonSelectElement;
 
       switch(sortSelect.value) {
@@ -88,7 +84,7 @@ export class BusinessesTabPage implements OnInit {
    * @param ascending If true, the list will be sorted in ascending order, else in descending order.
    */
   private sortBusinessesAscDesc(ascending: boolean) {
-    this.fbService.businesses.sort((b1, b2) => {
+    this.fbbService.businesses.sort((b1, b2) => {
       let result: number;
       const b1Name = b1.name.toLowerCase();
       const b2Name = b2.name.toLowerCase();
@@ -132,21 +128,21 @@ export class BusinessesTabPage implements OnInit {
    * Sorts the list of saved Businesses by displaying all starred Businesses at the top of the list first.
    */
   private sortBusinessesByStarred() {
-    this.fbService.businesses.sort(b => b.saveState == "starred" ? -1 : 0);
+    this.fbbService.businesses.sort(b => b.saveState == "starred" ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Businesses by displaying all Businesses saved from the map first.
    */
   private sortBusinessesByMapSave() {
-    this.fbService.businesses.sort(b => !b.wasManuallySaved ? -1 : 0);
+    this.fbbService.businesses.sort(b => !b.wasManuallySaved ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Businesses by displaying all Businesses saved manually by the user first.
    */
   private sortBusinessesByManualSave() {
-    this.fbService.businesses.sort(b => b.wasManuallySaved ? -1 : 0);
+    this.fbbService.businesses.sort(b => b.wasManuallySaved ? -1 : 0);
   }
 
   /**
@@ -215,7 +211,7 @@ export class BusinessesTabPage implements OnInit {
     businessElement.classList.add("deleting");
 
     setTimeout(async () => {
-      const result: CRUDResult = await this.fbService.deleteBusiness(business);
+      const result: CRUDResult = await this.fbbService.deleteBusiness(business);
       this.presentToast(result.message);
 
       if(!result.wasSuccessful) {
@@ -250,7 +246,7 @@ export class BusinessesTabPage implements OnInit {
     ionItemSliding.close();
 
     setTimeout(async () => {
-      const result: CRUDResult = await this.fbService.toggleBusinessStarred(business);
+      const result: CRUDResult = await this.fbbService.toggleBusinessStarred(business);
 
       if(result.wasSuccessful) {
         this.sortBusinesses();
@@ -315,7 +311,7 @@ export class BusinessesTabPage implements OnInit {
    * @param business The new business to save.
    */
   private async addSavedBusiness(business: IBusiness) {
-    const result: CRUDResult = await this.fbService.addBusiness(business);
+    const result: CRUDResult = await this.fbbService.addBusiness(business);
     this.presentToast(result.message);
 
     if(result.wasSuccessful) {
@@ -330,7 +326,7 @@ export class BusinessesTabPage implements OnInit {
    * @param updated The new Business to replace with the original Business.
    */
   private async updateSavedBusiness(original: IBusiness, updated: IBusiness) {
-    const result: CRUDResult = await this.fbService.updateBusiness(original, updated);
+    const result: CRUDResult = await this.fbbService.updateBusiness(original, updated);
     this.presentToast(result.message);
 
     if(result.wasSuccessful) {

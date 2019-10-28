@@ -15,9 +15,9 @@
 </ion-header>
 
 <ion-content>
-  <div class="sticky-controls-container {{fbService.businesses.length == 0 ? 'hidden' : ''}}">
+  <div class="sticky-controls-container {{fbbService.businesses.length == 0 ? 'hidden' : ''}}">
 
-    <ion-item lines=" none">
+    <ion-item lines="none">
       <ion-label>Sort By:</ion-label>
       <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="ascending"
         (ionChange)="sortBusinesses()">
@@ -36,67 +36,70 @@
 
   </div>
 
-  <ion-list class="ion-item-sliding-list" lines="full">
-    <ion-item-sliding *ngFor="let b of fbService.businesses" #slideItem>
+  <div class="scroll-container">
 
-      <div class="list-item business {{b.saveState == 'starred' ? 'starred' : ''}}" #businessElement>
-        <ion-item (click)="editBusinessInfo(b)">
-          <ion-icon class="saved-type-icon" [name]="b.wasManuallySaved ? 'create' : 'map'" color="primary"></ion-icon>
-          <ion-label>
-            <h2 class="business-name">{{b.name}}</h2>
-            <p>
-              <ion-icon class="list-item-sub-icon" name="pin"></ion-icon>
-              {{b.address.street}}, {{b.address.city}}, {{b.address.region}}
-            </p>
-          </ion-label>
-          <ion-icon class="list-item-icon" name="star" color="tertiary"></ion-icon>
-        </ion-item>
-      </div>
+    <ion-list class="ion-item-sliding-list" lines="full">
+      <ion-item-sliding *ngFor="let b of fbbService.businesses" #slideItem>
 
-      <ion-item-options side="start" (ionSwipe)="onDeleteBusiness(b, slideItem, businessElement)">
-        <ion-item-option color="danger" expandable (click)="onDeleteBusiness(b, slideItem, businessElement)">
-          <ion-label>
-            <ion-icon name="trash" color="secondary"></ion-icon>
-            Delete
-          </ion-label>
-        </ion-item-option>
-      </ion-item-options>
+        <div class="list-item business {{b.saveState == 'starred' ? 'starred' : ''}}" #businessElement>
+          <ion-item (click)="editBusinessInfo(b)">
+            <ion-icon class="saved-type-icon" [name]="b.wasManuallySaved ? 'create' : 'map'" color="primary"></ion-icon>
+            <ion-label>
+              <h2 class="business-name">{{b.name}}</h2>
+              <p>
+                <ion-icon class="list-item-sub-icon" name="pin"></ion-icon>
+                {{b.address.street}}, {{b.address.city}}, {{b.address.region}}
+              </p>
+            </ion-label>
+            <ion-icon class="list-item-icon" name="star" color="tertiary"></ion-icon>
+          </ion-item>
+        </div>
 
-      <ion-item-options side="end" (ionSwipe)="onStarBusiness(b, slideItem)">
-        <ion-item-option color="primary" (click)="editBusinessInfo(b, slideItem)">
-          <ion-label>
-            <ion-icon name="create" color="secondary"></ion-icon>
-            Edit Info
-          </ion-label>
-        </ion-item-option>
-        <ion-item-option color="primary" (click)="viewBusinessOnMap(b, slideItem)">
-          <ion-label>
-            <ion-icon name="pin" color="secondary"></ion-icon>
-            View on Map
-          </ion-label>
-        </ion-item-option>
+        <ion-item-options side="start" (ionSwipe)="onDeleteBusiness(b, slideItem, businessElement)">
+          <ion-item-option color="danger" expandable (click)="onDeleteBusiness(b, slideItem, businessElement)">
+            <ion-label>
+              <ion-icon name="trash" color="secondary"></ion-icon>
+              Delete
+            </ion-label>
+          </ion-item-option>
+        </ion-item-options>
 
-        <ion-item-option color="tertiary" (click)="onStarBusiness(b, slideItem)" expandable
-          *ngIf="b.saveState == 'saved'">
-          <ion-label>
-            <ion-icon name="star-outline" color="secondary"></ion-icon>
-            Star
-          </ion-label>
-        </ion-item-option>
-        <ion-item-option color="tertiary" (click)="onStarBusiness(b, slideItem)" expandable
-          *ngIf="b.saveState == 'starred'">
-          <ion-label>
-            <ion-icon name="star" color="secondary"></ion-icon>
-            Un-Star
-          </ion-label>
-        </ion-item-option>
-      </ion-item-options>
+        <ion-item-options side="end" (ionSwipe)="onStarBusiness(b, slideItem)">
+          <ion-item-option color="primary" (click)="editBusinessInfo(b, slideItem)">
+            <ion-label>
+              <ion-icon name="create" color="secondary"></ion-icon>
+              Edit Info
+            </ion-label>
+          </ion-item-option>
+          <ion-item-option color="primary" (click)="viewBusinessOnMap(b, slideItem)">
+            <ion-label>
+              <ion-icon name="pin" color="secondary"></ion-icon>
+              View on Map
+            </ion-label>
+          </ion-item-option>
 
-    </ion-item-sliding>
+          <ion-item-option color="tertiary" (click)="onStarBusiness(b, slideItem)" expandable
+            *ngIf="b.saveState == 'saved'">
+            <ion-label>
+              <ion-icon name="star-outline" color="secondary"></ion-icon>
+              Star
+            </ion-label>
+          </ion-item-option>
+          <ion-item-option color="tertiary" (click)="onStarBusiness(b, slideItem)" expandable
+            *ngIf="b.saveState == 'starred'">
+            <ion-label>
+              <ion-icon name="star" color="secondary"></ion-icon>
+              Un-Star
+            </ion-label>
+          </ion-item-option>
+        </ion-item-options>
 
-  </ion-list>
+      </ion-item-sliding>
+    </ion-list>
 
-  <ion-item class="empty-list-content" lines="none" *ngIf="fbService.businesses.length == 0">
+  </div>
+
+  <ion-item class="empty-list-content" lines="none" *ngIf="fbbService.businesses.length == 0">
     <div>
       <ion-label>You have no saved businesses</ion-label>
       <ion-icon name="globe"></ion-icon>
