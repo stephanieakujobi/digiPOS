@@ -13,33 +13,43 @@
 
 <ion-content class="ion-padding">
 
-  <ion-img src="assets/images/image-placeholder.jpg"></ion-img>
+  <ion-avatar class="avatar">
+    <img src="https://pbs.twimg.com/profile_images/2833439682/3d44e6de40db4c108bfef35a5d0fec8f.jpeg" />
+  </ion-avatar>
 
-  <!-- Readonly input -->
-  <ion-icon name="contacts"></ion-icon>
-  <ion-input value="Fullname" readonly></ion-input>
+  <div class="ion-text-center">
+    <ion-text color="primary">
+      <h2>Will Smith</h2>
+    </ion-text>
+  </div>
 
-  <!-- Input with placeholder -->
-  <ion-input value="John Smith" readonly></ion-input>
+  <ion-card>
+    <ion-list>
+      <ion-item lines="inset">
+        <ion-icon name="contacts" slot="start"></ion-icon>
+        <ion-input value="Will Smith" readonly>
+        </ion-input>
+      </ion-item>
 
-  <!-- Readonly input -->
-  <ion-icon name="mail"></ion-icon>
-  <ion-input value="Email Address" readonly></ion-input>
+      <ion-item lines="inset">
+        <ion-icon name="mail" slot="start"></ion-icon>
+        <ion-input value="willsmith@gmail.com" readonly>
+        </ion-input>
+      </ion-item>
 
-  <!-- Input with placeholder -->
-  <ion-input value="JohnSmith@gmail.com" readonly></ion-input>
+      <ion-item lines="inset">
+        <ion-icon name="call" slot="start"></ion-icon>
+        <ion-input value="(647) 258-5319" readonly>
+        </ion-input>
+      </ion-item>
 
-  <!-- Readonly input -->
-  <ion-icon name="call"></ion-icon>
-  <ion-input value="PhoneNumber" readonly></ion-input>
+      <ion-item lines="inset">
+        <ion-icon name="pin" slot="start"></ion-icon>
+        <ion-input value="12 Billionaires row New York City" readonly>
+        </ion-input>
+      </ion-item>
 
-  <!-- Input with placeholder -->
-  <ion-input value="345-345-2345" readonly></ion-input>
-
-  <ion-icon name="pin"></ion-icon>
-  <ion-input value="Location" readonly></ion-input>
-
-  <!-- Input with placeholder -->
-  <ion-input value="17 Woodtree drive" readonly></ion-input>
+    </ion-list>
+  </ion-card>
 
 </ion-content>
