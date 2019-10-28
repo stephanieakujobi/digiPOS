@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
-import { AppNotifsPrefs } from 'src/app/models/notifications/AppNotifsPrefs';
+import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
 import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
 
 @Component({

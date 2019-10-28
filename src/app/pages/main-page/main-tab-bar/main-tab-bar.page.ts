@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { AppNotification } from 'src/app/models/notifications/AppNotification';
+import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
-import { AppNotifSeverity } from 'src/app/models/notifications/AppNotifSeverity';
+import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
 
 @Component({
   selector: 'app-main-tab-bar',

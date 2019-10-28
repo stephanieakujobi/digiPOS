@@ -3,10 +3,10 @@ import { ModalController, ToastController, AlertController } from '@ionic/angula
 import { BusinessViewModalPage } from './business-view-modal/business-view-modal.page';
 import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.page';
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
-import { AppBusinessesPrefs } from 'src/app/models/businesses/AppBusinessesPrefs';
+import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
-import { CRUDResult } from 'src/app/models/CRUDResult';
+import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { FirebaseService } from 'src/app/services/firebase/firebase.service';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 

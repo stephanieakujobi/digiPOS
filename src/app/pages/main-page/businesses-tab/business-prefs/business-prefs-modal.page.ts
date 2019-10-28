@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
-import { AppBusinessesPrefs } from 'src/app/models/businesses/AppBusinessesPrefs';
+import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
 
 @Component({

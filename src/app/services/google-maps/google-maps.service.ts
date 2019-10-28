@@ -16,8 +16,8 @@ import {
   MarkerOptions,
   HtmlInfoWindow
 } from '@ionic-native/google-maps';
-import { InfoWindow } from 'src/app/models/google-maps/InfoWindow';
-import { BusinessLocation } from 'src/app/models/google-maps/BusinessLocation';
+import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
+import { BusinessLocation } from 'src/app/classes/google-maps/BusinessLocation';
 
 @Injectable({
   providedIn: 'root'

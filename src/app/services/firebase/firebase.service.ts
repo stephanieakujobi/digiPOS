@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable, Subscription } from 'rxjs';
-import { CRUDResult } from 'src/app/models/CRUDResult';
+import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { ISalesRep } from 'src/app/interfaces/ISalesRep';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { IContact } from 'src/app/interfaces/businesses/IContact';
-import { BusinessSaveState } from 'src/app/models/businesses/BusinessSaveState';
+import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
 import { IAddress } from 'src/app/interfaces/businesses/IAddress';
 
 @Injectable({

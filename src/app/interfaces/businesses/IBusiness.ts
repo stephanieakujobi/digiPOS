@@ -1,4 +1,4 @@
-import { BusinessSaveState } from '../../models/businesses/BusinessSaveState';
+import { BusinessSaveState } from '../../classes/businesses/BusinessSaveState';
 import { IContact } from './IContact';
 import { IAddress } from './IAddress';
 

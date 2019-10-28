@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
-import { AppNotification } from '../../../models/notifications/AppNotification';
+import { AppNotification } from '../../../classes/notifications/AppNotification';
 
 @Injectable({
   providedIn: 'root'
