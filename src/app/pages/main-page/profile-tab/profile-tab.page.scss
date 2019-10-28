@@ -1,4 +1,8 @@
-ion-img {
-    max-width: 200px;
-    margin: auto;
+.avatar {
+  margin: auto;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 150px !important; //any size
+  max-height: 150px !important; //any size
+  padding-top: 5px;
 }
