@@ -4,7 +4,12 @@ import { MainTabBarPage } from "./main-tab-bar.page";
 
 const routes: Routes = [
   {
-    path: "main-tab-bar",
+    path: "",
+    redirectTo: "tabs/home-tab",
+    pathMatch: "full",
+  },
+  {
+    path: "tabs",
     component: MainTabBarPage,
     children: [
       {
@@ -54,11 +59,6 @@ const routes: Routes = [
         ]
       }
     ]
-  },
-  {
-    path: "",
-    redirectTo: "/main-tab-bar/home-tab",
-    pathMatch: "full"
   }
 ];
 

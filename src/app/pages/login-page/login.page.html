@@ -4,22 +4,26 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div id="login-form">
+<ion-content>
+  <ion-progress-bar type="indeterminate" style="opacity: 0;"></ion-progress-bar>
+
+  <form id="login-form" (ngSubmit)="onLoginFormSubmit()">
 
     <ion-img src="assets/images/image-placeholder.jpg"></ion-img>
 
     <ion-item>
       <ion-label position="floating">Email</ion-label>
-      <ion-input type="text"></ion-input>
+      <ion-input id="txt-email" type="text"></ion-input>
     </ion-item>
 
     <ion-item color="none">
       <ion-label position="floating">Password</ion-label>
-      <ion-input type="password"></ion-input>
+      <ion-input id="txt-password" type="password"></ion-input>
     </ion-item>
 
-    <ion-button href="../main-tab-bar/home-tab" expand="block" color="primary">Login</ion-button>
+    <ion-button type="submit" expand="block" color="primary">Login</ion-button>
 
-  </div>
+  </form>
 </ion-content>
+
+<!-- href="../main-tab-bar/home-tab" -->

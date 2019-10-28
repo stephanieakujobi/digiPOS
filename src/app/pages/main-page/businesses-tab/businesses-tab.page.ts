@@ -7,7 +7,7 @@ import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPref
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
-import { FirebaseService } from 'src/app/services/firebase/firebase.service';
+import { FirebaseBusinessService } from 'src/app/services/firebase/businesses/firebase-business.service';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 
 @Component({
@@ -35,7 +35,7 @@ export class BusinessesTabPage implements OnInit {
     private toastController: ToastController,
     private geolocation: Geolocation,
     private geocoder: NativeGeocoder,
-    private fbService: FirebaseService,
+    private fbService: FirebaseBusinessService,
   ) { }
 
   /**
@@ -43,18 +43,14 @@ export class BusinessesTabPage implements OnInit {
    */
   async ngOnInit() {
     this.prefs = await this.prefsService.loadPrefs();
-
-    //TEMPORARY
-    this.fbService.tryLogin("john.smith@cpos.ca", "123abc", result => {
-      console.log(result.message);
-    });
   }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
    */
   ionViewDidEnter() {
-    this.sortBusinesses();
+    console.log(this.fbService.businesses);
+    // this.sortBusinesses();
   }
 
   /**
@@ -62,7 +58,7 @@ export class BusinessesTabPage implements OnInit {
    * Reads the value of the ion-select element on the page and calls the appropriate sort function.
    */
   sortBusinesses() {
-    if(this.fbService.salesRepIsAuthenticated) {
+    if(this.fbService.businesses != null) {
       const sortSelect = document.getElementById("sort-by-select") as HTMLIonSelectElement;
 
       switch(sortSelect.value) {
@@ -93,7 +89,7 @@ export class BusinessesTabPage implements OnInit {
    * @param ascending If true, the list will be sorted in ascending order, else in descending order.
    */
   private sortBusinessesAscDesc(ascending: boolean) {
-    this.fbService.salesRep.savedBusinesses.sort((b1, b2) => {
+    this.fbService.businesses.sort((b1, b2) => {
       let result: number;
       const b1Name = b1.name.toLowerCase();
       const b2Name = b2.name.toLowerCase();
@@ -137,21 +133,21 @@ export class BusinessesTabPage implements OnInit {
    * Sorts the list of saved Businesses by displaying all starred Businesses at the top of the list first.
    */
   private sortBusinessesByStarred() {
-    this.fbService.salesRep.savedBusinesses.sort(b => b.saveState == "starred" ? -1 : 0);
+    this.fbService.businesses.sort(b => b.saveState == "starred" ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Businesses by displaying all Businesses saved from the map first.
    */
   private sortBusinessesByMapSave() {
-    this.fbService.salesRep.savedBusinesses.sort(b => !b.wasManuallySaved ? -1 : 0);
+    this.fbService.businesses.sort(b => !b.wasManuallySaved ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Businesses by displaying all Businesses saved manually by the user first.
    */
   private sortBusinessesByManualSave() {
-    this.fbService.salesRep.savedBusinesses.sort(b => b.wasManuallySaved ? -1 : 0);
+    this.fbService.businesses.sort(b => b.wasManuallySaved ? -1 : 0);
   }
 
   /**
@@ -166,7 +162,7 @@ export class BusinessesTabPage implements OnInit {
 
     for(let i = 0; i < arrLength; i++) {
       const elementBusinessName = (elements[i].querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
-      
+
       if(elementBusinessName.includes(searchQuery)) {
         elements[i].classList.remove("deleting");
       }

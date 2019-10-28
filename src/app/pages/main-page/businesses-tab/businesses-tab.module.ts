@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { BusinessesTabPage } from './businesses-tab.page';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
-import { FirebaseService } from 'src/app/services/firebase/firebase.service';
+import { FirebaseBusinessService } from 'src/app/services/firebase/businesses/firebase-business.service';
 
 @NgModule({
   imports: [
@@ -18,7 +18,7 @@ import { FirebaseService } from 'src/app/services/firebase/firebase.service';
   providers: [
     Geolocation,
     NativeGeocoder,
-    FirebaseService
+    FirebaseBusinessService
   ],
   declarations: [BusinessesTabPage]
 })

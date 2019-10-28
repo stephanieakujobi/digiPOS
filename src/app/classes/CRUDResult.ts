@@ -15,7 +15,7 @@ export class CRUDResult {
      * @param wasSuccessful Whether or not the CRUD operation had completed successfully.
      * @param resultMessage The resulting message for the CRUD operation.
      */
-    public constructor(wasSuccessful: boolean, resultMessage: string) {
+    public constructor(wasSuccessful: boolean, resultMessage?: string) {
         this._wasSuccessful = wasSuccessful;
         this._resultMessage = resultMessage;
     }

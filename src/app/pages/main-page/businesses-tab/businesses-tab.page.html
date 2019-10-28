@@ -14,8 +14,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="fbService.salesRepIsAuthenticated">
-  <div class="sticky-controls-container {{fbService.salesRep.savedBusinesses.length == 0 ? 'hidden' : ''}}">
+<ion-content>
+  <div class="sticky-controls-container {{fbService.businesses.length == 0 ? 'hidden' : ''}}">
 
     <ion-item lines=" none">
       <ion-label>Sort By:</ion-label>
@@ -37,7 +37,7 @@
   </div>
 
   <ion-list class="ion-item-sliding-list" lines="full">
-    <ion-item-sliding *ngFor="let b of fbService.salesRep.savedBusinesses" #slideItem>
+    <ion-item-sliding *ngFor="let b of fbService.businesses" #slideItem>
 
       <div class="list-item business {{b.saveState == 'starred' ? 'starred' : ''}}" #businessElement>
         <ion-item (click)="editBusinessInfo(b)">
@@ -96,7 +96,7 @@
 
   </ion-list>
 
-  <ion-item class="empty-list-content" lines="none" *ngIf="fbService.salesRep.savedBusinesses.length == 0">
+  <ion-item class="empty-list-content" lines="none" *ngIf="fbService.businesses.length == 0">
     <div>
       <ion-label>You have no saved businesses</ion-label>
       <ion-icon name="globe"></ion-icon>
