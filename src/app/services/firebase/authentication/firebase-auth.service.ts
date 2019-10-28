@@ -37,12 +37,12 @@ export class FirebaseAuthService {
       this.subscriptions.add(authQuery.subscribe(results => {
         if(results.length == 0) {
           this.subscriptions.unsubscribe();
-          callback(new CRUDResult(false, "Authentication failed."));
+          callback(new CRUDResult(false, "Invalid authentication."));
         }
         else {
           this.successfulLogin(results[0].info as IContact);
           FirebaseAuthService._userIsAuthenticated = true;
-          callback(new CRUDResult(true, "Authentication Successful."));
+          callback(new CRUDResult(true, "Authentication successful."));
         }
       }));
     }

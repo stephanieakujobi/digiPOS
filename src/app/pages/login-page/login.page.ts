@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
-import { NavController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -10,7 +10,7 @@ import { NavController } from '@ionic/angular';
 export class LoginPage {
   private loginProgress: HTMLIonProgressBarElement;
 
-  constructor(private authService: FirebaseAuthService, private navController: NavController) { }
+  constructor(private authService: FirebaseAuthService, private toastController: ToastController, private navController: NavController) { }
 
   ionViewDidEnter() {
     this.loginProgress = document.querySelector("ion-progress-bar");
@@ -26,10 +26,22 @@ export class LoginPage {
       this.loginProgress.style.opacity = "0";
 
       if(!result.wasSuccessful) {
+        this.presentToast(result.message);
       }
       else {
-        this.navController.navigateRoot("/main");
+        this.navController.navigateForward("/main");
       }
     });
+  }
+
+  private async presentToast(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: "top",
+      cssClass: "header-margin"
+    });
+
+    toast.present();
   }
 }

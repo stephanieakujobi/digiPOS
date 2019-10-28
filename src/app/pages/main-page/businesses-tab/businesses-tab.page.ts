@@ -49,8 +49,7 @@ export class BusinessesTabPage implements OnInit {
    * @see https://ionicframework.com/docs/angular/lifecycle
    */
   ionViewDidEnter() {
-    console.log(this.fbService.businesses);
-    // this.sortBusinesses();
+    this.sortBusinesses();
   }
 
   /**
@@ -346,7 +345,8 @@ export class BusinessesTabPage implements OnInit {
   private async presentToast(message: string) {
     const toast = await this.toastController.create({
       message: message,
-      duration: 2000
+      duration: 2000,
+      cssClass: "tabs-margin"
     });
 
     toast.present();
