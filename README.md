@@ -7,7 +7,7 @@ This app will help in keeping track of each and every business they want.
 With the latest technology, reports will be sent to their CRM so that on a management level, they can have an overview of the enitre project
 
 # Project link
-Install [GitHub Repository Link](https://github.com/AdrianoCucci/CPOS-Capstone-App "Repo title")
+Clone [GitHub Repository Link](https://github.com/AdrianoCucci/CPOS-Capstone-App "Repo title")
 
 # Prerequisite
 
@@ -75,4 +75,33 @@ $ ionic cordova run android/ios
    |   ├── declarations.d.ts      # A config file to make TypeScript objects available in intellisense
    |   ├── index.html             # The root index app file - This launches the app
    └── ...
+```
+# Add Firebase on project
+## Create a Firebase Project
+Before you can add Firebase to your JavaScript app, you need to [create a Firebase project](https://firebase.google.com/docs/web/setup#create-project) to connect to your app.
+
+## Register your app
+After you have a Firebase project, you can add your web app to it.
+
+## Install dependencies
+[@angular/fire](https://github.com/angular/angularfire) is the official Angular library for Firebase, we’ll install both packages:
+```
+$ npm install firebase @angular/fire --save
+```
+## Setup Environment Config
+To initialize Firebase in your app, you need to provide your app’s [Firebase project configuration](https://firebase.google.com/docs/web/setup#config-object). Copy it on src/environments/environment.ts
+```
+export const environment = {
+  production: false,
+  firebase: {
+    apiKey: '',
+    authDomain: '',
+    databaseURL: '',
+    projectId: '',
+    storageBucket: '',
+    messagingSenderId: '',
+    appId: '',
+    measurementId: ''
+  }
+};
 ```
