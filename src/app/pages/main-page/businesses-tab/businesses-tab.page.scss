@@ -7,6 +7,10 @@ ion-content {
   }
 }
 
+ion-searchbar {
+  --background: var(--ion-color-secondary);
+}
+
 ion-list .list-item {
   ion-icon.saved-type-icon {
     margin-right: 16px;
