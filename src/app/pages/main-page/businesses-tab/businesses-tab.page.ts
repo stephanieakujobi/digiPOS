@@ -1,17 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController, ToastController, AlertController } from '@ionic/angular';
 import { BusinessViewModalPage } from './business-view-modal/business-view-modal.page';
-import { Business } from 'src/app/models/businesses/Business';
-import { AppBusinessesStorageService } from 'src/app/services/businesses/storage/app-businesses-storage.service';
-import { Address } from 'src/app/models/businesses/Address';
 import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.page';
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
 import { AppBusinessesPrefs } from 'src/app/models/businesses/AppBusinessesPrefs';
-import { BusinessSaveState } from 'src/app/models/businesses/BusinessSaveState';
-import { HTMLBusinessElement } from 'src/app/models/businesses/HTMLBusinessElement';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { CRUDResult } from 'src/app/models/CRUDResult';
+import { FirebaseService } from 'src/app/services/firebase/firebase.service';
+import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -23,7 +20,6 @@ import { CRUDResult } from 'src/app/models/CRUDResult';
  * The page displayed to the user when they select the "Businesses" tab.
  */
 export class BusinessesTabPage implements OnInit {
-  private businessListItems: HTMLBusinessElement[];
   private prefs: AppBusinessesPrefs;
 
   /**
@@ -33,13 +29,13 @@ export class BusinessesTabPage implements OnInit {
    * @param toastController The ToastController used to create toast messages for this page.
    */
   constructor(
-    private storageService: AppBusinessesStorageService,
     private prefsService: AppBusinessesPrefsService,
     private modalController: ModalController,
     private alertController: AlertController,
     private toastController: ToastController,
     private geolocation: Geolocation,
-    private geocoder: NativeGeocoder
+    private geocoder: NativeGeocoder,
+    private fbService: FirebaseService,
   ) { }
 
   /**
@@ -48,50 +44,17 @@ export class BusinessesTabPage implements OnInit {
   async ngOnInit() {
     this.prefs = await this.prefsService.loadPrefs();
 
-    //TEMPORARY TEST OF ADDING A BUSINESS NON-MANUALLY.
-    this.storageService.addBusiness(new Business(
-      "Sony",
-      new Address("123 Test St.", "Brampton", "ON", "Canada", "L8D1K6")
-    ));
-    this.storageService.addBusiness(new Business(
-      "Microsoft",
-      new Address("234 Test Rd.", "Brampton", "ON", "Canada", "L8D1K7")
-    ));
-    this.storageService.addBusiness(new Business(
-      "Amazon",
-      new Address("456 Test Dr.", "Brampton", "ON", "Canada", "L8D1K8")
-    ));
-    this.storageService.addBusiness(new Business(
-      "Google",
-      new Address("567 Test Ave.", "Brampton", "ON", "Canada", "L8D1K9")
-    ));
+    //TEMPORARY
+    this.fbService.tryLogin("john.smith@cpos.ca", "123abc", result => {
+      console.log(result.message);
+    });
   }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
    */
   ionViewDidEnter() {
-    this.updateBusinessListReferences();
     this.sortBusinesses();
-  }
-
-  /**
-   * Query-selects all DOM elements with the "list-item" class, and stores them as HTMLBusinessElements, with the
-   * business name being query-selected from each element's child element containing a "business-name" class.
-   */
-  private updateBusinessListReferences() {
-    //Waiting 50 miliseconds before searching the DOM for new list items.
-    //Without this, list items can sometimes not be found when newly added.
-    setTimeout(() => {
-      this.businessListItems = [];
-      const elements = Array.from(document.querySelectorAll(".list-item.business")) as HTMLElement[];
-      const arrLength = elements.length;
-
-      for(let i = 0; i < arrLength; i++) {
-        const businessName = (elements[i].querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
-        this.businessListItems[i] = new HTMLBusinessElement(elements[i], businessName);
-      }
-    }, 50);
   }
 
   /**
@@ -99,27 +62,29 @@ export class BusinessesTabPage implements OnInit {
    * Reads the value of the ion-select element on the page and calls the appropriate sort function.
    */
   sortBusinesses() {
-    const sortSelect = document.getElementById("sort-by-select") as HTMLIonSelectElement;
+    if(this.fbService.salesRepIsAuthenticated) {
+      const sortSelect = document.getElementById("sort-by-select") as HTMLIonSelectElement;
 
-    switch(sortSelect.value) {
-      default:
-        this.sortBusinessesAscDesc(true);
-        break;
-      case "descending":
-        this.sortBusinessesAscDesc(false);
-        break;
-      case "starred":
-        this.sortBusinessesByStarred();
-        break;
-      case "savedMap":
-        this.sortBusinessesByMapSave();
-        break;
-      case "savedManual":
-        this.sortBusinessesByManualSave();
-        break;
-      case "closest":
-        this.sortBusinessesByClosest();
-        break;
+      switch(sortSelect.value) {
+        default:
+          this.sortBusinessesAscDesc(true);
+          break;
+        case "descending":
+          this.sortBusinessesAscDesc(false);
+          break;
+        case "starred":
+          this.sortBusinessesByStarred();
+          break;
+        case "savedMap":
+          this.sortBusinessesByMapSave();
+          break;
+        case "savedManual":
+          this.sortBusinessesByManualSave();
+          break;
+        case "closest":
+          this.sortBusinessesByClosest();
+          break;
+      }
     }
   }
 
@@ -128,7 +93,7 @@ export class BusinessesTabPage implements OnInit {
    * @param ascending If true, the list will be sorted in ascending order, else in descending order.
    */
   private sortBusinessesAscDesc(ascending: boolean) {
-    this.storageService.businesses.sort((b1, b2) => {
+    this.fbService.salesRep.savedBusinesses.sort((b1, b2) => {
       let result: number;
       const b1Name = b1.name.toLowerCase();
       const b2Name = b2.name.toLowerCase();
@@ -172,21 +137,21 @@ export class BusinessesTabPage implements OnInit {
    * Sorts the list of saved Businesses by displaying all starred Businesses at the top of the list first.
    */
   private sortBusinessesByStarred() {
-    this.storageService.businesses.sort(b => b.saveState == BusinessSaveState.Starred ? -1 : 0);
+    this.fbService.salesRep.savedBusinesses.sort(b => b.saveState == "starred" ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Businesses by displaying all Businesses saved from the map first.
    */
   private sortBusinessesByMapSave() {
-    this.storageService.businesses.sort(b => !b.wasManuallySaved ? -1 : 0);
+    this.fbService.salesRep.savedBusinesses.sort(b => !b.wasManuallySaved ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Businesses by displaying all Businesses saved manually by the user first.
    */
   private sortBusinessesByManualSave() {
-    this.storageService.businesses.sort(b => b.wasManuallySaved ? -1 : 0);
+    this.fbService.salesRep.savedBusinesses.sort(b => b.wasManuallySaved ? -1 : 0);
   }
 
   /**
@@ -196,15 +161,19 @@ export class BusinessesTabPage implements OnInit {
    */
   searchBusinessesByName(event: CustomEvent) {
     const searchQuery = (event.detail.value as string).toLowerCase();
+    const elements = Array.from(document.querySelectorAll(".list-item.business")) as HTMLElement[];
+    const arrLength = elements.length;
 
-    this.businessListItems.forEach(item => {
-      if(item.businessName.includes(searchQuery)) {
-        item.nativeElement.classList.remove("deleting");
+    for(let i = 0; i < arrLength; i++) {
+      const elementBusinessName = (elements[i].querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
+      
+      if(elementBusinessName.includes(searchQuery)) {
+        elements[i].classList.remove("deleting");
       }
       else {
-        item.nativeElement.classList.add("deleting");
+        elements[i].classList.add("deleting");
       }
-    });
+    }
   }
 
   /**
@@ -214,7 +183,7 @@ export class BusinessesTabPage implements OnInit {
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    * @param businessElement The HTMLElement to animate upon deletion.
    */
-  async onDeleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
+  async onDeleteBusiness(business: IBusiness, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
     if(this.prefs.askBeforeDelete) {
       const confirmationAlert = await this.alertController.create({
         header: "Delete Business",
@@ -246,12 +215,12 @@ export class BusinessesTabPage implements OnInit {
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    * @param businessElement The HTMLElement to animate upon deletion.
    */
-  private doDeleteBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
+  private doDeleteBusiness(business: IBusiness, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
     ionItemSliding.close();
     businessElement.classList.add("deleting");
 
     setTimeout(async () => {
-      const result: CRUDResult = await this.storageService.deleteBusiness(business);
+      const result: CRUDResult = await this.fbService.deleteBusiness(business);
       this.presentToast(result.message);
 
       if(!result.wasSuccessful) {
@@ -259,7 +228,6 @@ export class BusinessesTabPage implements OnInit {
       }
       else {
         this.sortBusinesses();
-        this.updateBusinessListReferences();
       }
     }, 300);
   }
@@ -270,7 +238,7 @@ export class BusinessesTabPage implements OnInit {
    * @param business The Business to edit.
    * @param ionItemSliding The optional HTMLIonItemSlidingElement that was swiped to close.
    */
-  editBusinessInfo(business: Business, ionItemSliding: HTMLIonItemSlidingElement = null) {
+  editBusinessInfo(business: IBusiness, ionItemSliding: HTMLIonItemSlidingElement = null) {
     if(ionItemSliding != null) {
       ionItemSliding.close();
     }
@@ -283,20 +251,18 @@ export class BusinessesTabPage implements OnInit {
    * @param business The business to star/un-star
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    */
-  async toggleStarBusiness(business: Business, ionItemSliding: HTMLIonItemSlidingElement) {
-    business.toggleStarred();
-    let result: CRUDResult = await this.storageService.synchronize();
-
-    if(!result.wasSuccessful) {
-      business.toggleStarred();
-      this.presentToast(result.message);
-    }
-    else {
-      this.sortBusinesses();
-      this.presentToast(`${business.saveState == BusinessSaveState.Starred ? "Starred" : "Un-Starred"} business.`);
-    }
-
+  onStarBusiness(business: IBusiness, ionItemSliding: HTMLIonItemSlidingElement) {
     ionItemSliding.close();
+
+    setTimeout(async () => {
+      const result: CRUDResult = await this.fbService.toggleBusinessStarred(business);
+
+      if(result.wasSuccessful) {
+        this.sortBusinesses();
+      }
+
+      this.presentToast(result.message);
+    }, 250);
   }
 
   /**
@@ -325,7 +291,7 @@ export class BusinessesTabPage implements OnInit {
    * @param existingBusiness The optional existing Business to pass to the modal, whose information will be pre-filled in its form.
    *                         If an existing Business is passed, then this Business will be updated insted, rather than added as a new saved Business.
    */
-  async openBusinessViewModal(existingBusiness: Business = null) {
+  async openBusinessViewModal(existingBusiness?: IBusiness) {
     const modal = await this.modalController.create({
       component: BusinessViewModalPage,
       backdropDismiss: false,
@@ -353,12 +319,11 @@ export class BusinessesTabPage implements OnInit {
    * Saves this Business under the user's profile.
    * @param business The new business to save.
    */
-  private async addSavedBusiness(business: Business) {
-    const result: CRUDResult = await this.storageService.addBusiness(business);
+  private async addSavedBusiness(business: IBusiness) {
+    const result: CRUDResult = await this.fbService.addBusiness(business);
     this.presentToast(result.message);
 
     if(result.wasSuccessful) {
-      this.updateBusinessListReferences();
       this.sortBusinesses();
     }
   }
@@ -369,8 +334,8 @@ export class BusinessesTabPage implements OnInit {
    * @param original The original Business to update.
    * @param updated The new Business to replace with the original Business.
    */
-  private async updateSavedBusiness(original: Business, updated: Business) {
-    const result: CRUDResult = await this.storageService.updateBusiness(original, updated);
+  private async updateSavedBusiness(original: IBusiness, updated: IBusiness) {
+    const result: CRUDResult = await this.fbService.updateBusiness(original, updated);
     this.presentToast(result.message);
 
     if(result.wasSuccessful) {

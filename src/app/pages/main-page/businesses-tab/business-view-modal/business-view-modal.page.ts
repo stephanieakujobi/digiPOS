@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams, AlertController } from '@ionic/angular';
-import { Business } from 'src/app/models/businesses/Business';
+import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 
 @Component({
   selector: 'app-business-view-modal',
@@ -8,8 +8,8 @@ import { Business } from 'src/app/models/businesses/Business';
   styleUrls: ['./business-view-modal.page.scss'],
 })
 export class BusinessViewModalPage {
-  private business: Business;
-  private originalBusiness: Business;
+  private business: IBusiness;
+  private originalBusiness: IBusiness;
   private modalTitle: string;
   private isViewingSavedBusiness: boolean; //Interpolated in business-view-modal.page.html
   private formIsValid: boolean; //Interpolated in business-view-modal.page.html
@@ -21,21 +21,81 @@ export class BusinessViewModalPage {
    * @param alertController The AlertController used to prompt the user for confirmation when they close this modal without saving changes.
    */
   constructor(private modalController: ModalController, navParams: NavParams, private alertController: AlertController) {
-    let savedBusiness = navParams.get("savedBusiness") as Business;
+    let savedBusiness = navParams.get("savedBusiness") as IBusiness;
 
     if(savedBusiness != null) {
-      this.business = savedBusiness.clone();
+      this.business = this.cloneBusiness(savedBusiness);
       this.isViewingSavedBusiness = true;
       this.modalTitle = "Edit Business";
     }
     else {
-      this.business = new Business();
+      this.business = this.newBusiness();
       this.business.wasManuallySaved = true;
       this.isViewingSavedBusiness = false;
       this.modalTitle = "Add Business";
     }
 
-    this.originalBusiness = this.business.clone();
+    this.originalBusiness = this.cloneBusiness(this.business);
+  }
+
+  private cloneBusiness(business: IBusiness): IBusiness {
+    const clone: IBusiness = {
+      name: business.name,
+      address: {
+        street: business.address.street,
+        city: business.address.city,
+        region: business.address.region,
+        country: business.address.country,
+        postalCode: business.address.postalCode,
+      },
+      owner: {
+        name: business.owner.name,
+        email: business.owner.email,
+        phoneNumber: business.owner.phoneNumber
+      },
+      contactPerson: {
+        name: business.contactPerson.name,
+        email: business.contactPerson.email,
+        phoneNumber: business.contactPerson.phoneNumber
+      },
+      currentProvider: business.currentProvider,
+      notes: business.notes,
+      saveState: business.saveState,
+      wasManuallySaved: business.wasManuallySaved,
+      isReported: business.isReported
+    };
+
+    return clone;
+  }
+
+  private newBusiness(): IBusiness {
+    const newInstance: IBusiness = {
+      name: "",
+      address: {
+        street: "",
+        city: "",
+        region: "",
+        country: "",
+        postalCode: "",
+      },
+      owner: {
+        name: "",
+        email: "",
+        phoneNumber: ""
+      },
+      contactPerson: {
+        name: "",
+        email: "",
+        phoneNumber: ""
+      },
+      currentProvider: "",
+      notes: "",
+      saveState: "saved",
+      wasManuallySaved: true,
+      isReported: false
+    };
+
+    return newInstance;
   }
 
   /**
@@ -69,7 +129,7 @@ export class BusinessViewModalPage {
           },
         ]
       });
-  
+
       await confirmationAlert.present();
     }
     else {

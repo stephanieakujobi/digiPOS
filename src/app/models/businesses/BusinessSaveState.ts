@@ -1,8 +1,4 @@
 /**
- * A simple state representation for whether an instance of a Business is "Unsaved", "Saved", or "Starred" for the current user.
+ * A simple state representation for whether an instance of a Business is "unsaved", "saved", or "starred" for the current user.
  */
-export enum BusinessSaveState {
-    Unsaved = "Unsaved",
-    Saved = "Saved",
-    Starred = "Starred"
-}
+export type BusinessSaveState = "unsaved" | "saved" | "starred";

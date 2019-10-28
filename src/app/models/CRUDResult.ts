@@ -6,6 +6,10 @@ export class CRUDResult {
     private _wasSuccessful: boolean;
     private _resultMessage: string;
 
+    public static readonly USER_NOT_AUTHENTICATED: CRUDResult = new CRUDResult(false, "Authentication error - user not logged in.");
+    public static readonly BUSINESS_DOES_NOT_EXIST: CRUDResult = new CRUDResult(false, "Failed to update - business does not exist.");
+    public static readonly DUPLICATE_BUSINESS_EXISTS: CRUDResult = new CRUDResult(false, "Failed to save business - address already exists.");
+
     /**
      * Creates a new CRUDResult.
      * @param wasSuccessful Whether or not the CRUD operation had completed successfully.
