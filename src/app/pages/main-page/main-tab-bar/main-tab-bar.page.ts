@@ -31,18 +31,6 @@ export class MainTabBarPage {
     let notifs: AppNotification[] = [
       new AppNotification("TITLE", "SUMMARY"),
       new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
       new AppNotification("TITLE 3", "SUMMARY 3", AppNotifSeverity.Alert, new Date(2019, 10, 20)),
       new AppNotification("TITLE 4", "SUMMARY 4", AppNotifSeverity.Error, new Date(2019, 10, 10))
     ];
