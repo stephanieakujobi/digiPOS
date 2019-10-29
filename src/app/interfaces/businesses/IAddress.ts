@@ -7,4 +7,5 @@ export interface IAddress {
     region: string;
     country: string;
     postalCode: string;
+    fullAddress: string;
 }

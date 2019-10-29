@@ -150,18 +150,9 @@ export class FirebaseBusinessService {
     let result: boolean = false;
 
     for(const business of this.businesses) {
-      if(address.postalCode != "" && address.postalCode == business.address.postalCode) {
+      if(business.address.fullAddress == address.fullAddress) {
         result = true;
         break;
-      }
-      else {
-        const countryAddress1 = `${address.street} ${address.city} ${address.region} ${address.country}`;
-        const countryAddress2 = `${business.address.street} ${business.address.city} ${business.address.region} ${business.address.country}`;
-
-        if(countryAddress1 == countryAddress2) {
-          result = true;
-          break;
-        }
       }
     }
 

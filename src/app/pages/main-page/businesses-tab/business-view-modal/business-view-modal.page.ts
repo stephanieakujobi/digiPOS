@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams, AlertController } from '@ionic/angular';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
+import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
 
 @Component({
   selector: 'app-business-view-modal',
@@ -20,82 +21,22 @@ export class BusinessViewModalPage {
    * @param navParams Any possible parameters passed to this modal upon creation. Used to check if this modal is viewing a new or existing business.
    * @param alertController The AlertController used to prompt the user for confirmation when they close this modal without saving changes.
    */
-  constructor(private modalController: ModalController, navParams: NavParams, private alertController: AlertController) {
-    let savedBusiness = navParams.get("savedBusiness") as IBusiness;
+  constructor(private modalController: ModalController, private navParams: NavParams, private alertController: AlertController) {
+    let savedBusiness = this.navParams.get("savedBusiness") as IBusiness;
 
     if(savedBusiness != null) {
-      this.business = this.cloneBusiness(savedBusiness);
+      this.business = BusinessFormatter.cloneBusiness(savedBusiness);
       this.isViewingSavedBusiness = true;
       this.modalTitle = "Edit Business";
     }
     else {
-      this.business = this.newBusiness();
+      this.business = BusinessFormatter.blankBusiness();
       this.business.wasManuallySaved = true;
       this.isViewingSavedBusiness = false;
       this.modalTitle = "Add Business";
     }
 
-    this.originalBusiness = this.cloneBusiness(this.business);
-  }
-
-  private cloneBusiness(business: IBusiness): IBusiness {
-    const clone: IBusiness = {
-      name: business.name,
-      address: {
-        street: business.address.street,
-        city: business.address.city,
-        region: business.address.region,
-        country: business.address.country,
-        postalCode: business.address.postalCode,
-      },
-      owner: {
-        name: business.owner.name,
-        email: business.owner.email,
-        phoneNumber: business.owner.phoneNumber
-      },
-      contactPerson: {
-        name: business.contactPerson.name,
-        email: business.contactPerson.email,
-        phoneNumber: business.contactPerson.phoneNumber
-      },
-      currentProvider: business.currentProvider,
-      notes: business.notes,
-      saveState: business.saveState,
-      wasManuallySaved: business.wasManuallySaved,
-      isReported: business.isReported
-    };
-
-    return clone;
-  }
-
-  private newBusiness(): IBusiness {
-    const newInstance: IBusiness = {
-      name: "",
-      address: {
-        street: "",
-        city: "",
-        region: "",
-        country: "",
-        postalCode: "",
-      },
-      owner: {
-        name: "",
-        email: "",
-        phoneNumber: ""
-      },
-      contactPerson: {
-        name: "",
-        email: "",
-        phoneNumber: ""
-      },
-      currentProvider: "",
-      notes: "",
-      saveState: "saved",
-      wasManuallySaved: true,
-      isReported: false
-    };
-
-    return newInstance;
+    this.originalBusiness = BusinessFormatter.cloneBusiness(this.business);
   }
 
   /**
@@ -155,6 +96,7 @@ export class BusinessViewModalPage {
    * Dismisses this modal and passes its Business back.
    */
   onFormSubmit() {
+    BusinessFormatter.trimBusiness(this.business);
     this.modalController.dismiss(this.business);
   }
 }
