@@ -22,15 +22,17 @@ export class FirebaseAuthService {
   constructor(private afs: AngularFirestore) { }
 
   public tryLogin(email: string, password: string, callback: (result: CRUDResult) => void) {
-    if(this.userIsAuthenticated) {
+    if(FirebaseAuthService.userIsAuthenticated) {
       callback(new CRUDResult(false, "User already authenticated."));
     }
     else {
       this.subscriptions = new Subscription();
+      email = email.trim().replace(/[/\\]/g, ""); //Remove all slashes, leading, and trailing spaces from email string.
+      const sha1 = require("sha1"); //Import SHA1 hash algorithm from package dependancy for password hashing.
 
       const authQuery: Observable<any> = this.afs.collection(FirebaseAuthService.SALES_REPS_AUTH, authQuery => authQuery
         .where("info.email", "==", email)
-        .where("password", "==", password)
+        .where("password", "==", sha1(password))
         .limit(1)
       ).valueChanges();
 
@@ -92,7 +94,7 @@ export class FirebaseAuthService {
   public async synchronize(): Promise<CRUDResult> {
     let result: CRUDResult;
 
-    if(!this.userIsAuthenticated) {
+    if(!FirebaseAuthService.userIsAuthenticated) {
       result = CRUDResult.USER_NOT_AUTHENTICATED;
     }
     else {
@@ -104,7 +106,7 @@ export class FirebaseAuthService {
     return result;
   }
 
-  public get userIsAuthenticated(): boolean {
+  public static get userIsAuthenticated(): boolean {
     return FirebaseAuthService._userIsAuthenticated;
   }
 
