@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
 import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
+import { NavController } from '@ionic/angular';
+import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
 
 @Component({
   selector: 'app-main-tab-bar',
@@ -12,16 +14,17 @@ import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity
 /**
  * The wrapper page containing the main tab bar displayed at the bottom of the app after the user logs in.
  */
-export class MainTabBarPage {
-  constructor(private notifsStorage: AppNotifsStorageService) { }
+export class MainTabBarPage implements OnInit {
+  constructor(private navController: NavController, private notifsStorage: AppNotifsStorageService) { }
 
-  /**
-   * Ionic callback function called when the page has finished rendering content.
-   * See https://ionicframework.com/docs/angular/lifecycle for more info.
-   */
-  async ionViewDidEnter() {
-    await this.testSaveNotifs(); //TEMPORARY
-    await this.loadNotifications();
+  async ngOnInit() {
+    if(!FirebaseAuthService.userIsAuthenticated) {
+      this.navController.navigateBack("/login");
+    }
+    else {
+      await this.testSaveNotifs(); //TEMPORARY
+      await this.loadNotifications();
+    }
   }
 
   /**

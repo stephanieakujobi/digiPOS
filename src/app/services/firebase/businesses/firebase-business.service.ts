@@ -16,8 +16,8 @@ import { FirebaseAuthService } from '../authentication/firebase-auth.service';
  * When a user is authenticated, their saved Businesses will be retrieved from the CloudFirestore.
  */
 export class FirebaseBusinessService {
-  constructor(private authService: FirebaseAuthService) { 
-    if(!authService.userIsAuthenticated) {
+  constructor(private authService: FirebaseAuthService) {
+    if(!FirebaseAuthService.userIsAuthenticated) {
       throw new Error("FirebaseAuthService must have a user authenticated before FirebaseBusinessService can be instantiated.");
     }
   }
@@ -136,10 +136,7 @@ export class FirebaseBusinessService {
   private businessExists(business: IBusiness): CRUDResult {
     let result: CRUDResult;
 
-    if(!this.authService.userIsAuthenticated) {
-      result = CRUDResult.USER_NOT_AUTHENTICATED;
-    }
-    else if(!this.businesses.includes(business)) {
+    if(!this.businesses.includes(business)) {
       result = CRUDResult.BUSINESS_DOES_NOT_EXIST;
     }
     else {

@@ -37,7 +37,7 @@ export class LoginPage {
   private async presentToast(message: string) {
     const toast = await this.toastController.create({
       message: message,
-      duration: 3000,
+      duration: 2000,
       position: "top",
       cssClass: "header-margin"
     });
