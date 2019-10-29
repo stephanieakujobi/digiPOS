@@ -1,12 +1,3 @@
-ion-content {
-  &.md .scroll-container {
-    height: calc(100vh - 161px);
-  }
-  &.ios .scroll-container {
-    height: calc(100vh - 139px);
-  }
-}
-
 .list-item {
   ion-badge {
     display: block;

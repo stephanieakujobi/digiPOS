@@ -150,15 +150,16 @@ export class BusinessesTabPage implements OnInit {
    * Filters the list of saved Businesses, hiding the ones whose names do not match the string that the user has inputted.
    * @param event The input event passed, containing the ion-searchbar's value.
    */
-  searchBusinessesByName(event: CustomEvent) {
+  searchBusinesses(event: CustomEvent) {
     const searchQuery = (event.detail.value as string).toLowerCase();
     const elements = Array.from(document.querySelectorAll(".list-item.business")) as HTMLElement[];
     const arrLength = elements.length;
 
     for(let i = 0; i < arrLength; i++) {
-      const elementBusinessName = (elements[i].querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
+      const elementName = (elements[i].querySelector(".business-name") as HTMLElement).innerText.toLowerCase();
+      const elementAddress = (elements[i].querySelector(".business-address") as HTMLElement).innerText.toLowerCase();
 
-      if(elementBusinessName.includes(searchQuery)) {
+      if(elementName.includes(searchQuery) || elementAddress.includes(searchQuery)) {
         elements[i].classList.remove("deleting");
       }
       else {

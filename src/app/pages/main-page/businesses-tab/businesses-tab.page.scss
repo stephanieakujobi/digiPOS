@@ -1,14 +1,6 @@
-ion-content {
-  &.md .scroll-container {
-    height: calc(100vh - 219px);
-  }
-  &.ios .scroll-container {
-    height: calc(100vh - 199px);
-  }
-}
-
 ion-searchbar {
   --background: var(--ion-color-secondary);
+  padding-top: 0;
 }
 
 ion-list .list-item {
