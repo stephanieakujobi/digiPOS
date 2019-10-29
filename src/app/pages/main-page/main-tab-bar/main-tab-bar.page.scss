@@ -17,7 +17,7 @@ ion-badge {
     transform: scale(1.5);
   }
 
-  &#notifs-badge.hidden {
+  &#notifs-badge.zero-notifs {
     transform: scale(0);
   }
 }

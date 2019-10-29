@@ -5,6 +5,10 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 @Injectable({
   providedIn: 'root'
 })
+
+/**
+ * The AppBusinessesPrefsService handles read/write operations on the user's saved Businesses preferences.
+ */
 export class AppBusinessesPrefsService implements IAppPrefsService<AppBusinessesPrefs> {
   private static readonly storageKey = "businesses_preferences";
 

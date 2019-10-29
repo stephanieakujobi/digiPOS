@@ -9,7 +9,7 @@ export class AppNotifsPrefs {
 
     /**
      * Creates a new AppNotifPrefs instance.
-     * All settings are set to true by default.
+     * All preferences are set to true by default.
      */
     public constructor() {
         this.enableNotifs = true;

@@ -21,17 +21,19 @@ export class BusinessesTabPage implements OnInit {
   private prefs: AppBusinessesPrefs;
 
   /**
-   * Creates a new BusinessTabPage
-   * @param storageService The SavedBusinessesStorageService used to perform CRUD operations for Businesses under the current user's profile.
+   * Creates a new BusinessTabPage.
+   * @param fbbService The FirebaseBusinessService used to execute CRUD operations on the user's saved Businesses.
+   * @param prefsService The AppBusinessesPrefsService used to update the user's saved Businesses preferences.
    * @param modalController The ModalController used to create modals for this page.
+   * @param alertController The AlertController used to display confirmation messages to the user.
    * @param toastController The ToastController used to create toast messages for this page.
    */
   constructor(
+    private fbbService: FirebaseBusinessService,
     private prefsService: AppBusinessesPrefsService,
     private modalController: ModalController,
     private alertController: AlertController,
-    private toastController: ToastController,
-    private fbbService: FirebaseBusinessService
+    private toastController: ToastController
   ) { }
 
   /**
@@ -147,7 +149,7 @@ export class BusinessesTabPage implements OnInit {
 
   /**
    * Called from the page when the user inputs into the ion-searchbar on the page.
-   * Filters the list of saved Businesses, hiding the ones whose names do not match the string that the user has inputted.
+   * Filters the list of saved Businesses, hiding the ones whose names or addresses do not match the string that the user has inputted.
    * @param event The input event passed, containing the ion-searchbar's value.
    */
   searchBusinesses(event: CustomEvent) {

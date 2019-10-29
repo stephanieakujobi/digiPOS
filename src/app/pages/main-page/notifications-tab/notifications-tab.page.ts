@@ -33,6 +33,9 @@ export class NotificationsTabPage implements OnInit {
     this.prefs = await this.prefsService.loadPrefs();
   }
 
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
   ionViewDidEnter() {
     this.sortNotifs();
   }

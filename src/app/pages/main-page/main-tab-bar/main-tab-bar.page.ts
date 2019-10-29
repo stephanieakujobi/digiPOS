@@ -13,8 +13,15 @@ import { FirebaseAuthService } from 'src/app/services/firebase/authentication/fi
 
 /**
  * The wrapper page containing the main tab bar displayed at the bottom of the app after the user logs in.
+ * This page is also the parent page to all the pages within each tab.
  */
 export class MainTabBarPage implements OnInit {
+
+  /**
+   * Creates a new MainTabBarPage
+   * @param navController The NavController used to redirect the user back to the LoginPage if they are not authenticated.
+   * @param notifsStorage The AppNotifsStorageService used to load the user's saved AppNotifications on their device.
+   */
   constructor(private navController: NavController, private notifsStorage: AppNotifsStorageService) { }
 
   async ngOnInit() {
@@ -59,10 +66,10 @@ export class MainTabBarPage implements OnInit {
     badge.innerText = unreadNotifsLength.toString();
 
     if(unreadNotifsLength > 0) {
-      badge.classList.remove("hidden");
+      badge.classList.remove("zero-notifs");
     }
     else {
-      badge.classList.add("hidden");
+      badge.classList.add("zero-notifs");
     }
   }
 }
