@@ -18,7 +18,7 @@
 
     <ion-item color="none">
       <ion-label position="floating">Password</ion-label>
-      <ion-input id="txt-password" type="password"></ion-input>
+      <ion-input id="txt-password" type="password" (keyup.enter)="onLoginFormSubmit()"></ion-input>
     </ion-item>
 
     <ion-button type="submit" expand="block" color="primary">Login</ion-button>
