@@ -5,6 +5,8 @@ import { IContact } from 'src/app/interfaces/businesses/IContact';
 import { ISalesRep } from 'src/app/interfaces/ISalesRep';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 
+declare var require: any;
+
 @Injectable({
   providedIn: 'root'
 })

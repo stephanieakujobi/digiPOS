@@ -17,6 +17,8 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 
+import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -34,6 +36,7 @@ import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
     StatusBar,
     SplashScreen,
     NativeStorage,
+    NativeGeocoder,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

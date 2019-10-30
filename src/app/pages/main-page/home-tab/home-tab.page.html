@@ -10,7 +10,8 @@
   <div id="map"></div>
 
   <div id="controls" *ngIf="gmapsService.mapFinishedCreating">
-    <ion-searchbar placeholder="Search nearby businesses..." animated (keyup.enter)="enterKeyUp()"></ion-searchbar>
+    <ion-searchbar id="address-searchbar" placeholder="Find an address..." animated (keyup.enter)="findAddress()">
+    </ion-searchbar>
 
     <ion-fab id="scan-businesses-fab" vertical="bottom" horizontal="end">
       <ion-fab-button size="small" (click)="gmapsService.scanNearbyBusinesses()">
@@ -19,9 +20,14 @@
     </ion-fab>
 
     <ion-fab id="center-location-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button (click)="gmapsService.centerMapOnUserLocation()">
+      <ion-fab-button (click)="gmapsService.centerMap()">
         <ion-icon name="locate"></ion-icon>
       </ion-fab-button>
     </ion-fab>
+  </div>
+
+  <div id="debug-window">
+    <h5>DEBUG</h5>
+    <p id="debug-text">Sample text...</p>
   </div>
 </ion-content>

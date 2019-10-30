@@ -1,4 +1,4 @@
-import { Injectable, OnInit, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { Subscription } from 'rxjs';
@@ -14,10 +14,13 @@ import {
   ILatLng,
   LatLng,
   MarkerOptions,
-  HtmlInfoWindow
+  HtmlInfoWindow,
+  Geocoder,
+  GeocoderResult
 } from '@ionic-native/google-maps';
 import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
 import { BusinessLocation } from 'src/app/classes/google-maps/BusinessLocation';
+import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +41,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param platform The Platform used to detect when the native device is ready for native system calls to be made.
    * @param geolocation The Geolocation used to track the user's device.
    */
-  constructor(private platform: Platform, private geolocation: Geolocation) {
+  constructor(private platform: Platform, private geolocation: Geolocation, private geocoder: NativeGeocoder) {
     this.mapShouldFollowUser = false;
     this.subscriptions = new Subscription();
     this._mapFinishedCreating = false;
@@ -54,7 +57,7 @@ export class GoogleMapsService implements OnDestroy {
     this.subscribeEvents();
     this._mapFinishedCreating = true;
 
-    this.markerTest(); //TEMPORARY
+    // this.markerTest(); //TEMPORARY
   }
 
   //TEMPORARY TEST METHOD.
@@ -130,23 +133,48 @@ export class GoogleMapsService implements OnDestroy {
     }));
   }
 
-  /**
-   * Centers the map's camera on the user's current location.
-   */
-  public async centerMapOnUserLocation() {
+  public async centerMap(position?: LatLng) {
+    const centerPosition = position == null ? this.userPosition: position;
+
     await this.map.animateCamera({
-      target: this.userPosition,
+      target: centerPosition,
       duration: 500
     });
 
-    this.mapShouldFollowUser = true;
+    this.mapShouldFollowUser = position == null;
   }
 
-  /**
-   * @todo Implement method
-   */
-  public querySearchPlace(queryString: string) {
-    throw new Error("Method not implemented.");
+  private placeMarker(position: LatLng) {
+    this.map.addMarker({ position: position }).then((marker: Marker) => {
+      let bs = new BusinessLocation("Test", "Address", false);
+      let infoWindow = InfoWindow.ForBusinessLocation(bs,
+        () => {
+          console.log("SAVE");
+        },
+        () => {
+          console.log("ROUTE");
+        }
+      );
+
+      marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
+        infoWindow.open(marker);
+      });
+    });
+  }
+
+  public findAddress(queryString: string) {
+    // Geocoder.geocode({ address: "Sheridan College, Brampton, Ontario" }).then((results: GeocoderResult[]) => {
+    //   console.log(results);
+    // });
+
+    this.geocoder.forwardGeocode(queryString, { useLocale: true, maxResults: 1 })
+      .then((result: NativeGeocoderResult[]) => {
+        const position = new LatLng(parseInt(result[0].latitude), parseInt(result[0].longitude));
+        this.placeMarker(position);
+      })
+      .catch(error => {
+        document.getElementById("debug-text").innerText = error.toString();
+      })
   }
 
   /**
