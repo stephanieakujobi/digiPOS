@@ -4,6 +4,7 @@ import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
 import { IAddress } from 'src/app/interfaces/businesses/IAddress';
 import { FirebaseAuthService } from '../authentication/firebase-auth.service';
+import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ import { FirebaseAuthService } from '../authentication/firebase-auth.service';
  * When a user is authenticated, their saved Businesses will be retrieved from the CloudFirestore.
  */
 export class FirebaseBusinessService {
+  private bFormatter: BusinessFormatter;
 
   /**
    * Creates a new FirebaseBusinessService.
@@ -25,6 +27,8 @@ export class FirebaseBusinessService {
     if(!FirebaseAuthService.userIsAuthenticated) {
       throw new Error("FirebaseAuthService must have a user authenticated before FirebaseBusinessService can be instantiated.");
     }
+
+    this.bFormatter = new BusinessFormatter();
   }
 
   /**
@@ -41,7 +45,9 @@ export class FirebaseBusinessService {
     }
     else {
       business.saveState = "saved";
+      business.address.addressString = this.bFormatter.formatAddressString(business.address);
       this.businesses.push(business);
+
       const serverUpdate = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
@@ -70,7 +76,9 @@ export class FirebaseBusinessService {
       result = CRUDResult.BUSINESS_DOES_NOT_EXIST;
     }
     else {
+      updated.address.addressString = this.bFormatter.formatAddressString(updated.address);
       this.businesses[this.businesses.indexOf(original)] = updated;
+
       const serverUpdate = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
@@ -155,10 +163,12 @@ export class FirebaseBusinessService {
    * @param address 
    */
   private savedBusinessExists(address: IAddress): boolean {
-    let result: boolean = false;
+    let result = false;
 
-    for(const business of this.businesses) {
-      if(business.address.fullAddress == address.fullAddress) {
+    const formattedAddress: string = this.bFormatter.formatAddressString(address).toLowerCase();
+
+    for (const business of this.businesses) {
+      if(formattedAddress === this.bFormatter.formatAddressString(business.address).toLowerCase()) {
         result = true;
         break;
       }

@@ -26,7 +26,7 @@ export class MainTabBarPage implements OnInit {
 
   async ngOnInit() {
     if(!FirebaseAuthService.userIsAuthenticated) {
-      this.navController.navigateBack("/login");
+      // this.navController.navigateBack("/login");
     }
     else {
       await this.testSaveNotifs(); //TEMPORARY

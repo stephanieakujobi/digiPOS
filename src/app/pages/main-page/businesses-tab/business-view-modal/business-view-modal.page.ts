@@ -12,10 +12,10 @@ export class BusinessViewModalPage {
   private business: IBusiness;
   private originalBusiness: IBusiness;
   private modalTitle: string;
-  private isViewingSavedBusiness: boolean; //Interpolated in business-view-modal.page.html
   private formIsValid: boolean; //Interpolated in business-view-modal.page.html
 
   private bFormatter: BusinessFormatter;
+  private otherSavedBusinesses: IBusiness[];
 
   /**
    * Creates a new BusinessViewModalPage
@@ -25,17 +25,17 @@ export class BusinessViewModalPage {
    */
   constructor(private modalController: ModalController, private navParams: NavParams, private alertController: AlertController) {
     this.bFormatter = new BusinessFormatter();
-    let savedBusiness = this.navParams.get("savedBusiness") as IBusiness;
+    this.otherSavedBusinesses = this.navParams.get("allBusinesses") as IBusiness[];
+    let existingBusiness = this.navParams.get("existingBusiness") as IBusiness;
 
-    if(savedBusiness != null) {
-      this.business = this.bFormatter.cloneBusiness(savedBusiness);
-      this.isViewingSavedBusiness = true;
+    if(existingBusiness != null) {
+      this.business = this.bFormatter.cloneBusiness(existingBusiness);
       this.modalTitle = "Edit Business";
+      this.otherSavedBusinesses = this.otherSavedBusinesses.filter(b => b.address.addressString !== existingBusiness.address.addressString);
     }
     else {
       this.business = this.bFormatter.blankBusiness();
       this.business.wasManuallySaved = true;
-      this.isViewingSavedBusiness = false;
       this.modalTitle = "Add Business";
     }
 
@@ -88,10 +88,7 @@ export class BusinessViewModalPage {
   validateForm() {
     this.formIsValid =
       this.business.name != ""
-      && this.business.address.street != ""
-      && this.business.address.city != ""
-      && this.business.address.region != ""
-      && this.business.address.country != "";
+      && this.business.address.addressString != ""
   }
 
   /**
@@ -99,7 +96,42 @@ export class BusinessViewModalPage {
    * Dismisses this modal and passes its Business back.
    */
   onFormSubmit() {
-    this.bFormatter.trimBusiness(this.business);
-    this.modalController.dismiss(this.business);
+    if(this.addressIsDuplicate()) {
+      this.displayDuplicateAddressAlert();
+    }
+    else {
+      this.bFormatter.trimBusiness(this.business);
+      this.modalController.dismiss(this.business);
+    }
+  }
+
+  private addressIsDuplicate(): boolean {
+    let result = false;
+
+    const addressString: string = this.bFormatter.formatAddressString(this.business.address).toLowerCase();
+
+    for (const business of this.otherSavedBusinesses) {
+      if(addressString === this.bFormatter.formatAddressString(business.address).toLowerCase()) {
+        result = true;
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  private async displayDuplicateAddressAlert() {
+    const alert = await this.alertController.create({
+      header: "Cannot save Business",
+      message: "The address of this business already exists in your saved businesses.",
+      buttons: [
+        {
+          text: "OK",
+          role: "cancel",
+        }
+      ]
+    });
+
+    await alert.present();
   }
 }

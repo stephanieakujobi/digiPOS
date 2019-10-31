@@ -1,4 +1,5 @@
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
+import { IAddress } from 'src/app/interfaces/businesses/IAddress';
 
 /**
  * A utility class for providing formatting options for Business data.
@@ -12,12 +13,8 @@ export class BusinessFormatter {
         const newInstance: IBusiness = {
             name: "",
             address: {
-                street: "",
-                city: "",
-                region: "",
-                country: "",
-                postalCode: "",
-                fullAddress: ""
+                addressString: "",
+                position: null
             },
             owner: {
                 name: "",
@@ -48,12 +45,8 @@ export class BusinessFormatter {
         const clone: IBusiness = {
             name: business.name,
             address: {
-                street: business.address.street,
-                city: business.address.city,
-                region: business.address.region,
-                country: business.address.country,
-                postalCode: business.address.postalCode,
-                fullAddress: `${business.address.street}, ${business.address.city}, ${business.address.region}, ${business.address.country}, ${business.address.postalCode}`
+                addressString: business.address.addressString,
+                position: business.address.position
             },
             owner: {
                 name: business.owner.name,
@@ -82,12 +75,7 @@ export class BusinessFormatter {
     public trimBusiness(business: IBusiness) {
         business.name = business.name.trim();
 
-        business.address.street = business.address.street.trim();
-        business.address.city = business.address.city.trim();
-        business.address.region = business.address.region.trim();
-        business.address.country = business.address.country.trim();
-        business.address.postalCode = business.address.postalCode.trim();
-        business.address.fullAddress = business.address.fullAddress.trim();
+        business.address.addressString = business.address.addressString.trim();
 
         business.owner.name = business.owner.name.trim();
         business.owner.email = business.owner.email.trim();
@@ -100,5 +88,21 @@ export class BusinessFormatter {
         business.currentProvider = business.currentProvider.trim();
 
         business.notes = business.notes.trim();
+    }
+
+    public formatAddressString(address: IAddress): string {
+        //Remove invalid symbols from the address. Commas and '@' are allowed.
+        address.addressString = address.addressString.replace(/[_+\-.!#$%^&*=~`(){}\[\]:;\\/|<>"']/g, '');
+
+        //Remove 2+ consecutive spaces fom the address. Single spaces are allowed.
+        address.addressString = address.addressString.replace(/ {2,}/g, ' ');
+
+        //Remove 2+ consecutive commas fom the address. Single commas are allowed.
+        address.addressString = address.addressString.replace(/,{2,}/g, ',');
+
+        //Remove 2+ consecutive '@'s fom the address. Single '@'s are allowed.
+        address.addressString = address.addressString.replace(/@{2,}/g, '@');
+
+        return address.addressString.trim();
     }
 }

@@ -74,9 +74,6 @@ export class BusinessesTabPage implements OnInit {
         case "savedManual":
           this.sortBusinessesByManualSave();
           break;
-        case "closest":
-          this.sortBusinessesByClosest();
-          break;
       }
     }
   }
@@ -103,27 +100,6 @@ export class BusinessesTabPage implements OnInit {
 
       return result;
     });
-  }
-
-
-  /**
-   * @todo Geolocate the user's current location and compare it with the addresses in each saved Business,
-   *       then sort the list by the closest address to the user's current location.
-   *       A service will likely need to be created for this.
-   * @see  https://ionicframework.com/docs/native/native-geocoder
-   */
-  private async sortBusinessesByClosest() {
-    // let userPosition: Coordinates = (await this.geolocation.getCurrentPosition()).coords;
-    // console.log(userPosition);
-
-    // let options: NativeGeocoderOptions = {
-    //   useLocale: true,
-    //   maxResults: 1
-    // };
-
-    // this.geocoder.forwardGeocode('Berlin', options)
-    //   .then((result: NativeGeocoderResult[]) => console.log('The coordinates are latitude=' + result[0].latitude + ' and longitude=' + result[0].longitude))
-    //   .catch((error: any) => console.log(error));
   }
 
   /**
@@ -290,7 +266,8 @@ export class BusinessesTabPage implements OnInit {
       component: BusinessViewModalPage,
       backdropDismiss: false,
       componentProps: {
-        savedBusiness: existingBusiness
+        existingBusiness: existingBusiness,
+        allBusinesses: this.fbbService.businesses
       }
     });
 

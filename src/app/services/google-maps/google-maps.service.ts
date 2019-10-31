@@ -22,7 +22,6 @@ import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
 import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
 import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
-import { AddressParser } from 'src/app/classes/google-maps/AddressParser';
 
 @Injectable({
   providedIn: 'root'
@@ -166,8 +165,6 @@ export class GoogleMapsService implements OnDestroy {
             },
             isSaved: false
           };
-
-          console.log(new AddressParser().parse(businessLoc.address));
 
           this.placeBusinessMarker(businessLoc);
         }

@@ -27,36 +27,25 @@
       <ion-label position="stacked">
         <ion-icon name="pricetag"></ion-icon> Business Name
       </ion-label>
-      <ion-input type="text" clearInput required name="business-name" [(ngModel)]="business.name"
-        (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+
+      <ion-input type="text" clearInput required autocomplete autocorrect name="business-name"
+        [(ngModel)]="business.name" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
         *&nbsp;&nbsp;
       </ion-input>
+
     </ion-item>
 
     <ion-item>
       <ion-label position="stacked">
         <ion-icon name="pin"></ion-icon> Business Address
       </ion-label>
-      <ion-input type="text" clearInput required placeholder="Street" name="street"
-        [(ngModel)]="business.address.street" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
+
+      <ion-input type="text" clearInput required autocomplete autocorrect name="business-address"
+        [(ngModel)]="business.address.addressString" (ionChange)="validateForm()"
+        [readonly]="!business.wasManuallySaved">
         *&nbsp;&nbsp;
       </ion-input>
-      <ion-input type="text" clearInput required placeholder="City" name="city" [(ngModel)]="business.address.city"
-        (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
-        *&nbsp;&nbsp;
-      </ion-input>
-      <ion-input type="text" clearInput required placeholder="Province/State" name="region"
-        [(ngModel)]="business.address.region" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
-        *&nbsp;&nbsp;
-      </ion-input>
-      <ion-input type="text" clearInput required placeholder="Country" name="country"
-        [(ngModel)]="business.address.country" (ionChange)="validateForm()" [readonly]="!business.wasManuallySaved">
-        *&nbsp;&nbsp;
-      </ion-input>
-      <ion-input type="text" clearInput placeholder="Postal Code" name="postal-code"
-        [(ngModel)]="business.address.postalCode" [readonly]="!business.wasManuallySaved" min="6" maxlength="6">
-        &nbsp;&nbsp;&nbsp;
-      </ion-input>
+
     </ion-item>
 
     <ion-item>
