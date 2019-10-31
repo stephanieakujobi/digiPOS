@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
 
 @Component({
@@ -12,7 +12,6 @@ import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.serv
  * Shows the user their current location on the map and provides them options to search for nearby businesses to report.
  */
 export class HomeTabPage implements OnInit {
-  private addressSearchbar: HTMLIonSearchbarElement;
 
   /**
    * Creates a new HomeTabPage
@@ -24,14 +23,10 @@ export class HomeTabPage implements OnInit {
     this.gmapsService.initMap("map");
   }
 
-  /**
-   * @see https://ionicframework.com/docs/angular/lifecycle
-   */
-  ionViewDidEnter() {
-    this.addressSearchbar = document.getElementById("address-searchbar") as HTMLIonSearchbarElement;
-  }
-
   findAddress() {
-    this.gmapsService.findAddress(this.addressSearchbar.value);
+    let address = (document.getElementById("address-searchbar") as HTMLIonSearchbarElement).value;
+    if(address != "") {
+      this.gmapsService.findAddress(address);
+    }
   }
 }

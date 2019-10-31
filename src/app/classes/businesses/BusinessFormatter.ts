@@ -1,16 +1,14 @@
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 
 /**
- * A static utility class for providing formatting options for Business data.
+ * A utility class for providing formatting options for Business data.
  */
 export class BusinessFormatter {
-    private constructor() { }
-
     /**
      * Creates a new Business instance with all data fields set to blank strings.
      * @returns A new instance of a blank Business.
      */
-    public static blankBusiness(): IBusiness {
+    public blankBusiness(): IBusiness {
         const newInstance: IBusiness = {
             name: "",
             address: {
@@ -46,7 +44,7 @@ export class BusinessFormatter {
      * @param business The existing Business to clone.
      * @returns A new instance of a Business with the same data as the original reference.
      */
-    public static cloneBusiness(business: IBusiness): IBusiness {
+    public cloneBusiness(business: IBusiness): IBusiness {
         const clone: IBusiness = {
             name: business.name,
             address: {
@@ -81,7 +79,7 @@ export class BusinessFormatter {
      * Trims all leading and trailing whitespaces in all data fields of a Business.
      * @param business The Business to trim.
      */
-    public static trimBusiness(business: IBusiness) {
+    public trimBusiness(business: IBusiness) {
         business.name = business.name.trim();
 
         business.address.street = business.address.street.trim();

@@ -15,6 +15,8 @@ export class BusinessViewModalPage {
   private isViewingSavedBusiness: boolean; //Interpolated in business-view-modal.page.html
   private formIsValid: boolean; //Interpolated in business-view-modal.page.html
 
+  private bFormatter: BusinessFormatter;
+
   /**
    * Creates a new BusinessViewModalPage
    * @param modalController The reference to the ModalController that created this modal.
@@ -22,21 +24,22 @@ export class BusinessViewModalPage {
    * @param alertController The AlertController used to prompt the user for confirmation when they close this modal without saving changes.
    */
   constructor(private modalController: ModalController, private navParams: NavParams, private alertController: AlertController) {
+    this.bFormatter = new BusinessFormatter();
     let savedBusiness = this.navParams.get("savedBusiness") as IBusiness;
 
     if(savedBusiness != null) {
-      this.business = BusinessFormatter.cloneBusiness(savedBusiness);
+      this.business = this.bFormatter.cloneBusiness(savedBusiness);
       this.isViewingSavedBusiness = true;
       this.modalTitle = "Edit Business";
     }
     else {
-      this.business = BusinessFormatter.blankBusiness();
+      this.business = this.bFormatter.blankBusiness();
       this.business.wasManuallySaved = true;
       this.isViewingSavedBusiness = false;
       this.modalTitle = "Add Business";
     }
 
-    this.originalBusiness = BusinessFormatter.cloneBusiness(this.business);
+    this.originalBusiness = this.bFormatter.cloneBusiness(this.business);
   }
 
   /**
@@ -96,7 +99,7 @@ export class BusinessViewModalPage {
    * Dismisses this modal and passes its Business back.
    */
   onFormSubmit() {
-    BusinessFormatter.trimBusiness(this.business);
+    this.bFormatter.trimBusiness(this.business);
     this.modalController.dismiss(this.business);
   }
 }

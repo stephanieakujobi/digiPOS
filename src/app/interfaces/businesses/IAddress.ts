@@ -10,5 +10,5 @@ export interface IAddress {
     country: string;
     postalCode: string;
     fullAddress: string;
-    coordinates?: LatLng;
+    position?: LatLng;
 }

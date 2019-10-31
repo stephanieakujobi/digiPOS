@@ -1,5 +1,5 @@
 import { HtmlInfoWindow } from '@ionic-native/google-maps';
-import { BusinessLocation } from './BusinessLocation';
+import { IBusinessMapLoc } from '../../interfaces/google-maps/IBusinessMapLoc';
 
 /**
  * A static utility class for providing Google Maps HtmlInfoWindow templates for specific use-cases.
@@ -12,31 +12,31 @@ export class InfoWindow {
 
     /**
      * Creates an HtmlInfoWindow for a Business selected by the user on the map.
-     * @param businessLocation The Business that was selected.
+     * @param businessLoc The Business that was selected.
      * @param onSaveBtnClicked The callback function for when the user presses the "save/unsave business" button in the HtmlInfoWindow.
      * @param onRouteBtnClicked The callback function for when the user presses the "start a route" button in the HtmlInfoWindow.
      * @returns A pre-content-filled HtmlInfoWindow object.
      */
-    public static ForBusinessLocation(businessLocation: BusinessLocation, onSaveBtnClicked: () => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
+    public static ForBusinessLocation(businessLoc: IBusinessMapLoc, onSaveBtnClicked: () => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
         let infoWindow = new HtmlInfoWindow();
         let content: HTMLElement = document.createElement("div");
 
         content.style.padding = "0 10px";
 
         content.innerHTML = [
-            `<h5>${businessLocation.name}</h5>`,
-            `<p>${businessLocation.address}</p>`,
+            `<h5>${businessLoc.name}</h5>`,
+            `<p>${businessLoc.address}</p>`,
             `<div style="position: absolute; bottom: 20px; width: 91.5%;">`,
-            this.infoWindowButton((businessLocation.isSaved ? "Un-save" : "Save") + " business", "add-circle"),
+            this.infoWindowButton((businessLoc.isSaved ? "Un-save" : "Save") + " business", "add-circle"),
             this.infoWindowButton("Start a route", "navigate"),
             "</div>"
         ].join("");
 
         content.getElementsByTagName("ion-button")[0].addEventListener("click", function() {
-            businessLocation.isSaved = !businessLocation.isSaved;
+            businessLoc.isSaved = !businessLoc.isSaved;
 
-            let buttonText = (businessLocation.isSaved ? "Un-save" : "Save") + " business";
-            let buttonIcon = businessLocation.isSaved ? "close-circle" : "add-circle";
+            let buttonText = (businessLoc.isSaved ? "Un-save" : "Save") + " business";
+            let buttonIcon = businessLoc.isSaved ? "close-circle" : "add-circle";
 
             this.innerHTML = `<ion-icon slot="start" name="${buttonIcon}"></ion-icon>${buttonText}`;
             onSaveBtnClicked();

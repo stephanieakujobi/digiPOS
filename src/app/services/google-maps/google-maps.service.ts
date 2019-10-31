@@ -19,8 +19,10 @@ import {
   GeocoderResult
 } from '@ionic-native/google-maps';
 import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
-import { BusinessLocation } from 'src/app/classes/google-maps/BusinessLocation';
+import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
 import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
+import { HTTP } from '@ionic-native/http/ngx';
+import { AddressParser } from 'src/app/classes/google-maps/AddressParser';
 
 @Injectable({
   providedIn: 'root'
@@ -33,15 +35,16 @@ export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
   private userPosition: LatLng;
   private mapShouldFollowUser: boolean;
-  private subscriptions: Subscription;
   private _mapFinishedCreating: boolean;
+
+  private subscriptions: Subscription;
 
   /**
    * Creates a new GoogleMapsService.
    * @param platform The Platform used to detect when the native device is ready for native system calls to be made.
    * @param geolocation The Geolocation used to track the user's device.
    */
-  constructor(private platform: Platform, private geolocation: Geolocation, private geocoder: NativeGeocoder) {
+  constructor(private platform: Platform, private geolocation: Geolocation, private geocoder: NativeGeocoder, private http: HTTP) {
     this.mapShouldFollowUser = false;
     this.subscriptions = new Subscription();
     this._mapFinishedCreating = false;
@@ -56,27 +59,6 @@ export class GoogleMapsService implements OnDestroy {
     await this.createMap(mapElementId);
     this.subscribeEvents();
     this._mapFinishedCreating = true;
-
-    // this.markerTest(); //TEMPORARY
-  }
-
-  //TEMPORARY TEST METHOD.
-  private markerTest() {
-    this.map.addMarker({ position: this.userPosition }).then((marker: Marker) => {
-      let bs = new BusinessLocation("Name", "Address", false);
-      let infoWindow = InfoWindow.ForBusinessLocation(bs,
-        () => {
-          console.log("SAVE");
-        },
-        () => {
-          console.log("ROUTE");
-        }
-      );
-
-      marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
-        infoWindow.open(marker);
-      });
-    });
   }
 
   /**
@@ -133,8 +115,8 @@ export class GoogleMapsService implements OnDestroy {
     }));
   }
 
-  public async centerMap(position?: LatLng) {
-    const centerPosition = position == null ? this.userPosition: position;
+  public async centerMap(position?: ILatLng) {
+    const centerPosition = position == null ? this.userPosition : position;
 
     await this.map.animateCamera({
       target: centerPosition,
@@ -144,10 +126,9 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = position == null;
   }
 
-  private placeMarker(position: LatLng) {
-    this.map.addMarker({ position: position }).then((marker: Marker) => {
-      let bs = new BusinessLocation("Test", "Address", false);
-      let infoWindow = InfoWindow.ForBusinessLocation(bs,
+  private placeBusinessMarker(businessLoc: IBusinessMapLoc) {
+    this.map.addMarker({ position: businessLoc.position }).then((marker: Marker) => {
+      let infoWindow = InfoWindow.ForBusinessLocation(businessLoc,
         () => {
           console.log("SAVE");
         },
@@ -159,22 +140,51 @@ export class GoogleMapsService implements OnDestroy {
       marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
         infoWindow.open(marker);
       });
+
+      this.centerMap(businessLoc.position);
     });
   }
 
   public findAddress(queryString: string) {
+    queryString = queryString.replace(/,/g, "%2C");
+    queryString = queryString.replace(/ /g, "%20");
+
+    this.http.get(`http://localhost:3000/places?address=${queryString}`, {}, {})
+      .catch(error => {
+        console.log("ERROR");
+      })
+      .then((response: any) => {
+        const data = JSON.parse(response.data);
+
+        if(data.candidates.length != 0) {
+          const businessLoc: IBusinessMapLoc = {
+            name: data.candidates[0].name,
+            address: data.candidates[0].formatted_address,
+            position: {
+              lat: data.candidates[0].geometry.location.lat,
+              lng: data.candidates[0].geometry.location.lng
+            },
+            isSaved: false
+          };
+
+          console.log(new AddressParser().parse(businessLoc.address));
+
+          this.placeBusinessMarker(businessLoc);
+        }
+      });
+
     // Geocoder.geocode({ address: "Sheridan College, Brampton, Ontario" }).then((results: GeocoderResult[]) => {
     //   console.log(results);
     // });
 
-    this.geocoder.forwardGeocode(queryString, { useLocale: true, maxResults: 1 })
-      .then((result: NativeGeocoderResult[]) => {
-        const position = new LatLng(parseInt(result[0].latitude), parseInt(result[0].longitude));
-        this.placeMarker(position);
-      })
-      .catch(error => {
-        document.getElementById("debug-text").innerText = error.toString();
-      })
+    // this.geocoder.forwardGeocode(queryString, { useLocale: true, maxResults: 1 })
+    //   .then((result: NativeGeocoderResult[]) => {
+    //     const position = new LatLng(parseInt(result[0].latitude), parseInt(result[0].longitude));
+    //     this.placeMarker(position);
+    //   })
+    //   .catch(error => {
+    //     document.getElementById("debug-text").innerText = error.toString();
+    //   })
   }
 
   /**
