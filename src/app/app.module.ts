@@ -18,6 +18,8 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
+import { FirebaseAuthService } from './services/firebase/authentication/firebase-auth.service';
+import { FirebaseBusinessService } from './services/firebase/businesses/firebase-business.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -37,6 +39,8 @@ import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
     SplashScreen,
     NativeStorage,
     NativeGeocoder,
+    FirebaseAuthService,
+    FirebaseBusinessService,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

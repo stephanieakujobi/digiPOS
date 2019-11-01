@@ -108,10 +108,10 @@ export class BusinessViewModalPage {
   private addressIsDuplicate(): boolean {
     let result = false;
 
-    const addressString: string = this.bFormatter.formatAddressString(this.business.address).toLowerCase();
+    const addressString: string = this.bFormatter.formatAddressString(this.business.address.addressString).toLowerCase();
 
     for (const business of this.otherSavedBusinesses) {
-      if(addressString === this.bFormatter.formatAddressString(business.address).toLowerCase()) {
+      if(addressString === this.bFormatter.formatAddressString(business.address.addressString).toLowerCase()) {
         result = true;
         break;
       }

@@ -1,5 +1,6 @@
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { IAddress } from 'src/app/interfaces/businesses/IAddress';
+import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
 
 /**
  * A utility class for providing formatting options for Business data.
@@ -68,6 +69,26 @@ export class BusinessFormatter {
         return clone;
     }
 
+    public mapLocToBusiness(mapLoc: IBusinessMapLoc): IBusiness {
+        let business: IBusiness = this.blankBusiness();
+        business.name = mapLoc.name;
+        business.address.addressString = mapLoc.address;
+        business.address.position = mapLoc.position;
+        business.saveState = mapLoc.isSaved ? "saved" : "unsaved";
+        business.wasManuallySaved = false;
+
+        return business;
+    }
+
+    public businessToMapLoc(business: IBusiness): IBusinessMapLoc {
+        return {
+            name: business.name,
+            address: business.address.addressString,
+            position: business.address.position,
+            isSaved: business.saveState !== "unsaved"
+        };
+    }
+
     /**
      * Trims all leading and trailing whitespaces in all data fields of a Business.
      * @param business The Business to trim.
@@ -90,19 +111,19 @@ export class BusinessFormatter {
         business.notes = business.notes.trim();
     }
 
-    public formatAddressString(address: IAddress): string {
+    public formatAddressString(address: string): string {
         //Remove invalid symbols from the address. Commas and '@' are allowed.
-        address.addressString = address.addressString.replace(/[_+\-.!#$%^&*=~`(){}\[\]:;\\/|<>"']/g, '');
+        let formattedAddress = address.replace(/[_+\-.!#$%^&*=~`(){}\[\]:;\\/|<>"']/g, '');
 
         //Remove 2+ consecutive spaces fom the address. Single spaces are allowed.
-        address.addressString = address.addressString.replace(/ {2,}/g, ' ');
+        formattedAddress = address.replace(/ {2,}/g, ' ');
 
         //Remove 2+ consecutive commas fom the address. Single commas are allowed.
-        address.addressString = address.addressString.replace(/,{2,}/g, ',');
+        formattedAddress = address.replace(/,{2,}/g, ',');
 
         //Remove 2+ consecutive '@'s fom the address. Single '@'s are allowed.
-        address.addressString = address.addressString.replace(/@{2,}/g, '@');
+        formattedAddress = address.replace(/@{2,}/g, '@');
 
-        return address.addressString.trim();
+        return formattedAddress.trim();
     }
 }

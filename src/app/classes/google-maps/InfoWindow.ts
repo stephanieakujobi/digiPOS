@@ -1,5 +1,6 @@
 import { HtmlInfoWindow } from '@ionic-native/google-maps';
 import { IBusinessMapLoc } from '../../interfaces/google-maps/IBusinessMapLoc';
+import { Observable } from 'rxjs';
 
 /**
  * A static utility class for providing Google Maps HtmlInfoWindow templates for specific use-cases.
@@ -17,7 +18,7 @@ export class InfoWindow {
      * @param onRouteBtnClicked The callback function for when the user presses the "start a route" button in the HtmlInfoWindow.
      * @returns A pre-content-filled HtmlInfoWindow object.
      */
-    public static ForBusinessLocation(businessLoc: IBusinessMapLoc, onSaveBtnClicked: () => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
+    public static ForBusinessLocation(businessLoc: IBusinessMapLoc, onSaveBtnClicked: (wasSaved: boolean) => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
         let infoWindow = new HtmlInfoWindow();
         let content: HTMLElement = document.createElement("div");
 
@@ -33,13 +34,11 @@ export class InfoWindow {
         ].join("");
 
         content.getElementsByTagName("ion-button")[0].addEventListener("click", function() {
-            businessLoc.isSaved = !businessLoc.isSaved;
-
             let buttonText = (businessLoc.isSaved ? "Un-save" : "Save") + " business";
             let buttonIcon = businessLoc.isSaved ? "close-circle" : "add-circle";
 
             this.innerHTML = `<ion-icon slot="start" name="${buttonIcon}"></ion-icon>${buttonText}`;
-            onSaveBtnClicked();
+            onSaveBtnClicked(!businessLoc.isSaved);
         });
 
         content.getElementsByTagName("ion-button")[1].addEventListener("click", function() { onRouteBtnClicked(); });

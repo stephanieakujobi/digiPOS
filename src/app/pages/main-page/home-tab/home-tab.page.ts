@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
+import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
 
 @Component({
   selector: 'app-home-tab',
@@ -12,6 +13,7 @@ import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.serv
  * Shows the user their current location on the map and provides them options to search for nearby businesses to report.
  */
 export class HomeTabPage implements OnInit {
+  private lastSearchedBusiness: IBusinessMapLoc;
 
   /**
    * Creates a new HomeTabPage
@@ -23,10 +25,25 @@ export class HomeTabPage implements OnInit {
     this.gmapsService.initMap("map");
   }
 
+  ionViewDidEnter() {
+    this.gmapsService.markSavedBusinesses();
+
+    if(this.lastSearchedBusiness != null) {
+      this.gmapsService.updateBusinessLocSaved(this.lastSearchedBusiness);
+      this.gmapsService.placeBusinessSearchMarker(this.lastSearchedBusiness);
+    }
+  }
+
+  ionViewWillLeave() {
+    this.gmapsService.clearMarkers();
+  }
+
   findAddress() {
     let address = (document.getElementById("address-searchbar") as HTMLIonSearchbarElement).value;
     if(address != "") {
-      this.gmapsService.findAddress(address);
+      this.gmapsService.findAddress(address, (businessLoc: IBusinessMapLoc) => {
+        this.lastSearchedBusiness = businessLoc;
+      });
     }
   }
 }

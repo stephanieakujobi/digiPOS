@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
-import { IAddress } from 'src/app/interfaces/businesses/IAddress';
 import { FirebaseAuthService } from '../authentication/firebase-auth.service';
 import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
 
@@ -40,12 +39,12 @@ export class FirebaseBusinessService {
   public async addBusiness(business: IBusiness): Promise<CRUDResult> {
     let result: CRUDResult;
 
-    if(this.savedBusinessExists(business.address)) {
+    if(this.savedAddressExists(business.address.addressString)) {
       result = CRUDResult.DUPLICATE_BUSINESS_EXISTS;
     }
     else {
       business.saveState = "saved";
-      business.address.addressString = this.bFormatter.formatAddressString(business.address);
+      business.address.addressString = this.bFormatter.formatAddressString(business.address.addressString);
       this.businesses.push(business);
 
       const serverUpdate = await this.authService.synchronize();
@@ -76,7 +75,7 @@ export class FirebaseBusinessService {
       result = CRUDResult.BUSINESS_DOES_NOT_EXIST;
     }
     else {
-      updated.address.addressString = this.bFormatter.formatAddressString(updated.address);
+      updated.address.addressString = this.bFormatter.formatAddressString(updated.address.addressString);
       this.businesses[this.businesses.indexOf(original)] = updated;
 
       const serverUpdate = await this.authService.synchronize();
@@ -102,16 +101,25 @@ export class FirebaseBusinessService {
   public async deleteBusiness(business: IBusiness): Promise<CRUDResult> {
     let result: CRUDResult;
 
-    if(!this.businesses.includes(business)) {
+    if(!this.savedAddressExists(business.address.addressString)) {
       result = CRUDResult.BUSINESS_DOES_NOT_EXIST;
     }
     else {
-      this.businesses.splice(this.businesses.indexOf(business), 1);
+      let existingBusiness: IBusiness;
+
+      this.businesses.filter(b => {
+        if(b.address.addressString === business.address.addressString) {
+          existingBusiness = b;
+          this.businesses.splice(this.businesses.indexOf(b), 1);
+          return;
+        }
+      });
+
       const serverUpdate = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
         result = new CRUDResult(false, "Failed to delete business - internal server error.");
-        this.businesses.push(business);
+        this.businesses.push(existingBusiness);
       }
       else {
         result = new CRUDResult(true, "Business deleted successfully.");
@@ -157,18 +165,13 @@ export class FirebaseBusinessService {
     return result;
   }
 
-  /**
-   * Compares an Address with the Addresses of the user's saved Businesses to find a match.
-   * If two matching Addresses exist, then the user has already saved a Business with this address.
-   * @param address 
-   */
-  private savedBusinessExists(address: IAddress): boolean {
+  public savedAddressExists(address: string): boolean {
     let result = false;
 
     const formattedAddress: string = this.bFormatter.formatAddressString(address).toLowerCase();
 
-    for (const business of this.businesses) {
-      if(formattedAddress === this.bFormatter.formatAddressString(business.address).toLowerCase()) {
+    for(const savedBusiness of this.businesses) {
+      if(formattedAddress === this.bFormatter.formatAddressString(savedBusiness.address.addressString).toLowerCase()) {
         result = true;
         break;
       }

@@ -22,6 +22,10 @@ import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
 import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
 import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
+import { FirebaseBusinessService } from '../firebase/businesses/firebase-business.service';
+import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
+import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
+import { CRUDResult } from 'src/app/classes/CRUDResult';
 
 @Injectable({
   providedIn: 'root'
@@ -33,9 +37,11 @@ import { HTTP } from '@ionic-native/http/ngx';
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
   private userPosition: LatLng;
-  private mapShouldFollowUser: boolean;
   private _mapFinishedCreating: boolean;
+  private mapShouldFollowUser: boolean;
 
+  private markers: Marker[];
+  private searchMarker: Marker;
   private subscriptions: Subscription;
 
   /**
@@ -43,10 +49,17 @@ export class GoogleMapsService implements OnDestroy {
    * @param platform The Platform used to detect when the native device is ready for native system calls to be made.
    * @param geolocation The Geolocation used to track the user's device.
    */
-  constructor(private platform: Platform, private geolocation: Geolocation, private geocoder: NativeGeocoder, private http: HTTP) {
-    this.mapShouldFollowUser = false;
-    this.subscriptions = new Subscription();
+  constructor(
+    private platform: Platform,
+    private geolocation: Geolocation,
+    private fbbService: FirebaseBusinessService,
+    private geocoder: NativeGeocoder,
+    private http: HTTP
+  ) {
     this._mapFinishedCreating = false;
+    this.mapShouldFollowUser = false;
+    this.markers = [];
+    this.subscriptions = new Subscription();
   }
 
   /**
@@ -125,48 +138,87 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = position == null;
   }
 
-  private placeBusinessMarker(businessLoc: IBusinessMapLoc) {
-    this.map.addMarker({ position: businessLoc.position }).then((marker: Marker) => {
-      let infoWindow = InfoWindow.ForBusinessLocation(businessLoc,
-        () => {
-          console.log("SAVE");
-        },
-        () => {
-          console.log("ROUTE");
-        }
-      );
+  public markSavedBusinesses() {
+    this.clearMarkers();
+
+    const formatter = new BusinessFormatter();
+
+    this.fbbService.businesses.forEach(business => {
+      this.placeBusinessMarker(formatter.businessToMapLoc(business));
+    });
+  }
+
+  public placeBusinessMarker(mapLoc: IBusinessMapLoc, centerPosition: boolean = false) {
+    this.map.addMarker({ position: mapLoc.position }).then((marker: Marker) => {
+      marker.setAnimation("DROP");
+      this.markers.push(marker);
+
+      let infoWindow = this.createBusinessInfoWindow(marker, mapLoc);
 
       marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
         infoWindow.open(marker);
       });
 
-      this.centerMap(businessLoc.position);
+      if(centerPosition) {
+        if(this.searchMarker != null) {
+          this.searchMarker.remove();
+        }
+
+        this.searchMarker = marker;
+        this.centerMap(mapLoc.position);
+      }
     });
   }
 
-  public findAddress(queryString: string) {
+  public placeBusinessSearchMarker(mapLoc: IBusinessMapLoc) {
+    this.placeBusinessMarker(mapLoc, true)
+  }
+
+  public createBusinessInfoWindow(marker: Marker, mapLoc: IBusinessMapLoc): HtmlInfoWindow {
+    const infoWindow = InfoWindow.ForBusinessLocation(mapLoc,
+      async wasSaved => {
+        const business: IBusiness = new BusinessFormatter().mapLocToBusiness(mapLoc);
+        const result: CRUDResult = wasSaved ? await this.fbbService.addBusiness(business) : await this.fbbService.deleteBusiness(business);
+
+        if(result.wasSuccessful) {
+          mapLoc.isSaved = !mapLoc.isSaved;
+          marker.remove();
+          this.placeBusinessMarker(mapLoc);
+        }
+      },
+      () => {
+        console.log("ROUTE");
+      }
+    );
+
+    return infoWindow;
+  }
+
+  public findAddress(queryString: string, callback: (mapLoc: IBusinessMapLoc) => void) {
     queryString = queryString.replace(/,/g, "%2C");
     queryString = queryString.replace(/ /g, "%20");
 
     this.http.get(`http://localhost:3000/places?address=${queryString}`, {}, {})
       .catch(error => {
-        console.log("ERROR");
+        console.log(error);
       })
       .then((response: any) => {
         const data = JSON.parse(response.data);
 
         if(data.candidates.length != 0) {
-          const businessLoc: IBusinessMapLoc = {
+          const mapLoc: IBusinessMapLoc = {
             name: data.candidates[0].name,
             address: data.candidates[0].formatted_address,
             position: {
               lat: data.candidates[0].geometry.location.lat,
               lng: data.candidates[0].geometry.location.lng
             },
-            isSaved: false
+            isSaved: this.fbbService.savedAddressExists(data.candidates[0].formatted_address as string)
           };
 
-          this.placeBusinessMarker(businessLoc);
+          this.clearMarkers();
+          this.placeBusinessMarker(mapLoc, true);
+          callback(mapLoc);
         }
       });
 
@@ -182,6 +234,16 @@ export class GoogleMapsService implements OnDestroy {
     //   .catch(error => {
     //     document.getElementById("debug-text").innerText = error.toString();
     //   })
+  }
+
+  public updateBusinessLocSaved(mapLoc: IBusinessMapLoc) {
+    mapLoc.isSaved = this.fbbService.savedAddressExists(mapLoc.address);
+  }
+
+  public clearMarkers() {
+    this.markers.forEach(marker => {
+      marker.remove();
+    });
   }
 
   /**

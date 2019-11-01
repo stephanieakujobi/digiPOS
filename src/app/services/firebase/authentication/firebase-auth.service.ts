@@ -62,9 +62,10 @@ export class FirebaseAuthService {
           callback(new CRUDResult(false, "Invalid authentication."));
         }
         else {
-          this.successfulLogin(results[0].info as IContact);
-          FirebaseAuthService._userIsAuthenticated = true;
-          callback(new CRUDResult(true, "Authentication successful."));
+          this.successfulLogin(results[0].info as IContact, () => {
+            FirebaseAuthService._userIsAuthenticated = true;
+            callback(new CRUDResult(true, "Authentication successful."));
+          });
         }
       }));
     }
@@ -76,7 +77,7 @@ export class FirebaseAuthService {
    * If no saved data exists for this user, a blank document will be created for them.
    * @param salesRepInfo The retrieved Contact info for the authenticated user.
    */
-  private successfulLogin(salesRepInfo: IContact) {
+  private successfulLogin(salesRepInfo: IContact, callback: () => void) {
     //Create the select query...
     const selectQuery = this.afs.collection<ISalesRep>(FirebaseAuthService.SALES_REPS, selectQuery => selectQuery
       .where("info.email", "==", salesRepInfo.email)
@@ -88,10 +89,10 @@ export class FirebaseAuthService {
       //A length of 0 means the select query returned no results; no saved data exists for this user.
       if(queryResults.length == 0) {
         this.createSalesRep(salesRepInfo);
-        this.successfulLogin(salesRepInfo);
+        this.successfulLogin(salesRepInfo, callback);
       }
       else {
-        this.assignAuthedSalesRep(queryResults[0].payload.doc.id);
+        this.assignAuthedSalesRep(queryResults[0].payload.doc.id, callback);
       }
 
       this.subscriptions.unsubscribe();
@@ -118,7 +119,7 @@ export class FirebaseAuthService {
    * Loads the user's data and stores them in an Observable for live-updating, and an IAuthedSalesRep for referencing.
    * @param id The user's document ID containing their saved data to read from.
    */
-  private assignAuthedSalesRep(id: string) {
+  private assignAuthedSalesRep(id: string, callback: () => void) {
     const authedServerRef: AngularFirestoreDocument<ISalesRep> = this.afs.doc<ISalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
     FirebaseAuthService.salesRepObservable$ = authedServerRef.valueChanges();
 
@@ -127,6 +128,7 @@ export class FirebaseAuthService {
         localRef: salesRep,
         serverRef: authedServerRef
       };
+      callback();
     });
   }
 
