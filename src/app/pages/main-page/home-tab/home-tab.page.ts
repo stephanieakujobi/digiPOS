@@ -13,6 +13,7 @@ import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc'
  * Shows the user their current location on the map and provides them options to search for nearby businesses to report.
  */
 export class HomeTabPage implements OnInit {
+  private progressBar: HTMLIonProgressBarElement;
   private lastSearchedBusiness: IBusinessMapLoc;
 
   /**
@@ -22,10 +23,14 @@ export class HomeTabPage implements OnInit {
   constructor(private gmapsService: GoogleMapsService) { }
 
   async ngOnInit() {
-    this.gmapsService.initMap("map");
+    this.gmapsService.initMap("map", () => {
+      this.toggleProgressbar();
+      document.getElementById("controls").classList.remove("hidden");
+    });
   }
 
   ionViewDidEnter() {
+    this.progressBar = document.getElementById("progress-bar") as HTMLIonProgressBarElement;
     this.gmapsService.markSavedBusinesses();
 
     if(this.lastSearchedBusiness != null) {
@@ -41,9 +46,16 @@ export class HomeTabPage implements OnInit {
   findAddress() {
     let address = (document.getElementById("address-searchbar") as HTMLIonSearchbarElement).value;
     if(address != "") {
+      this.toggleProgressbar();
+
       this.gmapsService.findAddress(address, (businessLoc: IBusinessMapLoc) => {
         this.lastSearchedBusiness = businessLoc;
+        this.toggleProgressbar();
       });
     }
+  }
+
+  private toggleProgressbar() {
+    this.progressBar.classList.toggle("hidden");
   }
 }

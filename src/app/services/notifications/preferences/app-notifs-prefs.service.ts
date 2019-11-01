@@ -11,6 +11,7 @@ import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
  */
 export class AppNotifsPrefsService implements IAppPrefsService<AppNotifsPrefs> {
   private static readonly storageKey = "notifications_preferences";
+  private static _prefs = new AppNotifsPrefs();
 
   /**
    * Creates a new AppNotifsPrefsService instance.
@@ -37,6 +38,7 @@ export class AppNotifsPrefsService implements IAppPrefsService<AppNotifsPrefs> {
       }
     );
 
+    AppNotifsPrefsService._prefs = prefsResult;
     return prefsResult;
   }
 
@@ -51,10 +53,15 @@ export class AppNotifsPrefsService implements IAppPrefsService<AppNotifsPrefs> {
     await this.nativeStorage.setItem(AppNotifsPrefsService.storageKey, prefs).then(
       () => {
         didSucceed = true;
+        AppNotifsPrefsService._prefs = prefs;
       },
       error => console.error('Error storing item', error)
     );
 
     return didSucceed;
+  }
+
+  public static get prefs() {
+    return AppNotifsPrefsService._prefs;
   }
 }

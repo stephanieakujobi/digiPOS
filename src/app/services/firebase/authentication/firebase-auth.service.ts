@@ -63,7 +63,6 @@ export class FirebaseAuthService {
         }
         else {
           this.successfulLogin(results[0].info as IContact, () => {
-            FirebaseAuthService._userIsAuthenticated = true;
             callback(new CRUDResult(true, "Authentication successful."));
           });
         }
@@ -128,7 +127,11 @@ export class FirebaseAuthService {
         localRef: salesRep,
         serverRef: authedServerRef
       };
-      callback();
+
+      if(!FirebaseAuthService.userIsAuthenticated) {
+        FirebaseAuthService._userIsAuthenticated = true;
+        callback();
+      }
     });
   }
 

@@ -11,6 +11,7 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
  */
 export class AppBusinessesPrefsService implements IAppPrefsService<AppBusinessesPrefs> {
   private static readonly storageKey = "businesses_preferences";
+  private static _prefs = new AppBusinessesPrefs();
 
   /**
    * Creates a new AppBusinessesPrefsService instance.
@@ -35,6 +36,7 @@ export class AppBusinessesPrefsService implements IAppPrefsService<AppBusinesses
       }
     );
 
+    AppBusinessesPrefsService._prefs = prefsResult;
     return prefsResult;
   }
 
@@ -49,10 +51,15 @@ export class AppBusinessesPrefsService implements IAppPrefsService<AppBusinesses
     await this.nativeStorage.setItem(AppBusinessesPrefsService.storageKey, prefs).then(
       () => {
         didSucceed = true;
+        AppBusinessesPrefsService._prefs = prefs;
       },
       error => console.error('Error saving business prefs', error)
     );
 
     return didSucceed;
+  }
+
+  public static get prefs(): AppBusinessesPrefs {
+    return AppBusinessesPrefsService._prefs;
   }
 }

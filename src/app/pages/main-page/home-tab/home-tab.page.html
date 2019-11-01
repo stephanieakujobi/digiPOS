@@ -5,11 +5,12 @@
 </ion-header>
 
 <ion-content>
-  <ion-progress-bar color="primary" type="indeterminate" *ngIf="!gmapsService.mapFinishedCreating"></ion-progress-bar>
+  <ion-progress-bar id="progress-bar" color="primary" type="indeterminate">
+  </ion-progress-bar>
 
   <div id="map"></div>
 
-  <div id="controls" *ngIf="gmapsService.mapFinishedCreating">
+  <div id="controls" class="hidden">
     <ion-searchbar id="address-searchbar" placeholder="Find an address..." animated (keyup.enter)="findAddress()">
     </ion-searchbar>
 

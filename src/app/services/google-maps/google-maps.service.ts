@@ -26,6 +26,8 @@ import { FirebaseBusinessService } from '../firebase/businesses/firebase-busines
 import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
+import { AppBusinessesPrefsService } from '../businesses/preferences/app-businesses-prefs.service';
+import { PopupsService } from '../global/popups.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +39,6 @@ import { CRUDResult } from 'src/app/classes/CRUDResult';
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
   private userPosition: LatLng;
-  private _mapFinishedCreating: boolean;
   private mapShouldFollowUser: boolean;
 
   private markers: Marker[];
@@ -54,9 +55,9 @@ export class GoogleMapsService implements OnDestroy {
     private geolocation: Geolocation,
     private fbbService: FirebaseBusinessService,
     private geocoder: NativeGeocoder,
-    private http: HTTP
+    private http: HTTP,
+    private popupsService: PopupsService
   ) {
-    this._mapFinishedCreating = false;
     this.mapShouldFollowUser = false;
     this.markers = [];
     this.subscriptions = new Subscription();
@@ -66,11 +67,11 @@ export class GoogleMapsService implements OnDestroy {
    * Creates a new GoogleMap centered on the user's current location.
    * @param mapElementId The id attribute of an HTML element to insert the map.
    */
-  public async initMap(mapElementId: string) {
+  public async initMap(mapElementId: string, onComplete: () => void) {
     await this.platform.ready();
     await this.createMap(mapElementId);
     this.subscribeEvents();
-    this._mapFinishedCreating = true;
+    onComplete();
   }
 
   /**
@@ -178,12 +179,24 @@ export class GoogleMapsService implements OnDestroy {
     const infoWindow = InfoWindow.ForBusinessLocation(mapLoc,
       async wasSaved => {
         const business: IBusiness = new BusinessFormatter().mapLocToBusiness(mapLoc);
-        const result: CRUDResult = wasSaved ? await this.fbbService.addBusiness(business) : await this.fbbService.deleteBusiness(business);
+        let result: CRUDResult;
 
-        if(result.wasSuccessful) {
-          mapLoc.isSaved = !mapLoc.isSaved;
-          marker.remove();
-          this.placeBusinessMarker(mapLoc);
+        if(wasSaved) {
+          result = await this.fbbService.addBusiness(business);
+          this.mapLocUpdatedResult(result, marker, mapLoc);
+        }
+        else if(AppBusinessesPrefsService.prefs.askBeforeDelete) {
+          this.popupsService.showConfirmationAlert("Delete Business", "Are you sure you want to delete this business?",
+            async () => {
+              result = await this.fbbService.deleteBusiness(business);
+              this.mapLocUpdatedResult(result, marker, mapLoc);
+            },
+            null
+          );
+        }
+        else {
+          result = await this.fbbService.deleteBusiness(business);
+          this.mapLocUpdatedResult(result, marker, mapLoc);
         }
       },
       () => {
@@ -192,6 +205,16 @@ export class GoogleMapsService implements OnDestroy {
     );
 
     return infoWindow;
+  }
+
+  private mapLocUpdatedResult(result: CRUDResult, marker: Marker, mapLoc: IBusinessMapLoc) {
+    if(result.wasSuccessful) {
+      mapLoc.isSaved = !mapLoc.isSaved;
+      marker.remove();
+      this.placeBusinessMarker(mapLoc);
+    }
+
+    this.popupsService.showToast(result.message);
   }
 
   public findAddress(queryString: string, callback: (mapLoc: IBusinessMapLoc) => void) {
@@ -244,12 +267,5 @@ export class GoogleMapsService implements OnDestroy {
     this.markers.forEach(marker => {
       marker.remove();
     });
-  }
-
-  /**
-   * Whether the GoogleMap has finished creating after calling the initMap function.
-   */
-  public get mapFinishedCreating(): boolean {
-    return this._mapFinishedCreating;
   }
 }

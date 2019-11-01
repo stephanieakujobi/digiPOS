@@ -1,12 +1,12 @@
-import { Component, OnInit } from "@angular/core";
-import { AlertController, IonItemSliding, ModalController } from "@ionic/angular";
+import { Component } from "@angular/core";
+import { IonItemSliding } from "@ionic/angular";
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-bar.page';
 import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
 import { NotificationsPrefsModal } from './notifications-prefs-modal/notifications-prefs.modal';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
 import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
-import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
+import { PopupsService } from 'src/app/services/global/popups.service';
 
 @Component({
   selector: "notifications-home-tab",
@@ -18,20 +18,13 @@ import { AppNotifsPrefs } from 'src/app/classes/notifications/AppNotifsPrefs';
  * The page displayed to the user when they select the "Notifications" tab.
  * Shows the user all the AppNotifications they have received, if any.
  */
-export class NotificationsTabPage implements OnInit {
-  private prefs: AppNotifsPrefs;
-
+export class NotificationsTabPage {
   /**
    * Creates a new NotificationsTabPage.
    * @param prefsService The AppNotifsPrefsService used to update the user's notification preferences when changed.
-   * @param alertController The AlertController used to view AppNotifications in a native alert box.
-   * @param modalController The ModalController which opens the 
+   * @param popupsService The PopupsService used to display alerts and modals.
    */
-  constructor(private prefsService: AppNotifsPrefsService, private alertController: AlertController, private modalController: ModalController) { }
-
-  async ngOnInit() {
-    this.prefs = await this.prefsService.loadPrefs();
-  }
+  constructor(private prefsService: AppNotifsPrefsService, private popupsService: PopupsService) { }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
@@ -74,13 +67,7 @@ export class NotificationsTabPage implements OnInit {
    * @param notification The AppNotification to display.
    */
   async viewNotif(notification: AppNotification) {
-    const notifAlert = await this.alertController.create({
-      header: notification.title,
-      message: notification.summary,
-      buttons: ["Close"]
-    });
-
-    await notifAlert.present();
+    await this.popupsService.showAlert(notification.title, notification.summary, "Close");
 
     notification.isRead = true;
     MainTabBarPage.updateUnreadNotifsBadge();
@@ -109,24 +96,13 @@ export class NotificationsTabPage implements OnInit {
    * @param notifElement The HTMLElement to animate upon deletion.
    */
   async onDeleteNotif(notification: AppNotification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
-    if(this.prefs.askBeforeDelete) {
-      const confirmationAlert = await this.alertController.create({
-        header: "Delete Notification",
-        message: "Are you sure you want to delete this notification?",
-        buttons: [
-          {
-            text: "Yes",
-            handler: () => this.doDeleteNotif(notification, ionItemSliding, notifElement)
-          },
-          {
-            text: "No",
-            role: "cancel",
-            handler: () => ionItemSliding.close()
-          },
-        ]
-      });
+    console.log(AppNotifsPrefsService.prefs);
 
-      await confirmationAlert.present();
+    if(AppNotifsPrefsService.prefs.askBeforeDelete) {
+      this.popupsService.showConfirmationAlert("Delete Notification", "Are you sure you want to delete this notification?",
+        () => this.doDeleteNotif(notification, ionItemSliding, notifElement),
+        () => ionItemSliding.close()
+      );
     }
     else {
       this.doDeleteNotif(notification, ionItemSliding, notifElement);
@@ -196,19 +172,10 @@ export class NotificationsTabPage implements OnInit {
    * Once the user closes the modal, their notification preferences are saved.
    */
   async openPrefsModal() {
-    const modal = await this.modalController.create({
-      component: NotificationsPrefsModal,
-      backdropDismiss: false,
-      componentProps: {
-        prefs: this.prefs
-      }
-    });
-
-    await modal.present();
-
-    modal.onWillDismiss().then(({ data }) => {
+    this.popupsService.showModal(NotificationsPrefsModal, null, data => {
+      console.log(data);
       this.prefsService.savePrefs(data);
-    });
+    })
   }
 
   /**

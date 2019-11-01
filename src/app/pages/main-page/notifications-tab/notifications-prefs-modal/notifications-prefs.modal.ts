@@ -18,11 +18,10 @@ export class NotificationsPrefsModal {
   /**
    * Creates a new NotificationsSettingsModal
    * @param modalController The reference to the ModalController that created this modal.
-   * @param navParams The NavParams used to check for existing AppNotifPrefs to display.
    */
-  constructor(private modalController: ModalController, navParams: NavParams) {
-    let existingPrefs = navParams.get("prefs") as AppNotifsPrefs;
-    this.prefs = existingPrefs != null? existingPrefs : new AppNotifsPrefs();
+  constructor(private modalController: ModalController) {
+    this.prefs = AppNotifsPrefsService.prefs;
+    console.log(this.prefs);
   }
 
   /**

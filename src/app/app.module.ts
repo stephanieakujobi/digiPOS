@@ -20,6 +20,7 @@ import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { FirebaseAuthService } from './services/firebase/authentication/firebase-auth.service';
 import { FirebaseBusinessService } from './services/firebase/businesses/firebase-business.service';
+import { PopupsService } from './services/global/popups.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -37,6 +38,7 @@ import { FirebaseBusinessService } from './services/firebase/businesses/firebase
   providers: [
     StatusBar,
     SplashScreen,
+    PopupsService,
     NativeStorage,
     NativeGeocoder,
     FirebaseAuthService,

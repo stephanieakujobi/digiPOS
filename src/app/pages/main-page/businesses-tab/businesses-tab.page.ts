@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { ModalController, ToastController, AlertController } from '@ionic/angular';
+import { Component } from '@angular/core';
 import { BusinessViewModalPage } from './business-view-modal/business-view-modal.page';
 import { BusinessPrefsModalPage } from './business-prefs/business-prefs-modal.page';
 import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
-import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { FirebaseBusinessService } from 'src/app/services/firebase/businesses/firebase-business.service';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
+import { PopupsService } from 'src/app/services/global/popups.service';
+import { ComponentRef, ComponentProps } from '@ionic/core';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -17,31 +17,14 @@ import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 /**
  * The page displayed to the user when they select the "Businesses" tab.
  */
-export class BusinessesTabPage implements OnInit {
-  private prefs: AppBusinessesPrefs;
-
+export class BusinessesTabPage {
   /**
    * Creates a new BusinessTabPage.
    * @param fbbService The FirebaseBusinessService used to execute CRUD operations on the user's saved Businesses.
    * @param prefsService The AppBusinessesPrefsService used to update the user's saved Businesses preferences.
-   * @param modalController The ModalController used to create modals for this page.
-   * @param alertController The AlertController used to display confirmation messages to the user.
-   * @param toastController The ToastController used to create toast messages for this page.
+   * @param popupsService The PopupsService used to display alerts, toasts, and modals.
    */
-  constructor(
-    private fbbService: FirebaseBusinessService,
-    private prefsService: AppBusinessesPrefsService,
-    private modalController: ModalController,
-    private alertController: AlertController,
-    private toastController: ToastController
-  ) { }
-
-  /**
-   * @see https://angular.io/api/core/OnInit
-   */
-  async ngOnInit() {
-    this.prefs = await this.prefsService.loadPrefs();
-  }
+  constructor(private fbbService: FirebaseBusinessService, private prefsService: AppBusinessesPrefsService, private popupsService: PopupsService) { }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
@@ -154,24 +137,11 @@ export class BusinessesTabPage implements OnInit {
    * @param businessElement The HTMLElement to animate upon deletion.
    */
   async onDeleteBusiness(business: IBusiness, ionItemSliding: HTMLIonItemSlidingElement, businessElement: HTMLElement) {
-    if(this.prefs.askBeforeDelete) {
-      const confirmationAlert = await this.alertController.create({
-        header: "Delete Business",
-        message: "Are you sure you want to delete this business?",
-        buttons: [
-          {
-            text: "Yes",
-            handler: () => this.doDeleteBusiness(business, ionItemSliding, businessElement)
-          },
-          {
-            text: "No",
-            role: "cancel",
-            handler: () => ionItemSliding.close()
-          },
-        ]
-      });
-
-      await confirmationAlert.present();
+    if(AppBusinessesPrefsService.prefs.askBeforeDelete) {
+      this.popupsService.showConfirmationAlert("Delete Business", "Are you sure you want to delete this business?",
+        () => this.doDeleteBusiness(business, ionItemSliding, businessElement),
+        () => ionItemSliding.close()
+      );
     }
     else {
       this.doDeleteBusiness(business, ionItemSliding, businessElement);
@@ -191,7 +161,7 @@ export class BusinessesTabPage implements OnInit {
 
     setTimeout(async () => {
       const result: CRUDResult = await this.fbbService.deleteBusiness(business);
-      this.presentToast(result.message);
+      this.popupsService.showToast(result.message);
 
       if(!result.wasSuccessful) {
         businessElement.classList.remove("deleting");
@@ -231,7 +201,7 @@ export class BusinessesTabPage implements OnInit {
         this.sortBusinesses();
       }
 
-      this.presentToast(result.message);
+      this.popupsService.showToast(result.message);
     }, 250);
   }
 
@@ -241,17 +211,7 @@ export class BusinessesTabPage implements OnInit {
    * Once the user closes the modal, their preferences are saved.
    */
   async openPrefsModal() {
-    const modal = await this.modalController.create({
-      component: BusinessPrefsModalPage,
-      backdropDismiss: false,
-      componentProps: {
-        prefs: this.prefs
-      }
-    });
-
-    await modal.present();
-
-    await modal.onWillDismiss().then(({ data }) => {
+    this.popupsService.showModal(BusinessPrefsModalPage, null, data => {
       this.prefsService.savePrefs(data);
     });
   }
@@ -262,18 +222,12 @@ export class BusinessesTabPage implements OnInit {
    *                         If an existing Business is passed, then this Business will be updated insted, rather than added as a new saved Business.
    */
   async openBusinessViewModal(existingBusiness?: IBusiness) {
-    const modal = await this.modalController.create({
-      component: BusinessViewModalPage,
-      backdropDismiss: false,
-      componentProps: {
-        existingBusiness: existingBusiness,
-        allBusinesses: this.fbbService.businesses
-      }
-    });
+    const props: ComponentProps<ComponentRef> = {
+      existingBusiness: existingBusiness,
+      allBusinesses: this.fbbService.businesses
+    }
 
-    await modal.present();
-
-    await modal.onWillDismiss().then(({ data }) => {
+    this.popupsService.showModal(BusinessViewModalPage, props, data => {
       if(data != null) {
         if(existingBusiness == null) {
           this.addSavedBusiness(data);
@@ -292,7 +246,7 @@ export class BusinessesTabPage implements OnInit {
    */
   private async addSavedBusiness(business: IBusiness) {
     const result: CRUDResult = await this.fbbService.addBusiness(business);
-    this.presentToast(result.message);
+    this.popupsService.showToast(result.message);
 
     if(result.wasSuccessful) {
       this.sortBusinesses();
@@ -307,24 +261,10 @@ export class BusinessesTabPage implements OnInit {
    */
   private async updateSavedBusiness(original: IBusiness, updated: IBusiness) {
     const result: CRUDResult = await this.fbbService.updateBusiness(original, updated);
-    this.presentToast(result.message);
+    this.popupsService.showToast(result.message);
 
     if(result.wasSuccessful) {
       this.sortBusinesses();
     }
-  }
-
-  /**
-   * Presents a toast to the user. The toast will disappear automatically after two seconds.
-   * @param message The message to display in the toast.
-   */
-  private async presentToast(message: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2000,
-      cssClass: "tabs-margin"
-    });
-
-    toast.present();
   }
 }

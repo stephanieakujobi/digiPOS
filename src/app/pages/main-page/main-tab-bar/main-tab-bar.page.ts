@@ -4,6 +4,8 @@ import { AppNotifsStorageService } from 'src/app/services/notifications/storage/
 import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
 import { NavController } from '@ionic/angular';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
+import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
+import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
 
 @Component({
   selector: 'app-main-tab-bar',
@@ -22,16 +24,23 @@ export class MainTabBarPage implements OnInit {
    * @param navController The NavController used to redirect the user back to the LoginPage if they are not authenticated.
    * @param notifsStorage The AppNotifsStorageService used to load the user's saved AppNotifications on their device.
    */
-  constructor(private navController: NavController, private notifsStorage: AppNotifsStorageService) { }
+  constructor(
+    private navController: NavController,
+    private notifsStorage: AppNotifsStorageService,
+    private bPrefsService: AppBusinessesPrefsService,
+    private nPrefsService: AppNotifsPrefsService) { }
 
-  async ngOnInit() {
+  ngOnInit() {
     if(!FirebaseAuthService.userIsAuthenticated) {
       this.navController.navigateBack("/login");
     }
-    else {
-      await this.testSaveNotifs(); //TEMPORARY
-      await this.loadNotifications();
-    }
+  }
+
+  async ionViewWillEnter() {
+    await this.bPrefsService.loadPrefs();
+    await this.nPrefsService.loadPrefs();
+    await this.testSaveNotifs(); //TEMPORARY
+    await this.loadNotifications();
   }
 
   /**

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { AppBusinessesPrefs } from 'src/app/classes/businesses/AppBusinessesPrefs';
+import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
 
 @Component({
   selector: 'app-business-prefs-modal',
@@ -18,11 +19,9 @@ export class BusinessPrefsModalPage {
   /**
    * Creates a new BusinessPrefsModalPage
    * @param modalController The ModalController used to dismis this modal.
-   * @param navParams The NavParams used to retreive existing AppBusinessesPrefs data, if any exist.
    */
-  constructor(private modalController: ModalController, navParams: NavParams) {
-    let existingPrefs = navParams.get("prefs") as AppBusinessesPrefs;
-    this.prefs = existingPrefs != null? existingPrefs : new AppBusinessesPrefs();
+  constructor(private modalController: ModalController) {
+    this.prefs = AppBusinessesPrefsService.prefs;
   }
 
   /**
