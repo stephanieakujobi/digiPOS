@@ -1,6 +1,5 @@
 import { HtmlInfoWindow } from '@ionic-native/google-maps';
-import { IBusinessMapLoc } from '../../interfaces/google-maps/IBusinessMapLoc';
-import { Observable } from 'rxjs';
+import { IMapPlace } from '../../interfaces/google-maps/IMapPlace';
 
 /**
  * A static utility class for providing Google Maps HtmlInfoWindow templates for specific use-cases.
@@ -13,35 +12,32 @@ export class InfoWindow {
 
     /**
      * Creates an HtmlInfoWindow for a Business selected by the user on the map.
-     * @param businessLoc The Business that was selected.
+     * @param place The Business that was selected.
      * @param onSaveBtnClicked The callback function for when the user presses the "save/unsave business" button in the HtmlInfoWindow.
      * @param onRouteBtnClicked The callback function for when the user presses the "start a route" button in the HtmlInfoWindow.
      * @returns A pre-content-filled HtmlInfoWindow object.
      */
-    public static ForBusinessLocation(businessLoc: IBusinessMapLoc, onSaveBtnClicked: (wasSaved: boolean) => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
-        let infoWindow = new HtmlInfoWindow();
-        let content: HTMLElement = document.createElement("div");
+    public static ForPlaceLocation(place: IMapPlace, onSaveBtnClicked: (wasSaved: boolean) => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
+        const infoWindow = new HtmlInfoWindow();
+        const content: HTMLElement = document.createElement("div");
 
         content.style.padding = "0 10px";
 
         content.innerHTML = [
-            `<h5>${businessLoc.name}</h5>`,
-            `<p>${businessLoc.address}</p>`,
+            `<h5>${place.name}</h5>`,
+            `<p>${place.address}</p>`,
             `<div style="position: absolute; bottom: 20px; width: 91.5%;">`,
-            this.infoWindowButton((businessLoc.isSaved ? "Un-save" : "Save") + " business", "add-circle"),
+            this.infoWindowButton((place.isSaved ? "Un-save" : "Save") + " place", place.isSaved ? "close-circle" : "add-circle"),
             this.infoWindowButton("Start a route", "navigate"),
             "</div>"
         ].join("");
 
-        content.getElementsByTagName("ion-button")[0].addEventListener("click", function() {
-            let buttonText = (businessLoc.isSaved ? "Un-save" : "Save") + " business";
-            let buttonIcon = businessLoc.isSaved ? "close-circle" : "add-circle";
+        const buttons: HTMLCollectionOf<HTMLIonButtonElement> = content.getElementsByTagName("ion-button");
+        const saveButton: HTMLIonButtonElement = buttons[0];
+        const routeButton: HTMLIonButtonElement = buttons[1];
 
-            this.innerHTML = `<ion-icon slot="start" name="${buttonIcon}"></ion-icon>${buttonText}`;
-            onSaveBtnClicked(!businessLoc.isSaved);
-        });
-
-        content.getElementsByTagName("ion-button")[1].addEventListener("click", function() { onRouteBtnClicked(); });
+        saveButton.addEventListener("click", function() { onSaveBtnClicked(!place.isSaved) });
+        routeButton.addEventListener("click", function() { onRouteBtnClicked(); });
 
         infoWindow.setContent(content, {
             width: "250px",

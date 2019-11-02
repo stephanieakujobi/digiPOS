@@ -1,6 +1,6 @@
 import { ILatLng } from '@ionic-native/google-maps';
 
-export interface IBusinessMapLoc {
+export interface IMapPlace {
     name: string;
     address: string;
     position: ILatLng;

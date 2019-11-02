@@ -3,7 +3,7 @@ import { IContact } from './IContact';
 import { IAddress } from './IAddress';
 
 /**
- * The representation of a physical business that can be saved, viewed, and edited by users.
+ * The representation of a physical place that can be saved, viewed, and edited by users.
  */
 export interface IBusiness {
     name: string;

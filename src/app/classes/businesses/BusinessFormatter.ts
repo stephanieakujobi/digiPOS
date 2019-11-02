@@ -1,6 +1,5 @@
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
-import { IAddress } from 'src/app/interfaces/businesses/IAddress';
-import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
+import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
 
 /**
  * A utility class for providing formatting options for Business data.
@@ -69,7 +68,7 @@ export class BusinessFormatter {
         return clone;
     }
 
-    public mapLocToBusiness(mapLoc: IBusinessMapLoc): IBusiness {
+    public mapPlaceToBusiness(mapLoc: IMapPlace): IBusiness {
         let business: IBusiness = this.blankBusiness();
         business.name = mapLoc.name;
         business.address.addressString = mapLoc.address;
@@ -80,7 +79,7 @@ export class BusinessFormatter {
         return business;
     }
 
-    public businessToMapLoc(business: IBusiness): IBusinessMapLoc {
+    public businessToMapPlace(business: IBusiness): IMapPlace {
         return {
             name: business.name,
             address: business.address.addressString,

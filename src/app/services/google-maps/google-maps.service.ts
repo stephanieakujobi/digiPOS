@@ -19,7 +19,7 @@ import {
   GeocoderResult
 } from '@ionic-native/google-maps';
 import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
-import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
+import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
 import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
 import { FirebaseBusinessService } from '../firebase/businesses/firebase-business.service';
@@ -28,6 +28,7 @@ import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { AppBusinessesPrefsService } from '../businesses/preferences/app-businesses-prefs.service';
 import { PopupsService } from '../global/popups.service';
+import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 
 @Injectable({
   providedIn: 'root'
@@ -41,9 +42,10 @@ export class GoogleMapsService implements OnDestroy {
   private userPosition: LatLng;
   private mapShouldFollowUser: boolean;
 
-  private markers: Marker[];
-  private searchMarker: Marker;
+  private markers: PlaceMarker[];
+  private searchMarker: PlaceMarker;
   private subscriptions: Subscription;
+  private bFormatter: BusinessFormatter;
 
   /**
    * Creates a new GoogleMapsService.
@@ -61,6 +63,7 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = false;
     this.markers = [];
     this.subscriptions = new Subscription();
+    this.bFormatter = new BusinessFormatter();
   }
 
   /**
@@ -129,7 +132,7 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   public async centerMap(position?: ILatLng) {
-    const centerPosition = position == null ? this.userPosition : position;
+    const centerPosition: ILatLng = position == null ? this.userPosition : position;
 
     await this.map.animateCamera({
       target: centerPosition,
@@ -139,97 +142,86 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = position == null;
   }
 
-  public markSavedBusinesses() {
+  public markSavedPlaces() {
     this.clearMarkers();
 
     const formatter = new BusinessFormatter();
 
     this.fbbService.businesses.forEach(business => {
-      this.placeBusinessMarker(formatter.businessToMapLoc(business));
+      this.addPlaceMarker(formatter.businessToMapPlace(business));
     });
   }
 
-  public placeBusinessMarker(mapLoc: IBusinessMapLoc, centerPosition: boolean = false) {
-    this.map.addMarker({ position: mapLoc.position }).then((marker: Marker) => {
-      marker.setAnimation("DROP");
-      this.markers.push(marker);
+  public async addPlaceSearchMarker(place: IMapPlace) {
+    if(this.searchMarker != null) {
+      this.searchMarker.remove();
+    }
 
-      let infoWindow = this.createBusinessInfoWindow(marker, mapLoc);
-
-      marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
-        infoWindow.open(marker);
-      });
-
-      if(centerPosition) {
-        if(this.searchMarker != null) {
-          this.searchMarker.remove();
-        }
-
-        this.searchMarker = marker;
-        this.centerMap(mapLoc.position);
-      }
-    });
+    this.searchMarker = await this.addPlaceMarker(place);
+    this.centerMap(place.position);
   }
 
-  public placeBusinessSearchMarker(mapLoc: IBusinessMapLoc) {
-    this.placeBusinessMarker(mapLoc, true)
-  }
-
-  public createBusinessInfoWindow(marker: Marker, mapLoc: IBusinessMapLoc): HtmlInfoWindow {
-    const infoWindow = InfoWindow.ForBusinessLocation(mapLoc,
-      async wasSaved => {
-        const business: IBusiness = new BusinessFormatter().mapLocToBusiness(mapLoc);
-        let result: CRUDResult;
-
-        if(wasSaved) {
-          result = await this.fbbService.addBusiness(business);
-          this.mapLocUpdatedResult(result, marker, mapLoc);
-        }
-        else if(AppBusinessesPrefsService.prefs.askBeforeDelete) {
-          this.popupsService.showConfirmationAlert("Delete Business", "Are you sure you want to delete this business?",
-            async () => {
-              result = await this.fbbService.deleteBusiness(business);
-              this.mapLocUpdatedResult(result, marker, mapLoc);
-            },
-            null
-          );
-        }
-        else {
-          result = await this.fbbService.deleteBusiness(business);
-          this.mapLocUpdatedResult(result, marker, mapLoc);
-        }
-      },
-      () => {
-        console.log("ROUTE");
-      }
+  public async addPlaceMarker(place: IMapPlace): Promise<PlaceMarker> {
+    const placeMarker = await PlaceMarker.instantiate(this.map, place,
+      () => this.onPlaceMarkerSaved(placeMarker),
+      () => this.onPlaceMarkerUnaved(placeMarker),
+      () => this.onPlaceMarkerStartRoute(placeMarker),
     );
 
-    return infoWindow;
+    this.markers.push(placeMarker);
+
+    return placeMarker;
   }
 
-  private mapLocUpdatedResult(result: CRUDResult, marker: Marker, mapLoc: IBusinessMapLoc) {
+  private async onPlaceMarkerSaved(placeMarker: PlaceMarker) {
+    const business: IBusiness = this.bFormatter.mapPlaceToBusiness(placeMarker.place);
+    const result: CRUDResult = await this.fbbService.addBusiness(business);
+
+    this.placeUpdatedResult(result, placeMarker);
+  }
+
+  private async onPlaceMarkerUnaved(placeMarker: PlaceMarker) {
+    const business: IBusiness = this.bFormatter.mapPlaceToBusiness(placeMarker.place);
+    let result: CRUDResult = await this.fbbService.addBusiness(business);
+
+    if(AppBusinessesPrefsService.prefs.askBeforeDelete) {
+      this.popupsService.showConfirmationAlert("Delete Business", "Are you sure you want to delete this business?",
+        async () => {
+          result = await this.fbbService.deleteBusiness(business);
+          this.placeUpdatedResult(result, placeMarker);
+        },
+        null
+      );
+    }
+    else {
+      result = await this.fbbService.deleteBusiness(business);
+      this.placeUpdatedResult(result, placeMarker);
+    }
+  }
+
+  private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
+    console.log("START ROUTE");
+  }
+
+  private placeUpdatedResult(result: CRUDResult, placeMarker: PlaceMarker) {
     if(result.wasSuccessful) {
-      mapLoc.isSaved = !mapLoc.isSaved;
-      marker.remove();
-      this.placeBusinessMarker(mapLoc);
+      placeMarker.place.isSaved = !placeMarker.place.isSaved;
+      this.addPlaceMarker(placeMarker.place);
+      this.markSavedPlaces();
     }
 
     this.popupsService.showToast(result.message);
   }
 
-  public findAddress(queryString: string, callback: (mapLoc: IBusinessMapLoc) => void) {
-    queryString = queryString.replace(/,/g, "%2C");
-    queryString = queryString.replace(/ /g, "%20");
+  public findAddress(queryString: string, callback: (place: IMapPlace) => void) {
+    queryString = new BusinessFormatter().formatAddressString(queryString);
 
-    this.http.get(`http://localhost:3000/places?address=${queryString}`, {}, {})
-      .catch(error => {
-        console.log(error);
-      })
+    this.http.get(`http://localhost:3000/findplace?address=${queryString}`, {}, {})
       .then((response: any) => {
         const data = JSON.parse(response.data);
 
         if(data.candidates.length != 0) {
-          const mapLoc: IBusinessMapLoc = {
+          const mapPlace: IMapPlace = {
             name: data.candidates[0].name,
             address: data.candidates[0].formatted_address,
             position: {
@@ -239,10 +231,13 @@ export class GoogleMapsService implements OnDestroy {
             isSaved: this.fbbService.savedAddressExists(data.candidates[0].formatted_address as string)
           };
 
-          this.clearMarkers();
-          this.placeBusinessMarker(mapLoc, true);
-          callback(mapLoc);
+          this.addPlaceSearchMarker(mapPlace);
+          callback(mapPlace);
         }
+      })
+      .catch(() => {
+        this.popupsService.showToast("A network error occurred while searching for an address.");
+        callback(null);
       });
 
     // Geocoder.geocode({ address: "Sheridan College, Brampton, Ontario" }).then((results: GeocoderResult[]) => {
@@ -259,13 +254,15 @@ export class GoogleMapsService implements OnDestroy {
     //   })
   }
 
-  public updateBusinessLocSaved(mapLoc: IBusinessMapLoc) {
-    mapLoc.isSaved = this.fbbService.savedAddressExists(mapLoc.address);
+  public updateSavedPlace(place: IMapPlace) {
+    place.isSaved = this.fbbService.savedAddressExists(place.address);
   }
 
   public clearMarkers() {
-    this.markers.forEach(marker => {
-      marker.remove();
-    });
+    const arrLength = this.markers.length;
+
+    for(let i = 0; i < arrLength; i++) {
+      this.markers[i].remove();
+    }
   }
 }

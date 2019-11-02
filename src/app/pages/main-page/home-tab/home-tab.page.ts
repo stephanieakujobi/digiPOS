@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
-import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc';
+import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
 
 @Component({
   selector: 'app-home-tab',
@@ -14,7 +14,7 @@ import { IBusinessMapLoc } from 'src/app/interfaces/google-maps/IBusinessMapLoc'
  */
 export class HomeTabPage implements OnInit {
   private progressBar: HTMLIonProgressBarElement;
-  private lastSearchedBusiness: IBusinessMapLoc;
+  private lastSearchedPlace: IMapPlace;
 
   /**
    * Creates a new HomeTabPage
@@ -31,11 +31,11 @@ export class HomeTabPage implements OnInit {
 
   ionViewDidEnter() {
     this.progressBar = document.getElementById("progress-bar") as HTMLIonProgressBarElement;
-    this.gmapsService.markSavedBusinesses();
+    this.gmapsService.markSavedPlaces();
 
-    if(this.lastSearchedBusiness != null) {
-      this.gmapsService.updateBusinessLocSaved(this.lastSearchedBusiness);
-      this.gmapsService.placeBusinessSearchMarker(this.lastSearchedBusiness);
+    if(this.lastSearchedPlace != null) {
+      this.gmapsService.updateSavedPlace(this.lastSearchedPlace);
+      this.gmapsService.addPlaceSearchMarker(this.lastSearchedPlace);
     }
   }
 
@@ -48,8 +48,8 @@ export class HomeTabPage implements OnInit {
     if(address != "") {
       this.toggleProgressbar();
 
-      this.gmapsService.findAddress(address, (businessLoc: IBusinessMapLoc) => {
-        this.lastSearchedBusiness = businessLoc;
+      this.gmapsService.findAddress(address, (place: IMapPlace) => {
+        this.lastSearchedPlace = place;
         this.toggleProgressbar();
       });
     }
