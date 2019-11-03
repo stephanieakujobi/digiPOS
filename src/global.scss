@@ -165,11 +165,13 @@ ion-item.empty-list-content {
   }
 }
 
-.pgm-html-info-frame {
-  transform-origin: bottom;
-  animation: infoWindowPopup 0.25s cubic-bezier(0.65, 0.34, 0.51, 1.67);
+ion-content {
+  .pgm-html-info-frame {
+    transform-origin: bottom;
+    animation: infoWindowPopup 0.25s cubic-bezier(0.65, 0.34, 0.51, 1.67);
+  }
 
-  .pgm-html-info-content-frame {
+  &.ios .pgm-html-info-content-frame {
     border-radius: 10px;
   }
 }

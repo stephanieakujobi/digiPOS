@@ -6,22 +6,12 @@ import {
   GoogleMaps,
   GoogleMap,
   GoogleMapsEvent,
-  Marker,
-  GoogleMapsAnimation,
-  MyLocation,
-  Environment,
   GoogleMapOptions,
   ILatLng,
   LatLng,
-  MarkerOptions,
-  HtmlInfoWindow,
-  Geocoder,
-  GeocoderResult
 } from '@ionic-native/google-maps';
-import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
 import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
-import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
-import { HTTP } from '@ionic-native/http/ngx';
+import { HTTP, HTTPResponse } from '@ionic-native/http/ngx';
 import { FirebaseBusinessService } from '../firebase/businesses/firebase-business.service';
 import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
@@ -39,11 +29,13 @@ import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
  */
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
-  private userPosition: LatLng;
   private mapShouldFollowUser: boolean;
+  private userPosition: ILatLng;
 
-  private markers: PlaceMarker[];
   private searchMarker: PlaceMarker;
+  private savedMarkers: PlaceMarker[];
+  private nearbyMarkers: PlaceMarker[];
+
   private subscriptions: Subscription;
   private bFormatter: BusinessFormatter;
 
@@ -56,12 +48,12 @@ export class GoogleMapsService implements OnDestroy {
     private platform: Platform,
     private geolocation: Geolocation,
     private fbbService: FirebaseBusinessService,
-    private geocoder: NativeGeocoder,
     private http: HTTP,
     private popupsService: PopupsService
   ) {
     this.mapShouldFollowUser = false;
-    this.markers = [];
+    this.nearbyMarkers = [];
+    this.savedMarkers = [];
     this.subscriptions = new Subscription();
     this.bFormatter = new BusinessFormatter();
   }
@@ -142,13 +134,20 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = position == null;
   }
 
-  public markSavedPlaces() {
-    this.clearMarkers();
+  public centerOnSavedPlace(place: IMapPlace) {
+    const placeMarkers: PlaceMarker[] = this.savedMarkers.filter(m => m.place.address == place.address);
 
-    const formatter = new BusinessFormatter();
+    if(placeMarkers.length != 0) {
+      this.centerMap(placeMarkers[0].place.position);
+      placeMarkers[0].marker.setAnimation("BOUNCE");
+    }
+  }
+
+  public pinSavedPlaces() {
+    this.clearSavedMarkers();
 
     this.fbbService.businesses.forEach(business => {
-      this.addPlaceMarker(formatter.businessToMapPlace(business));
+      this.addPlaceMarker(this.bFormatter.businessToMapPlace(business));
     });
   }
 
@@ -157,18 +156,25 @@ export class GoogleMapsService implements OnDestroy {
       this.searchMarker.remove();
     }
 
-    this.searchMarker = await this.addPlaceMarker(place);
+    this.searchMarker = await this.addPlaceMarker(place, false);
     this.centerMap(place.position);
   }
 
-  public async addPlaceMarker(place: IMapPlace): Promise<PlaceMarker> {
+  public async addPlaceMarker(place: IMapPlace, saveReference: boolean = true): Promise<PlaceMarker> {
     const placeMarker = await PlaceMarker.instantiate(this.map, place,
       () => this.onPlaceMarkerSaved(placeMarker),
       () => this.onPlaceMarkerUnaved(placeMarker),
       () => this.onPlaceMarkerStartRoute(placeMarker),
     );
 
-    this.markers.push(placeMarker);
+    if(saveReference) {
+      if(place.isSaved && this.savedMarkers.filter(m => m.place.address == place.address).length == 0) {
+        this.savedMarkers.push(placeMarker);
+      }
+      else {
+        this.nearbyMarkers.push(placeMarker);
+      }
+    }
 
     return placeMarker;
   }
@@ -177,7 +183,7 @@ export class GoogleMapsService implements OnDestroy {
     const business: IBusiness = this.bFormatter.mapPlaceToBusiness(placeMarker.place);
     const result: CRUDResult = await this.fbbService.addBusiness(business);
 
-    this.placeUpdatedResult(result, placeMarker);
+    this.updatePlaceMarker(result, placeMarker);
   }
 
   private async onPlaceMarkerUnaved(placeMarker: PlaceMarker) {
@@ -188,14 +194,14 @@ export class GoogleMapsService implements OnDestroy {
       this.popupsService.showConfirmationAlert("Delete Business", "Are you sure you want to delete this business?",
         async () => {
           result = await this.fbbService.deleteBusiness(business);
-          this.placeUpdatedResult(result, placeMarker);
+          this.updatePlaceMarker(result, placeMarker);
         },
         null
       );
     }
     else {
       result = await this.fbbService.deleteBusiness(business);
-      this.placeUpdatedResult(result, placeMarker);
+      this.updatePlaceMarker(result, placeMarker);
     }
   }
 
@@ -203,66 +209,112 @@ export class GoogleMapsService implements OnDestroy {
     console.log("START ROUTE");
   }
 
-  private placeUpdatedResult(result: CRUDResult, placeMarker: PlaceMarker) {
+  private updatePlaceMarker(result: CRUDResult, placeMarker: PlaceMarker) {
     if(result.wasSuccessful) {
       placeMarker.place.isSaved = !placeMarker.place.isSaved;
       this.addPlaceMarker(placeMarker.place);
-      this.markSavedPlaces();
+      placeMarker.remove();
     }
 
     this.popupsService.showToast(result.message);
   }
 
   public findAddress(queryString: string, callback: (place: IMapPlace) => void) {
-    queryString = new BusinessFormatter().formatAddressString(queryString);
+    queryString = this.bFormatter.formatAddressString(queryString);
 
     this.http.get(`http://localhost:3000/findplace?address=${queryString}`, {}, {})
-      .then((response: any) => {
-        const data = JSON.parse(response.data);
+      .then(response => {
+        const places: IMapPlace[] = this.parsePlacesResponse(response);
 
-        if(data.candidates.length != 0) {
-          const mapPlace: IMapPlace = {
-            name: data.candidates[0].name,
-            address: data.candidates[0].formatted_address,
-            position: {
-              lat: data.candidates[0].geometry.location.lat,
-              lng: data.candidates[0].geometry.location.lng
-            },
-            isSaved: this.fbbService.savedAddressExists(data.candidates[0].formatted_address as string)
-          };
+        if(places.length == 0) {
+          this.popupsService.showToast("Could not find a place with this address.");
+          callback(null);
+        }
+        else {
+          if(places[0].isSaved) {
+            this.centerOnSavedPlace(places[0]);
+          }
+          else {
+            this.addPlaceSearchMarker(places[0]);
+          }
 
-          this.addPlaceSearchMarker(mapPlace);
-          callback(mapPlace);
+          callback(places[0]);
         }
       })
       .catch(() => {
         this.popupsService.showToast("A network error occurred while searching for an address.");
         callback(null);
       });
+  }
 
-    // Geocoder.geocode({ address: "Sheridan College, Brampton, Ontario" }).then((results: GeocoderResult[]) => {
-    //   console.log(results);
-    // });
+  public findNearby(radius: number, callback: (places: IMapPlace[]) => void) {
+    this.http.get(`http://localhost:3000/findnearby?lat=${this.userPosition.lat}&lng=${this.userPosition.lng}&radius=${radius}`, {}, {})
+      .then(response => {
+        const places: IMapPlace[] = this.parsePlacesResponse(response);
+        const arrLength = places.length;
 
-    // this.geocoder.forwardGeocode(queryString, { useLocale: true, maxResults: 1 })
-    //   .then((result: NativeGeocoderResult[]) => {
-    //     const position = new LatLng(parseInt(result[0].latitude), parseInt(result[0].longitude));
-    //     this.placeMarker(position);
-    //   })
-    //   .catch(error => {
-    //     document.getElementById("debug-text").innerText = error.toString();
-    //   })
+        if(arrLength == 0) {
+          this.popupsService.showToast("Could not find a place with this address.");
+          callback(null);
+        }
+        else {
+          this.clearNearbyMarkers();
+
+          for(let i = 0; i < arrLength; i++) {
+            if(!places[i].isSaved) {
+              this.addPlaceMarker(places[i]);
+            }
+          }
+
+          callback(places);
+        }
+      })
+      .catch(() => {
+        this.popupsService.showToast("A network error occurred while searching nearby places.");
+        callback(null);
+      });
+  }
+
+  private parsePlacesResponse(response: HTTPResponse): IMapPlace[] {
+    let results: IMapPlace[] = [];
+
+    const data = JSON.parse(response.data);
+    const arrLength = data.places.length;
+
+    for(let i = 0; i < arrLength; i++) {
+      const address: string = data.places[i].formatted_address ? data.places[i].formatted_address : data.places[i].vicinity;
+
+      results.push({
+        name: data.places[i].name,
+        address: address,
+        position: {
+          lat: data.places[i].geometry.location.lat,
+          lng: data.places[i].geometry.location.lng
+        },
+        isSaved: this.fbbService.savedAddressExists(address)
+      });
+    }
+
+    return results;
   }
 
   public updateSavedPlace(place: IMapPlace) {
     place.isSaved = this.fbbService.savedAddressExists(place.address);
   }
 
-  public clearMarkers() {
-    const arrLength = this.markers.length;
+  private clearSavedMarkers() {
+    const arrLength = this.savedMarkers.length;
 
     for(let i = 0; i < arrLength; i++) {
-      this.markers[i].remove();
+      this.savedMarkers[i].remove();
+    }
+  }
+
+  public clearNearbyMarkers() {
+    const arrLength = this.nearbyMarkers.length;
+
+    for(let i = 0; i < arrLength; i++) {
+      this.nearbyMarkers[i].remove();
     }
   }
 }

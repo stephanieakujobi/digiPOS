@@ -68,7 +68,7 @@
             Edit Info
           </ion-label>
         </ion-item-option>
-        <ion-item-option color="primary" (click)="viewBusinessOnMap(b, slideItem)">
+        <ion-item-option color="primary" (click)="onViewBusinessOnMap(b, slideItem)" *ngIf="!b.wasManuallySaved">
           <ion-label>
             <ion-icon name="pin" color="secondary"></ion-icon>
             View on Map

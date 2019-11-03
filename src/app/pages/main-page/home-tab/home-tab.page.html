@@ -14,10 +14,20 @@
     <ion-searchbar id="address-searchbar" placeholder="Find an address..." animated (keyup.enter)="findAddress()">
     </ion-searchbar>
 
-    <ion-fab id="scan-businesses-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button size="small" (click)="gmapsService.scanNearbyBusinesses()">
-        <ion-icon name="pin"></ion-icon>
+    <ion-fab id="nearby-search-fab" vertical="bottom" horizontal="end">
+      <ion-fab-button>
+        <ion-icon name="business"></ion-icon>
       </ion-fab-button>
+      <ion-fab-list side="top">
+        <ion-fab-button (click)="findNearby()">
+          <ion-icon name="pin"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list side="start">
+        <ion-fab-button (click)="gmapsService.clearNearbyMarkers()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
     </ion-fab>
 
     <ion-fab id="center-location-fab" vertical="bottom" horizontal="end">

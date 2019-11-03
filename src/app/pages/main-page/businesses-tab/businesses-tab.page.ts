@@ -7,6 +7,7 @@ import { FirebaseBusinessService } from 'src/app/services/firebase/businesses/fi
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { PopupsService } from 'src/app/services/global/popups.service';
 import { ComponentRef, ComponentProps } from '@ionic/core';
+import { HomeTabPage } from '../home-tab/home-tab.page';
 
 @Component({
   selector: 'app-businesses-tab',
@@ -203,6 +204,10 @@ export class BusinessesTabPage {
 
       this.popupsService.showToast(result.message);
     }, 250);
+  }
+
+  onViewBusinessOnMap(businesses: IBusiness) {
+    HomeTabPage.showSavedBusiness(businesses);
   }
 
   /**

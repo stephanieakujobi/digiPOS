@@ -21,8 +21,6 @@ export class InfoWindow {
         const infoWindow = new HtmlInfoWindow();
         const content: HTMLElement = document.createElement("div");
 
-        content.style.padding = "0 10px";
-
         content.innerHTML = [
             `<h5>${place.name}</h5>`,
             `<p>${place.address}</p>`,
@@ -31,6 +29,8 @@ export class InfoWindow {
             this.infoWindowButton("Start a route", "navigate"),
             "</div>"
         ].join("");
+
+        content.style.padding = "0 10px";
 
         const buttons: HTMLCollectionOf<HTMLIonButtonElement> = content.getElementsByTagName("ion-button");
         const saveButton: HTMLIonButtonElement = buttons[0];
@@ -41,7 +41,7 @@ export class InfoWindow {
 
         infoWindow.setContent(content, {
             width: "250px",
-            height: "215px",
+            height: "240px",
         });
 
         return infoWindow;
