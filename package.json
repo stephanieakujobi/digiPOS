@@ -95,8 +95,8 @@
       "cordova-plugin-nativegeocoder": {},
       "cordova-plugin-advanced-http": {},
       "uk.co.workingedge.phonegap.plugin.launchnavigator": {
-        "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBQeKmHxvR9RHreO7AsgLDYrPuEPV3IUM8",
-        "OKHTTP_VERSION": "3.12.0"
+        "OKHTTP_VERSION": "3.10.0",
+        "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBQeKmHxvR9RHreO7AsgLDYrPuEPV3IUM8"
       }
     },
     "platforms": [

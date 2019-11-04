@@ -15,19 +15,15 @@
     </ion-searchbar>
 
     <ion-fab id="nearby-search-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button>
-        <ion-icon name="business"></ion-icon>
+      <ion-fab-button size="small" (click)="findNearby()">
+        <ion-icon name="pin"></ion-icon>
       </ion-fab-button>
-      <ion-fab-list side="top">
-        <ion-fab-button (click)="findNearby()">
-          <ion-icon name="pin"></ion-icon>
-        </ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list side="start">
-        <ion-fab-button (click)="gmapsService.clearNearbyMarkers()">
-          <ion-icon name="close-circle-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab-list>
+    </ion-fab>
+
+    <ion-fab id="clear-nearby-search-fab" vertical="bottom" horizontal="end">
+      <ion-fab-button size="small" (click)="gmapsService.clearNearbyMarkers()">
+        <ion-icon name="close"></ion-icon>
+      </ion-fab-button>
     </ion-fab>
 
     <ion-fab id="center-location-fab" vertical="bottom" horizontal="end">
@@ -35,10 +31,5 @@
         <ion-icon name="locate"></ion-icon>
       </ion-fab-button>
     </ion-fab>
-  </div>
-
-  <div id="debug-window">
-    <h5>DEBUG</h5>
-    <p id="debug-text">Sample text...</p>
   </div>
 </ion-content>
