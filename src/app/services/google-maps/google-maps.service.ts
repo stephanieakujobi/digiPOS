@@ -291,7 +291,8 @@ export class GoogleMapsService implements OnDestroy {
           lat: data.places[i].geometry.location.lat,
           lng: data.places[i].geometry.location.lng
         },
-        isSaved: this.fbbService.savedAddressExists(address)
+        isSaved: this.fbbService.savedAddressExists(address),
+        isReported: this.fbbService.reportedAddressExists(address)
       });
     }
 

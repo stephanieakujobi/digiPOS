@@ -14,7 +14,13 @@ ion-item#map-saved-info {
 }
 
 form {
-  padding-bottom: 56px;
+  &.high-padding {
+    padding-bottom: 56px;
+  }
+
+  &:not(.high-padding) {
+    padding-bottom: 10px;
+  }
 
   ion-item {
     margin-bottom: 20px;

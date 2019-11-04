@@ -42,10 +42,10 @@
         <ion-item (click)="editBusinessInfo(b)">
           <ion-icon class="saved-type-icon" [name]="b.wasManuallySaved ? 'create' : 'map'" color="primary"></ion-icon>
           <ion-label>
-            <h2 class="business-name">{{b.name}}</h2>
+            <h2 class="business-name">{{b.info.name}}</h2>
             <p>
               <ion-icon class="list-item-sub-icon" name="pin"></ion-icon>
-              <span class="business-address">{{b.address.addressString}}</span>
+              <span class="business-address">{{b.info.address.addressString}}</span>
             </p>
           </ion-label>
           <ion-icon class="list-item-icon" name="star" color="tertiary"></ion-icon>

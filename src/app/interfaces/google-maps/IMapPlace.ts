@@ -5,4 +5,5 @@ export interface IMapPlace {
     address: string;
     position: ILatLng;
     isSaved: boolean;
+    isReported: boolean;
 }

@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { ModalController, NavParams, AlertController } from '@ionic/angular';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
+import { PopupsService } from 'src/app/services/global/popups.service';
+import { FirebaseBusinessService } from 'src/app/services/firebase/businesses/firebase-business.service';
+import { CRUDResult } from 'src/app/classes/CRUDResult';
 
 @Component({
   selector: 'app-business-view-modal',
@@ -12,31 +15,37 @@ export class BusinessViewModalPage {
   private business: IBusiness;
   private originalBusiness: IBusiness;
   private modalTitle: string;
+
   private formIsValid: boolean; //Interpolated in business-view-modal.page.html
+  private isAddingNewPlace: boolean; //Interpolated in business-view-modal.page.html
 
   private bFormatter: BusinessFormatter;
+  private fbbService: FirebaseBusinessService;
   private otherSavedBusinesses: IBusiness[];
+
 
   /**
    * Creates a new BusinessViewModalPage
    * @param modalController The reference to the ModalController that created this modal.
    * @param navParams Any possible parameters passed to this modal upon creation. Used to check if this modal is viewing a new or existing business.
-   * @param alertController The AlertController used to prompt the user for confirmation when they close this modal without saving changes.
    */
-  constructor(private modalController: ModalController, private navParams: NavParams, private alertController: AlertController) {
+  constructor(private modalController: ModalController, private navParams: NavParams, private popupsService: PopupsService) {
     this.bFormatter = new BusinessFormatter();
-    this.otherSavedBusinesses = this.navParams.get("allBusinesses") as IBusiness[];
+    this.fbbService = this.navParams.get("fbbService") as FirebaseBusinessService;
     let existingBusiness = this.navParams.get("existingBusiness") as IBusiness;
 
     if(existingBusiness != null) {
       this.business = this.bFormatter.cloneBusiness(existingBusiness);
       this.modalTitle = "Edit Business";
-      this.otherSavedBusinesses = this.otherSavedBusinesses.filter(b => b.address.addressString !== existingBusiness.address.addressString);
+      this.otherSavedBusinesses = this.fbbService.businesses.filter(b => b.info.address.addressString !== existingBusiness.info.address.addressString);
+      this.isAddingNewPlace = false;
     }
     else {
       this.business = this.bFormatter.blankBusiness();
       this.business.wasManuallySaved = true;
       this.modalTitle = "Add Business";
+      this.otherSavedBusinesses = this.fbbService.businesses;
+      this.isAddingNewPlace = true;
     }
 
     this.originalBusiness = this.bFormatter.cloneBusiness(this.business);
@@ -59,25 +68,13 @@ export class BusinessViewModalPage {
     const changesWereMade = JSON.stringify(this.business) !== JSON.stringify(this.originalBusiness);
 
     if(changesWereMade) {
-      const confirmationAlert = await this.alertController.create({
-        header: "Discard Changes",
-        message: "Are you sure you want to discard your changes?",
-        buttons: [
-          {
-            text: "Yes",
-            handler: () => this.modalController.dismiss()
-          },
-          {
-            text: "No",
-            role: "cancel",
-          },
-        ]
-      });
-
-      await confirmationAlert.present();
+      this.popupsService.showConfirmationAlert("Discard Changes", "Are you sure you want to discard your changes?", () => this.modalController.dismiss(), null);
     }
     else {
-      this.modalController.dismiss();
+      this.modalController.dismiss({
+        action: "discarded",
+        business: null
+      });
     }
   }
 
@@ -87,8 +84,8 @@ export class BusinessViewModalPage {
    */
   validateForm() {
     this.formIsValid =
-      this.business.name != ""
-      && this.business.address.addressString != ""
+      this.business.info.name != ""
+      && this.business.info.address.addressString != ""
   }
 
   /**
@@ -97,41 +94,57 @@ export class BusinessViewModalPage {
    */
   onFormSubmit() {
     if(this.addressIsDuplicate()) {
-      this.displayDuplicateAddressAlert();
+      this.popupsService.showAlert("Duplicate Address", "A saved place with this address already exists.", "OK");
     }
     else {
       this.bFormatter.trimBusiness(this.business);
-      this.modalController.dismiss(this.business);
+      this.modalController.dismiss({
+        action: "edited",
+        business: this.business
+      });
     }
+  }
+
+  onReportBusiness() {
+    const ownerValues = Object.values(this.business.info.owner);
+    const contactPersonValues = Object.values(this.business.info.contactPerson);
+    const currentProviderValue = this.business.info.currentProvider;
+
+    if(ownerValues.includes("") || contactPersonValues.includes("") || currentProviderValue == "") {
+      this.popupsService.showConfirmationAlert("Missing Information", "Some information about this bussiness is missing. Are you sure you want to report it?",
+        () => this.doReportBusiness(),
+        null);
+    }
+    else {
+      this.doReportBusiness();
+    }
+  }
+
+  private doReportBusiness() {
+    this.fbbService.reportBusiness(this.business, result => {
+      this.popupsService.showToast(result.message);
+
+      if(result.wasSuccessful) {
+        this.modalController.dismiss({
+          action: "reported",
+          business: this.business
+        });
+      }
+    });
   }
 
   private addressIsDuplicate(): boolean {
     let result = false;
 
-    const addressString: string = this.bFormatter.formatAddressString(this.business.address.addressString).toLowerCase();
+    const addressString: string = this.bFormatter.formatAddressString(this.business.info.address.addressString).toLowerCase();
 
-    for (const business of this.otherSavedBusinesses) {
-      if(addressString === this.bFormatter.formatAddressString(business.address.addressString).toLowerCase()) {
+    for(const business of this.otherSavedBusinesses) {
+      if(addressString === business.info.address.addressString) {
         result = true;
         break;
       }
     }
 
     return result;
-  }
-
-  private async displayDuplicateAddressAlert() {
-    const alert = await this.alertController.create({
-      header: "Cannot save Business",
-      message: "The address of this business already exists in your saved businesses.",
-      buttons: [
-        {
-          text: "OK",
-          role: "cancel",
-        }
-      ]
-    });
-
-    await alert.present();
   }
 }

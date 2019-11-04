@@ -11,23 +11,25 @@ export class BusinessFormatter {
      */
     public blankBusiness(): IBusiness {
         const newInstance: IBusiness = {
-            name: "",
-            address: {
-                addressString: "",
-                position: null
-            },
-            owner: {
+            info: {
                 name: "",
-                email: "",
-                phoneNumber: ""
+                address: {
+                    addressString: "",
+                    position: null
+                },
+                owner: {
+                    name: "",
+                    email: "",
+                    phoneNumber: ""
+                },
+                contactPerson: {
+                    name: "",
+                    email: "",
+                    phoneNumber: ""
+                },
+                currentProvider: "",
+                notes: ""
             },
-            contactPerson: {
-                name: "",
-                email: "",
-                phoneNumber: ""
-            },
-            currentProvider: "",
-            notes: "",
             saveState: "saved",
             wasManuallySaved: true,
             isReported: false
@@ -43,23 +45,25 @@ export class BusinessFormatter {
      */
     public cloneBusiness(business: IBusiness): IBusiness {
         const clone: IBusiness = {
-            name: business.name,
-            address: {
-                addressString: business.address.addressString,
-                position: business.address.position
+            info: {
+                name: business.info.name,
+                address: {
+                    addressString: business.info.address.addressString,
+                    position: business.info.address.position
+                },
+                owner: {
+                    name: business.info.owner.name,
+                    email: business.info.owner.email,
+                    phoneNumber: business.info.owner.phoneNumber
+                },
+                contactPerson: {
+                    name: business.info.contactPerson.name,
+                    email: business.info.contactPerson.email,
+                    phoneNumber: business.info.contactPerson.phoneNumber
+                },
+                currentProvider: business.info.currentProvider,
+                notes: business.info.notes,
             },
-            owner: {
-                name: business.owner.name,
-                email: business.owner.email,
-                phoneNumber: business.owner.phoneNumber
-            },
-            contactPerson: {
-                name: business.contactPerson.name,
-                email: business.contactPerson.email,
-                phoneNumber: business.contactPerson.phoneNumber
-            },
-            currentProvider: business.currentProvider,
-            notes: business.notes,
             saveState: business.saveState,
             wasManuallySaved: business.wasManuallySaved,
             isReported: business.isReported
@@ -70,9 +74,9 @@ export class BusinessFormatter {
 
     public mapPlaceToBusiness(mapLoc: IMapPlace): IBusiness {
         let business: IBusiness = this.blankBusiness();
-        business.name = mapLoc.name;
-        business.address.addressString = mapLoc.address;
-        business.address.position = mapLoc.position;
+        business.info.name = mapLoc.name;
+        business.info.address.addressString = mapLoc.address;
+        business.info.address.position = mapLoc.position;
         business.saveState = mapLoc.isSaved ? "saved" : "unsaved";
         business.wasManuallySaved = false;
 
@@ -81,9 +85,9 @@ export class BusinessFormatter {
 
     public businessToMapPlace(business: IBusiness): IMapPlace {
         return {
-            name: business.name,
-            address: business.address.addressString,
-            position: business.address.position,
+            name: business.info.name,
+            address: business.info.address.addressString,
+            position: business.info.address.position,
             isSaved: business.saveState !== "unsaved"
         };
     }
@@ -93,21 +97,18 @@ export class BusinessFormatter {
      * @param business The Business to trim.
      */
     public trimBusiness(business: IBusiness) {
-        business.name = business.name.trim();
+        const values = Object.values(business);
 
-        business.address.addressString = business.address.addressString.trim();
-
-        business.owner.name = business.owner.name.trim();
-        business.owner.email = business.owner.email.trim();
-        business.owner.phoneNumber = business.owner.phoneNumber.trim();
-
-        business.contactPerson.name = business.contactPerson.name.trim();
-        business.contactPerson.email = business.contactPerson.email.trim();
-        business.contactPerson.phoneNumber = business.contactPerson.phoneNumber.trim();
-
-        business.currentProvider = business.currentProvider.trim();
-
-        business.notes = business.notes.trim();
+        for(let value of values) {
+            if(value != null) {
+                if(typeof value == "string") {
+                    value = value.trim();
+                }
+                else if(typeof value == "object") {
+                    this.trimBusiness(value);
+                }
+            }
+        }
     }
 
     public formatAddressString(address: string): string {

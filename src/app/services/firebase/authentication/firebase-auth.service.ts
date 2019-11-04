@@ -22,12 +22,11 @@ export class FirebaseAuthService {
 
   private static _userIsAuthenticated: boolean = false;
   private static _authedSalesRep?: IAuthedSalesRep = null;
-  private static salesRepObservable$?: Observable<ISalesRep> = null;
 
   private subscriptions: Subscription;
 
   /**
-   * Creates a newFirebaseAuthService
+   * Creates a new FirebaseAuthService
    * @param afs The AngularFirestore used to perform read/write operations on.
    */
   constructor(private afs: AngularFirestore) { }
@@ -62,9 +61,7 @@ export class FirebaseAuthService {
           callback(new CRUDResult(false, "Invalid authentication."));
         }
         else {
-          this.successfulLogin(results[0].info as IContact, () => {
-            callback(new CRUDResult(true, "Authentication successful."));
-          });
+          this.successfulLogin(results[0].info as IContact, () => callback(new CRUDResult(true, "Authentication successful.")));
         }
       }));
     }
@@ -84,10 +81,10 @@ export class FirebaseAuthService {
     ).snapshotChanges();
 
     //Execute the select query...
-    this.subscriptions.add(selectQuery.subscribe(queryResults => {
+    this.subscriptions.add(selectQuery.subscribe(async queryResults => {
       //A length of 0 means the select query returned no results; no saved data exists for this user.
       if(queryResults.length == 0) {
-        this.createSalesRep(salesRepInfo);
+        await this.createSalesRep(salesRepInfo);
         this.successfulLogin(salesRepInfo, callback);
       }
       else {
@@ -110,7 +107,7 @@ export class FirebaseAuthService {
       savedBusinesses: []
     };
 
-    this.afs.collection<ISalesRep>(FirebaseAuthService.SALES_REPS).add(newSalesRep);
+    await this.afs.collection<ISalesRep>(FirebaseAuthService.SALES_REPS).add(newSalesRep);
   }
 
   /**
@@ -119,13 +116,12 @@ export class FirebaseAuthService {
    * @param id The user's document ID containing their saved data to read from.
    */
   private assignAuthedSalesRep(id: string, callback: () => void) {
-    const authedServerRef: AngularFirestoreDocument<ISalesRep> = this.afs.doc<ISalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
-    FirebaseAuthService.salesRepObservable$ = authedServerRef.valueChanges();
+    const serverSalesRepRef: AngularFirestoreDocument<ISalesRep> = this.afs.doc<ISalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
 
-    FirebaseAuthService.salesRepObservable$.subscribe(salesRep => {
+    serverSalesRepRef.valueChanges().subscribe((salesRep: ISalesRep) => {
       FirebaseAuthService._authedSalesRep = {
         localRef: salesRep,
-        serverRef: authedServerRef
+        serverRef: serverSalesRepRef
       };
 
       if(!FirebaseAuthService.userIsAuthenticated) {
@@ -147,8 +143,8 @@ export class FirebaseAuthService {
     }
     else {
       await FirebaseAuthService._authedSalesRep.serverRef.update(this.authedSalesRep)
-        .catch(error => result = new CRUDResult(false, error))
-        .then(() => result = new CRUDResult(true));
+        .then(() => result = new CRUDResult(true))
+        .catch(error => result = new CRUDResult(false, error));
     }
 
     return result;

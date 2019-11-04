@@ -69,8 +69,8 @@ export class BusinessesTabPage {
   private sortBusinessesAscDesc(ascending: boolean) {
     this.fbbService.businesses.sort((b1, b2) => {
       let result: number;
-      const b1Name = b1.name.toLowerCase();
-      const b2Name = b2.name.toLowerCase();
+      const b1Name = b1.info.name.toLowerCase();
+      const b2Name = b2.info.name.toLowerCase();
 
       if(b1Name < b2Name) {
         result = ascending ? -1 : 1;
@@ -229,16 +229,18 @@ export class BusinessesTabPage {
   async openBusinessViewModal(existingBusiness?: IBusiness) {
     const props: ComponentProps<ComponentRef> = {
       existingBusiness: existingBusiness,
-      allBusinesses: this.fbbService.businesses
+      fbbService: this.fbbService
     }
 
     this.popupsService.showModal(BusinessViewModalPage, props, data => {
-      if(data != null) {
-        if(existingBusiness == null) {
-          this.addSavedBusiness(data);
+      console.log(data);
+
+      if(data.action != "discarded") {
+        if(data.action == "edited" && existingBusiness == null) {
+          this.addSavedBusiness(data.business);
         }
-        else {
-          this.updateSavedBusiness(existingBusiness, data);
+        else if(data.action == "edited" || data.action == "reported") {
+          this.updateSavedBusiness(existingBusiness, data.business, data.action == "edited");
         }
       }
     });
@@ -264,9 +266,12 @@ export class BusinessesTabPage {
    * @param original The original Business to update.
    * @param updated The new Business to replace with the original Business.
    */
-  private async updateSavedBusiness(original: IBusiness, updated: IBusiness) {
+  private async updateSavedBusiness(original: IBusiness, updated: IBusiness, showResultToast: boolean) {
     const result: CRUDResult = await this.fbbService.updateBusiness(original, updated);
-    this.popupsService.showToast(result.message);
+
+    if(showResultToast) {
+      this.popupsService.showToast(result.message);
+    }
 
     if(result.wasSuccessful) {
       this.sortBusinesses();
