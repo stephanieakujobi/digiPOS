@@ -13,27 +13,27 @@
 
 <ion-content>
 
-  <ion-item lines="full" (click)="prefs.enableNotifs = !prefs.enableNotifs">
+  <ion-item lines="full">
     <ion-label>Enable notifications</ion-label>
-    <ion-checkbox slot="start" id="chk-enable-notifications" checked="{{prefs.enableNotifs}}"></ion-checkbox>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.enableNotifs"></ion-checkbox>
   </ion-item>
 
-  <ion-list id="settings-list">
-
-    <ion-item (click)="prefs.enablePushNotifs = !prefs.enablePushNotifs">
+  <ion-list>
+    <ion-item>
       <ion-label>Enable push notifications</ion-label>
-      <ion-checkbox slot="start" disabled="{{!prefs.enableNotifs}}" checked="{{prefs.enablePushNotifs}}"></ion-checkbox>
+      <ion-checkbox slot="start" [(ngModel)]="prefs.enablePushNotifs" [disabled]="!prefs.enableNotifs"></ion-checkbox>
     </ion-item>
 
-    <ion-item (click)="prefs.vibrateOnNotifReceived = !prefs.vibrateOnNotifReceived">
+    <ion-item>
       <ion-label>Vibrate when notification received</ion-label>
-      <ion-checkbox slot="start" disabled="{{!prefs.enableNotifs}}" checked="{{prefs.vibrateOnNotifReceived}}"></ion-checkbox>
+      <ion-checkbox slot="start" [(ngModel)]="prefs.vibrateOnNotifReceived" [disabled]="!prefs.enableNotifs">
+      </ion-checkbox>
     </ion-item>
-
-    <ion-item (click)="prefs.askBeforeDeleteNotif = !prefs.askBeforeDeleteNotif">
-      <ion-label>Ask before deleting notifications</ion-label>
-      <ion-checkbox slot="start" checked="{{prefs.askBeforeDeleteNotif}}"></ion-checkbox>
-    </ion-item>
-
   </ion-list>
+
+  <ion-item lines="full">
+    <ion-label>Ask before deleting notifications</ion-label>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.askBeforeDelete"></ion-checkbox>
+  </ion-item>
+
 </ion-content>

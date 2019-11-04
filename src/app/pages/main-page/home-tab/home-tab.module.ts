@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { HomeTabPage } from './home-tab.page';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
+import { HTTP } from '@ionic-native/http/ngx';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 @NgModule({
   imports: [
@@ -16,7 +18,9 @@ import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.serv
   ],
   providers: [
     Geolocation,
-    GoogleMapsService
+    GoogleMapsService,
+    HTTP,
+    Keyboard
   ],
   declarations: [HomeTabPage]
 })

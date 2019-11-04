@@ -17,6 +17,12 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 
+import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
+import { FirebaseAuthService } from './services/firebase/authentication/firebase-auth.service';
+import { FirebaseBusinessService } from './services/firebase/businesses/firebase-business.service';
+import { PopupsService } from './services/global/popups.service';
+import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -33,7 +39,12 @@ import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
   providers: [
     StatusBar,
     SplashScreen,
+    PopupsService,
     NativeStorage,
+    NativeGeocoder,
+    FirebaseAuthService,
+    FirebaseBusinessService,
+    LaunchNavigator,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

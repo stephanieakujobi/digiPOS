@@ -1,5 +1,8 @@
 ion-list {
+  padding: 0;
+
   ion-checkbox {
+    margin-left: 16px;
     --border-color-checked: var(--ion-color-primary-tint);
     --background-checked: var(--ion-color-primary-tint);
   }

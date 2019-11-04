@@ -1,4 +1,4 @@
-import { Injectable, OnInit, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { Subscription } from 'rxjs';
@@ -6,18 +6,20 @@ import {
   GoogleMaps,
   GoogleMap,
   GoogleMapsEvent,
-  Marker,
-  GoogleMapsAnimation,
-  MyLocation,
-  Environment,
   GoogleMapOptions,
   ILatLng,
   LatLng,
-  MarkerOptions,
-  HtmlInfoWindow
 } from '@ionic-native/google-maps';
-import { InfoWindow } from 'src/app/classes/google-maps/InfoWindow';
-import { BusinessLocation } from 'src/app/classes/google-maps/BusinessLocation';
+import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
+import { HTTP, HTTPResponse } from '@ionic-native/http/ngx';
+import { FirebaseBusinessService } from '../firebase/businesses/firebase-business.service';
+import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
+import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
+import { CRUDResult } from 'src/app/classes/CRUDResult';
+import { AppBusinessesPrefsService } from '../businesses/preferences/app-businesses-prefs.service';
+import { PopupsService } from '../global/popups.service';
+import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
+import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -28,52 +30,45 @@ import { BusinessLocation } from 'src/app/classes/google-maps/BusinessLocation';
  */
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
-  private userPosition: LatLng;
   private mapShouldFollowUser: boolean;
+  private userPosition: ILatLng;
+
+  private searchMarker: PlaceMarker;
+  private savedMarkers: PlaceMarker[];
+  private nearbyMarkers: PlaceMarker[];
+
   private subscriptions: Subscription;
-  private _mapFinishedCreating: boolean;
+  private bFormatter: BusinessFormatter;
 
   /**
    * Creates a new GoogleMapsService.
    * @param platform The Platform used to detect when the native device is ready for native system calls to be made.
    * @param geolocation The Geolocation used to track the user's device.
    */
-  constructor(private platform: Platform, private geolocation: Geolocation) {
+  constructor(
+    private platform: Platform,
+    private geolocation: Geolocation,
+    private fbbService: FirebaseBusinessService,
+    private http: HTTP,
+    private popupsService: PopupsService,
+    private launchNavigator: LaunchNavigator
+  ) {
     this.mapShouldFollowUser = false;
+    this.nearbyMarkers = [];
+    this.savedMarkers = [];
     this.subscriptions = new Subscription();
-    this._mapFinishedCreating = false;
+    this.bFormatter = new BusinessFormatter();
   }
 
   /**
    * Creates a new GoogleMap centered on the user's current location.
    * @param mapElementId The id attribute of an HTML element to insert the map.
    */
-  public async initMap(mapElementId: string) {
+  public async initMap(mapElementId: string, onComplete: () => void) {
     await this.platform.ready();
     await this.createMap(mapElementId);
     this.subscribeEvents();
-    this._mapFinishedCreating = true;
-
-    this.markerTest(); //TEMPORARY
-  }
-
-  //TEMPORARY TEST METHOD.
-  private markerTest() {
-    this.map.addMarker({ position: this.userPosition }).then((marker: Marker) => {
-      let bs = new BusinessLocation("Name", "Address", false);
-      let infoWindow = InfoWindow.ForBusinessLocation(bs,
-        () => {
-          console.log("SAVE");
-        },
-        () => {
-          console.log("ROUTE");
-        }
-      );
-
-      marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
-        infoWindow.open(marker);
-      });
-    });
+    onComplete();
   }
 
   /**
@@ -130,29 +125,213 @@ export class GoogleMapsService implements OnDestroy {
     }));
   }
 
-  /**
-   * Centers the map's camera on the user's current location.
-   */
-  public async centerMapOnUserLocation() {
+  public async centerMap(position?: ILatLng) {
+    const centerPosition: ILatLng = position == null ? this.userPosition : position;
+
     await this.map.animateCamera({
-      target: this.userPosition,
+      target: centerPosition,
       duration: 500
     });
 
-    this.mapShouldFollowUser = true;
+    this.mapShouldFollowUser = position == null;
   }
 
-  /**
-   * @todo Implement method
-   */
-  public querySearchPlace(queryString: string) {
-    throw new Error("Method not implemented.");
+  public centerOnSavedPlace(place: IMapPlace) {
+    const placeMarkers: PlaceMarker[] = this.savedMarkers.filter(m => m.place.address == place.address);
+
+    if(placeMarkers.length != 0) {
+      this.centerMap(placeMarkers[0].place.position);
+      placeMarkers[0].marker.setAnimation("BOUNCE");
+    }
   }
 
-  /**
-   * Whether the GoogleMap has finished creating after calling the initMap function.
-   */
-  public get mapFinishedCreating(): boolean {
-    return this._mapFinishedCreating;
+  public pinSavedPlaces() {
+    this.clearSavedMarkers();
+
+    this.fbbService.businesses.forEach(business => {
+      this.addPlaceMarker(this.bFormatter.businessToMapPlace(business));
+    });
+  }
+
+  public async addPlaceSearchMarker(place: IMapPlace) {
+    if(this.searchMarker != null) {
+      this.searchMarker.remove();
+    }
+
+    this.searchMarker = await this.addPlaceMarker(place, false);
+    this.centerMap(place.position);
+  }
+
+  public async addPlaceMarker(place: IMapPlace, saveReference: boolean = true): Promise<PlaceMarker> {
+    const placeMarker = await PlaceMarker.instantiate(this.map, place,
+      () => this.onPlaceMarkerSaved(placeMarker),
+      () => this.onPlaceMarkerUnaved(placeMarker),
+      () => this.onPlaceMarkerStartRoute(placeMarker),
+    );
+
+    if(saveReference) {
+      if(place.isSaved) {
+        if(this.savedMarkers.length == 0) {
+          this.savedMarkers.push(placeMarker);
+        }
+        else if(this.savedMarkers.filter(m => m.place.address == place.address).length == 0) {
+          this.savedMarkers.push(placeMarker);
+        }
+      }
+      else {
+        this.nearbyMarkers.push(placeMarker);
+      }
+    }
+
+    return placeMarker;
+  }
+
+  private async onPlaceMarkerSaved(placeMarker: PlaceMarker) {
+    const business: IBusiness = this.bFormatter.mapPlaceToBusiness(placeMarker.place);
+    const result: CRUDResult = await this.fbbService.addBusiness(business);
+
+    this.updatePlaceMarker(result, placeMarker);
+  }
+
+  private async onPlaceMarkerUnaved(placeMarker: PlaceMarker) {
+    const business: IBusiness = this.bFormatter.mapPlaceToBusiness(placeMarker.place);
+    let result: CRUDResult = await this.fbbService.addBusiness(business);
+
+    if(AppBusinessesPrefsService.prefs.askBeforeDelete) {
+      this.popupsService.showConfirmationAlert("Delete Business", "Are you sure you want to delete this business?",
+        async () => {
+          result = await this.fbbService.deleteBusiness(business);
+          this.updatePlaceMarker(result, placeMarker);
+        },
+        null
+      );
+    }
+    else {
+      result = await this.fbbService.deleteBusiness(business);
+      this.updatePlaceMarker(result, placeMarker);
+    }
+  }
+
+  private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
+    let options: LaunchNavigatorOptions = {
+      start: `${this.userPosition.lat}, ${this.userPosition.lng}`,
+      app: this.launchNavigator.APP.GOOGLE_MAPS
+    }
+
+    this.launchNavigator.navigate(placeMarker.place.address, options)
+      .then(
+        success => console.log('Launched navigator'),
+        error => console.log('Error launching navigator', error)
+      );
+  }
+
+  private updatePlaceMarker(result: CRUDResult, placeMarker: PlaceMarker) {
+    if(result.wasSuccessful) {
+      placeMarker.place.isSaved = !placeMarker.place.isSaved;
+      this.addPlaceMarker(placeMarker.place);
+      placeMarker.remove();
+    }
+
+    this.popupsService.showToast(result.message);
+  }
+
+  public findAddress(queryString: string, callback: (place: IMapPlace) => void) {
+    queryString = this.bFormatter.formatAddressString(queryString);
+
+    this.http.get(`http://localhost:3000/findplace?address=${queryString}`, {}, {})
+      .then(response => {
+        const places: IMapPlace[] = this.parsePlacesResponse(response);
+
+        if(places.length == 0) {
+          this.popupsService.showToast("Could not find a place with this address.");
+          callback(null);
+        }
+        else {
+          if(places[0].isSaved) {
+            this.centerOnSavedPlace(places[0]);
+          }
+          else {
+            this.addPlaceSearchMarker(places[0]);
+          }
+
+          callback(places[0]);
+        }
+      })
+      .catch(() => {
+        this.popupsService.showToast("A network error occurred while searching for an address.");
+        callback(null);
+      });
+  }
+
+  public findNearby(radius: number, callback: (places: IMapPlace[]) => void) {
+    this.http.get(`http://localhost:3000/findnearby?lat=${this.userPosition.lat}&lng=${this.userPosition.lng}&radius=${radius}`, {}, {})
+      .then(response => {
+        const places: IMapPlace[] = this.parsePlacesResponse(response);
+        const arrLength = places.length;
+
+        if(arrLength == 0) {
+          this.popupsService.showToast("Could not find a place with this address.");
+          callback(null);
+        }
+        else {
+          this.clearNearbyMarkers();
+
+          for(let i = 0; i < arrLength; i++) {
+            if(!places[i].isSaved) {
+              this.addPlaceMarker(places[i]);
+            }
+          }
+
+          callback(places);
+        }
+      })
+      .catch(() => {
+        this.popupsService.showToast("A network error occurred while searching nearby places.");
+        callback(null);
+      });
+  }
+
+  private parsePlacesResponse(response: HTTPResponse): IMapPlace[] {
+    let results: IMapPlace[] = [];
+
+    const data = JSON.parse(response.data);
+    const arrLength = data.places.length;
+
+    for(let i = 0; i < arrLength; i++) {
+      const address: string = data.places[i].formatted_address ? data.places[i].formatted_address : data.places[i].vicinity;
+
+      results.push({
+        name: data.places[i].name,
+        address: address,
+        position: {
+          lat: data.places[i].geometry.location.lat,
+          lng: data.places[i].geometry.location.lng
+        },
+        isSaved: this.fbbService.savedAddressExists(address),
+        isReported: this.fbbService.reportedAddressExists(address)
+      });
+    }
+
+    return results;
+  }
+
+  public updateSavedPlace(place: IMapPlace) {
+    place.isSaved = this.fbbService.savedAddressExists(place.address);
+  }
+
+  private clearSavedMarkers() {
+    const arrLength = this.savedMarkers.length;
+
+    for(let i = 0; i < arrLength; i++) {
+      this.savedMarkers[i].remove();
+    }
+  }
+
+  public clearNearbyMarkers() {
+    const arrLength = this.nearbyMarkers.length;
+
+    for(let i = 0; i < arrLength; i++) {
+      this.nearbyMarkers[i].remove();
+    }
   }
 }

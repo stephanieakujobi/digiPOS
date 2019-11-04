@@ -5,23 +5,40 @@
 </ion-header>
 
 <ion-content>
-  <ion-progress-bar color="primary" type="indeterminate" *ngIf="!gmapsService.mapFinishedCreating"></ion-progress-bar>
+  <ion-progress-bar id="progress-bar" color="primary" type="indeterminate">
+  </ion-progress-bar>
 
   <div id="map"></div>
 
-  <div id="controls" *ngIf="gmapsService.mapFinishedCreating">
-    <ion-searchbar placeholder="Search nearby businesses..." animated (keyup.enter)="enterKeyUp()"></ion-searchbar>
+  <div id="controls" class="hidden">
+    <ion-searchbar id="address-searchbar" placeholder="Find an address..." animated (keyup.enter)="findAddress()">
+    </ion-searchbar>
 
-    <ion-fab id="scan-businesses-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button size="small" (click)="gmapsService.scanNearbyBusinesses()">
-        <ion-icon name="pin"></ion-icon>
+    <ion-fab id="nearby-search-fab" vertical="bottom" horizontal="end">
+      <ion-fab-button>
+        <ion-icon name="business"></ion-icon>
       </ion-fab-button>
+      <ion-fab-list side="top">
+        <ion-fab-button (click)="findNearby()">
+          <ion-icon name="pin"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list side="start">
+        <ion-fab-button (click)="gmapsService.clearNearbyMarkers()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
     </ion-fab>
 
     <ion-fab id="center-location-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button (click)="gmapsService.centerMapOnUserLocation()">
+      <ion-fab-button (click)="gmapsService.centerMap()">
         <ion-icon name="locate"></ion-icon>
       </ion-fab-button>
     </ion-fab>
+  </div>
+
+  <div id="debug-window">
+    <h5>DEBUG</h5>
+    <p id="debug-text">Sample text...</p>
   </div>
 </ion-content>

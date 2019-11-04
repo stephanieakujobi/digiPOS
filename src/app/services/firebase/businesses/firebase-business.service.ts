@@ -2,8 +2,11 @@ import { Injectable } from '@angular/core';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
-import { IAddress } from 'src/app/interfaces/businesses/IAddress';
 import { FirebaseAuthService } from '../authentication/firebase-auth.service';
+import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { IReportedBusiness } from 'src/app/interfaces/businesses/IReportedBusiness';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,15 +19,30 @@ import { FirebaseAuthService } from '../authentication/firebase-auth.service';
  * When a user is authenticated, their saved Businesses will be retrieved from the CloudFirestore.
  */
 export class FirebaseBusinessService {
+  private static readonly REPORTED_BUSINESSES_COL: string = "reported_businesses";
+  private static _reportedBusinesses: IReportedBusiness[] = [];
+
+  private bFormatter: BusinessFormatter;
 
   /**
    * Creates a new FirebaseBusinessService.
    * @param authService The FirebaseAuthService used to synchronize data changes on the currently logged-in user's saved Businesses.
    */
-  constructor(private authService: FirebaseAuthService) {
+  constructor(private authService: FirebaseAuthService, private afs: AngularFirestore) {
     if(!FirebaseAuthService.userIsAuthenticated) {
       throw new Error("FirebaseAuthService must have a user authenticated before FirebaseBusinessService can be instantiated.");
     }
+
+    this.bFormatter = new BusinessFormatter();
+    this.loadReportedBusinesses();
+  }
+
+  private loadReportedBusinesses() {
+    const collection: AngularFirestoreCollection<IReportedBusiness> = this.afs.collection(FirebaseBusinessService.REPORTED_BUSINESSES_COL);
+
+    collection.valueChanges().subscribe(businesses => {
+      FirebaseBusinessService._reportedBusinesses = businesses;
+    });
   }
 
   /**
@@ -36,13 +54,15 @@ export class FirebaseBusinessService {
   public async addBusiness(business: IBusiness): Promise<CRUDResult> {
     let result: CRUDResult;
 
-    if(this.savedBusinessExists(business.address)) {
+    if(this.savedAddressExists(business.info.address.addressString)) {
       result = CRUDResult.DUPLICATE_BUSINESS_EXISTS;
     }
     else {
       business.saveState = "saved";
+      business = this.bFormatter.formatBusinessAddress(business);
       this.businesses.push(business);
-      const serverUpdate = await this.authService.synchronize();
+
+      const serverUpdate: CRUDResult = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
         this.businesses.splice(this.businesses.indexOf(business), 1);
@@ -70,7 +90,9 @@ export class FirebaseBusinessService {
       result = CRUDResult.BUSINESS_DOES_NOT_EXIST;
     }
     else {
+      updated = this.bFormatter.formatBusinessAddress(updated);
       this.businesses[this.businesses.indexOf(original)] = updated;
+
       const serverUpdate = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
@@ -94,16 +116,25 @@ export class FirebaseBusinessService {
   public async deleteBusiness(business: IBusiness): Promise<CRUDResult> {
     let result: CRUDResult;
 
-    if(!this.businesses.includes(business)) {
+    if(!this.savedAddressExists(business.info.address.addressString)) {
       result = CRUDResult.BUSINESS_DOES_NOT_EXIST;
     }
     else {
-      this.businesses.splice(this.businesses.indexOf(business), 1);
+      let existingBusiness: IBusiness;
+
+      this.businesses.filter(b => {
+        if(b.info.address.addressString === business.info.address.addressString) {
+          existingBusiness = b;
+          this.businesses.splice(this.businesses.indexOf(b), 1);
+          return;
+        }
+      });
+
       const serverUpdate = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
         result = new CRUDResult(false, "Failed to delete business - internal server error.");
-        this.businesses.push(business);
+        this.businesses.push(existingBusiness);
       }
       else {
         result = new CRUDResult(true, "Business deleted successfully.");
@@ -149,16 +180,73 @@ export class FirebaseBusinessService {
     return result;
   }
 
-  /**
-   * Compares an Address with the Addresses of the user's saved Businesses to find a match.
-   * If two matching Addresses exist, then the user has already saved a Business with this address.
-   * @param address 
-   */
-  private savedBusinessExists(address: IAddress): boolean {
-    let result: boolean = false;
+  public async reportBusiness(business: IBusiness, callback: (result: CRUDResult) => void) { 
+    const reportedBusiness: IReportedBusiness = {
+      info: business.info,
+      reportedBy: this.authService.authedSalesRep.info,
+      dateReported: new Date().toDateString()
+    }
 
-    for(const business of this.businesses) {
-      if(business.address.fullAddress == address.fullAddress) {
+    if(this.reportedAddressExists(business.info.address.addressString)) {
+      this.reportExistingBusiness(reportedBusiness, result => callback(result));
+    }
+    else {
+      this.reportNewBusiness(reportedBusiness, result => callback(result));
+    }
+  }
+
+  private async reportNewBusiness(business: IReportedBusiness, callback: (result: CRUDResult) => void) {
+    await this.afs.collection(FirebaseBusinessService.REPORTED_BUSINESSES_COL).add(business)
+      .then(() => {
+        callback(new CRUDResult(true, "Business reported successfully."));
+      })
+      .catch(() => {
+        callback(new CRUDResult(false, "A network error occurred while reporting business."));
+      });
+  }
+
+  private reportExistingBusiness(business: IReportedBusiness, callback: (result: CRUDResult) => void) {
+    const subscription = new Subscription();
+
+    //Create the select query to find the existing document in the collection...
+    const query = this.afs.collection<IReportedBusiness>(FirebaseBusinessService.REPORTED_BUSINESSES_COL, query => query
+      .where("info.address.addressString", "==", business.info.address.addressString)
+      .limit(1)
+    ).snapshotChanges();
+
+    //Execute the select query...
+    subscription.add(query.subscribe(results => {
+      subscription.unsubscribe();
+
+      if(results.length == 0) {
+        callback(new CRUDResult(false, "Failed to update report - could not find database reference."));
+      }
+      else {
+        const docId: string = results[0].payload.doc.id;
+
+        //Update the document using the returned ID from the collection select query.
+        this.afs.doc<IReportedBusiness>(`${FirebaseBusinessService.REPORTED_BUSINESSES_COL}/${docId}`).update(business)
+          .then(() => callback(new CRUDResult(true, "Business reported successfully.")))
+          .catch(() => callback(new CRUDResult(false, "A network error occurred while reporting business.")))
+      }
+    }));
+  }
+
+  public savedAddressExists(address: string): boolean {
+    return this.addressExistsInCollection(address, this.businesses);
+  }
+
+  public reportedAddressExists(address: string): boolean {
+    return this.addressExistsInCollection(address, this.reportedBusinesses);
+  }
+
+  private addressExistsInCollection(address: string, collection: IBusiness[] | IReportedBusiness[]): boolean {
+    let result = false;
+
+    const formattedAddress: string = this.bFormatter.formatAddressString(address).toLowerCase();
+
+    for(const business of collection) {
+      if(formattedAddress === this.bFormatter.formatAddressString(business.info.address.addressString).toLowerCase()) {
         result = true;
         break;
       }
@@ -172,5 +260,9 @@ export class FirebaseBusinessService {
    */
   public get businesses(): IBusiness[] {
     return this.authService.authedSalesRep.savedBusinesses;
+  }
+
+  public get reportedBusinesses(): IReportedBusiness[] {
+    return FirebaseBusinessService._reportedBusinesses;
   }
 }
