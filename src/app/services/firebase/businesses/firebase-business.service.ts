@@ -59,7 +59,7 @@ export class FirebaseBusinessService {
     }
     else {
       business.saveState = "saved";
-      business.info.address.addressString = this.bFormatter.formatAddressString(business.info.address.addressString);
+      business = this.bFormatter.formatBusinessAddress(business);
       this.businesses.push(business);
 
       const serverUpdate: CRUDResult = await this.authService.synchronize();
@@ -90,7 +90,7 @@ export class FirebaseBusinessService {
       result = CRUDResult.BUSINESS_DOES_NOT_EXIST;
     }
     else {
-      updated.info.address.addressString = this.bFormatter.formatAddressString(updated.info.address.addressString);
+      updated = this.bFormatter.formatBusinessAddress(updated);
       this.businesses[this.businesses.indexOf(original)] = updated;
 
       const serverUpdate = await this.authService.synchronize();

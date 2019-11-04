@@ -4,7 +4,6 @@ import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
 import { PopupsService } from 'src/app/services/global/popups.service';
 import { FirebaseBusinessService } from 'src/app/services/firebase/businesses/firebase-business.service';
-import { CRUDResult } from 'src/app/classes/CRUDResult';
 
 @Component({
   selector: 'app-business-view-modal',
@@ -93,11 +92,12 @@ export class BusinessViewModalPage {
    * Dismisses this modal and passes its Business back.
    */
   onFormSubmit() {
-    if(this.addressIsDuplicate()) {
+    this.bFormatter.trimBusiness(this.business);
+
+    if(this.addressIsDuplicate(this.business.info.address.addressString)) {
       this.popupsService.showAlert("Duplicate Address", "A saved place with this address already exists.", "OK");
     }
     else {
-      this.bFormatter.trimBusiness(this.business);
       this.modalController.dismiss({
         action: "edited",
         business: this.business
@@ -135,13 +135,13 @@ export class BusinessViewModalPage {
     });
   }
 
-  private addressIsDuplicate(): boolean {
+  private addressIsDuplicate(address: string): boolean {
     let result = false;
 
-    const addressString: string = this.bFormatter.formatAddressString(this.business.info.address.addressString).toLowerCase();
+    const formattedAddress: string = address.toLowerCase();
 
     for(const business of this.otherSavedBusinesses) {
-      if(addressString === business.info.address.addressString) {
+      if(formattedAddress === business.info.address.addressString) {
         result = true;
         break;
       }

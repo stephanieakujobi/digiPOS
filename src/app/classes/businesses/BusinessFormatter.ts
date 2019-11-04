@@ -112,18 +112,27 @@ export class BusinessFormatter {
         }
     }
 
+    public formatBusinessAddress(business: IBusiness): IBusiness {
+        const formattedBusiness = business;
+        formattedBusiness.info.address.addressString = this.formatAddressString(formattedBusiness.info.address.addressString);
+        return formattedBusiness;
+    }
+
     public formatAddressString(address: string): string {
         //Remove invalid symbols from the address. Commas and '@' are allowed.
         let formattedAddress = address.replace(/[_+\-.!#$%^&*=~`(){}\[\]:;\\/|<>"']/g, '');
 
         //Remove 2+ consecutive spaces fom the address. Single spaces are allowed.
-        formattedAddress = address.replace(/ {2,}/g, ' ');
+        formattedAddress = formattedAddress.replace(/ {2,}/g, ' ');
 
         //Remove 2+ consecutive commas fom the address. Single commas are allowed.
-        formattedAddress = address.replace(/,{2,}/g, ',');
+        formattedAddress = formattedAddress.replace(/,{2,}/g, ',');
 
         //Remove 2+ consecutive '@'s fom the address. Single '@'s are allowed.
-        formattedAddress = address.replace(/@{2,}/g, '@');
+        formattedAddress = formattedAddress.replace(/@{2,}/g, '@');
+
+        //Remove any remaining leading & trailing valid symbols.
+        formattedAddress = formattedAddress.replace(/(^[ ,]*)|([ ,@]*$)/g, '');
 
         return formattedAddress.trim();
     }
