@@ -21,6 +21,7 @@ import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { FirebaseAuthService } from './services/firebase/authentication/firebase-auth.service';
 import { FirebaseBusinessService } from './services/firebase/businesses/firebase-business.service';
 import { PopupsService } from './services/global/popups.service';
+import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -43,6 +44,7 @@ import { PopupsService } from './services/global/popups.service';
     NativeGeocoder,
     FirebaseAuthService,
     FirebaseBusinessService,
+    LaunchNavigator,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

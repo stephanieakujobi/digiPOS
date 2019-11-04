@@ -19,6 +19,7 @@ import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { AppBusinessesPrefsService } from '../businesses/preferences/app-businesses-prefs.service';
 import { PopupsService } from '../global/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
+import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +50,8 @@ export class GoogleMapsService implements OnDestroy {
     private geolocation: Geolocation,
     private fbbService: FirebaseBusinessService,
     private http: HTTP,
-    private popupsService: PopupsService
+    private popupsService: PopupsService,
+    private launchNavigator: LaunchNavigator
   ) {
     this.mapShouldFollowUser = false;
     this.nearbyMarkers = [];
@@ -211,7 +213,16 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
-    console.log("START ROUTE");
+    let options: LaunchNavigatorOptions = {
+      start: `${this.userPosition.lat}, ${this.userPosition.lng}`,
+      app: this.launchNavigator.APP.GOOGLE_MAPS
+    }
+
+    this.launchNavigator.navigate(placeMarker.place.address, options)
+      .then(
+        success => console.log('Launched navigator'),
+        error => console.log('Error launching navigator', error)
+      );
   }
 
   private updatePlaceMarker(result: CRUDResult, placeMarker: PlaceMarker) {

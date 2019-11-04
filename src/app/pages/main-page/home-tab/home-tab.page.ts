@@ -4,6 +4,7 @@ import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
 import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
 import { NavController } from '@ionic/angular';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 @Component({
   selector: 'app-home-tab',
@@ -25,7 +26,7 @@ export class HomeTabPage implements OnInit {
    * Creates a new HomeTabPage
    * @param gmapsService The GoogleMapsService used to display an interactable GoogleMap to the user.
    */
-  constructor(private gmapsService: GoogleMapsService, private navController: NavController) {
+  constructor(private gmapsService: GoogleMapsService, private navController: NavController, private keyboard: Keyboard) {
     HomeTabPage.gmapsService = this.gmapsService;
     HomeTabPage.navController = this.navController;
   }
@@ -44,8 +45,10 @@ export class HomeTabPage implements OnInit {
 
   findAddress() {
     let address = (document.getElementById("address-searchbar") as HTMLIonSearchbarElement).value;
+
     if(address != "") {
       this.toggleProgressbar();
+      this.keyboard.hide();
 
       this.gmapsService.findAddress(address, () => {
         this.toggleProgressbar();
