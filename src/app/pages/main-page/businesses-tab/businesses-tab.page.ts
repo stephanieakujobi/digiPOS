@@ -233,8 +233,6 @@ export class BusinessesTabPage {
     }
 
     this.popupsService.showModal(BusinessViewModalPage, props, data => {
-      console.log(data);
-
       if(data.action != "discarded") {
         if(data.action == "edited" && existingBusiness == null) {
           this.addSavedBusiness(data.business);

@@ -72,12 +72,12 @@ export class BusinessFormatter {
         return clone;
     }
 
-    public mapPlaceToBusiness(mapLoc: IMapPlace): IBusiness {
+    public mapPlaceToBusiness(mapPlace: IMapPlace): IBusiness {
         let business: IBusiness = this.blankBusiness();
-        business.info.name = mapLoc.name;
-        business.info.address.addressString = mapLoc.address;
-        business.info.address.position = mapLoc.position;
-        business.saveState = mapLoc.isSaved ? "saved" : "unsaved";
+        business.info.name = mapPlace.name;
+        business.info.address.addressString = mapPlace.address;
+        business.info.address.position = mapPlace.position;
+        business.saveState = mapPlace.isSaved ? "saved" : "unsaved";
         business.wasManuallySaved = false;
 
         return business;
@@ -88,7 +88,8 @@ export class BusinessFormatter {
             name: business.info.name,
             address: business.info.address.addressString,
             position: business.info.address.position,
-            isSaved: business.saveState !== "unsaved"
+            isSaved: business.saveState !== "unsaved",
+            isReported: business.isReported
         };
     }
 

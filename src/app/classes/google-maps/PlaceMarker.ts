@@ -1,4 +1,4 @@
-import { Marker, GoogleMap, HtmlInfoWindow, GoogleMapsEvent, MarkerIcon } from '@ionic-native/google-maps';
+import { Marker, GoogleMap, GoogleMapsEvent } from '@ionic-native/google-maps';
 import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
 import { InfoWindow } from './InfoWindow';
 
@@ -27,7 +27,17 @@ export class PlaceMarker {
         await map.addMarker({ position: place.position }).then((marker: Marker) => {
             marker.setAnimation("DROP");
 
-            if(place.isSaved) {
+            if(place.isReported) {
+                marker.setIcon({
+                    url: "assets/images/map-icons/business-marker-reported.png",
+                    size: {
+                        width: 24,
+                        height: 38
+                    }
+                });
+            }
+
+            else if(place.isSaved) {
                 marker.setIcon({
                     url: "assets/images/map-icons/business-marker-unreported.png",
                     size: {

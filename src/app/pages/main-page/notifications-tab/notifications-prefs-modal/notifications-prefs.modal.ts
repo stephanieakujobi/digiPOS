@@ -21,7 +21,6 @@ export class NotificationsPrefsModal {
    */
   constructor(private modalController: ModalController) {
     this.prefs = AppNotifsPrefsService.prefs;
-    console.log(this.prefs);
   }
 
   /**

@@ -168,8 +168,13 @@ export class GoogleMapsService implements OnDestroy {
     );
 
     if(saveReference) {
-      if(place.isSaved && this.savedMarkers.filter(m => m.place.address == place.address).length == 0) {
-        this.savedMarkers.push(placeMarker);
+      if(place.isSaved) {
+        if(this.savedMarkers.length == 0) {
+          this.savedMarkers.push(placeMarker);
+        }
+        else if(this.savedMarkers.filter(m => m.place.address == place.address).length == 0) {
+          this.savedMarkers.push(placeMarker);
+        }
       }
       else {
         this.nearbyMarkers.push(placeMarker);

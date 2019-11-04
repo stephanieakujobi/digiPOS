@@ -125,6 +125,8 @@ export class BusinessViewModalPage {
       this.popupsService.showToast(result.message);
 
       if(result.wasSuccessful) {
+        this.business.isReported = true;
+
         this.modalController.dismiss({
           action: "reported",
           business: this.business

@@ -4,9 +4,9 @@ import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
 import { BusinessSaveState } from 'src/app/classes/businesses/BusinessSaveState';
 import { FirebaseAuthService } from '../authentication/firebase-auth.service';
 import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
-import { AngularFirestore, AngularFirestoreCollection, DocumentChangeAction } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { IReportedBusiness } from 'src/app/interfaces/businesses/IReportedBusiness';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -62,7 +62,7 @@ export class FirebaseBusinessService {
       business.info.address.addressString = this.bFormatter.formatAddressString(business.info.address.addressString);
       this.businesses.push(business);
 
-      const serverUpdate = await this.authService.synchronize();
+      const serverUpdate: CRUDResult = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
         this.businesses.splice(this.businesses.indexOf(business), 1);
@@ -180,7 +180,7 @@ export class FirebaseBusinessService {
     return result;
   }
 
-  public async reportBusiness(business: IBusiness, callback: (result: CRUDResult) => void) {
+  public async reportBusiness(business: IBusiness, callback: (result: CRUDResult) => void) { 
     const reportedBusiness: IReportedBusiness = {
       info: business.info,
       reportedBy: this.authService.authedSalesRep.info,
