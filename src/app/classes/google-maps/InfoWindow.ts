@@ -41,7 +41,7 @@ export class InfoWindow {
 
         infoWindow.setContent(content, {
             width: "250px",
-            height: "240px",
+            height: "240px"
         });
 
         return infoWindow;

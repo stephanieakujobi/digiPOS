@@ -14,10 +14,11 @@ import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 /**
  * The page displayed to the user when they select the "Home" tab.
- * Shows the user their current location on the map and provides them options to search for nearby businesses to report.
+ * Shows the user their current location on the map and provides them options to search for nearby places to report.
  */
 export class HomeTabPage implements OnInit {
   private progressBar: HTMLIonProgressBarElement;
+  private mapFinishedLoading: boolean; //interpolated in home-tab.page.html
 
   private static gmapsService: GoogleMapsService;
   private static navController: NavController;
@@ -25,6 +26,8 @@ export class HomeTabPage implements OnInit {
   /**
    * Creates a new HomeTabPage
    * @param gmapsService The GoogleMapsService used to display an interactable GoogleMap to the user.
+   * @param navController The NavController used to redirect the user to this page from the saved Places page when viewing a saved Place on the map.
+   * @param keyboard The Keyboard used to hide the user's device's native keyboard when searching Places.
    */
   constructor(private gmapsService: GoogleMapsService, private navController: NavController, private keyboard: Keyboard) {
     HomeTabPage.gmapsService = this.gmapsService;
@@ -34,35 +37,51 @@ export class HomeTabPage implements OnInit {
   async ngOnInit() {
     this.gmapsService.initMap("map", () => {
       this.toggleProgressbar();
-      document.getElementById("controls").classList.remove("hidden");
       this.gmapsService.pinSavedPlaces();
+      this.mapFinishedLoading = true;
     });
   }
 
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
   ionViewDidEnter() {
     this.progressBar = document.getElementById("progress-bar") as HTMLIonProgressBarElement;
   }
 
-  findAddress() {
+  /**
+   * Called from the page when the user enters an input on the searchbar.
+   * Uses the GoogleMapsService to search for a place with the text value that the user has entered.
+   */
+  findPlace() {
     let address = (document.getElementById("address-searchbar") as HTMLIonSearchbarElement).value;
 
     if(address != "") {
       this.toggleProgressbar();
       this.keyboard.hide();
 
-      this.gmapsService.findAddress(address, () => {
+      this.gmapsService.findPlace(address, () => {
         this.toggleProgressbar();
       });
     }
   }
 
-  public static showSavedPlace(business: Place) {
+  /**
+   * A static function allowing the user to select one of their saved Places from the PlacesTabPage to view on the HomeTabPage's map.
+   * When called, the user will be redirected to the HomeTabPage and their selected place will be pinned & centered on the map.
+   * @param place The Place to view on the map.
+   */
+  public static viewSavedPlace(place: Place) {
     this.navController.navigateRoot("/main/tabs/home-tab").then(() => {
-      const place: MapPlace = new PlaceFormatter().mapPlaceFromPlace(business);
-      this.gmapsService.centerOnSavedPlace(place);
+      const mapPlace: MapPlace = new PlaceFormatter().mapPlaceFromPlace(place);
+      this.gmapsService.viewSavedPlace(mapPlace);
     });
   }
 
+  /**
+   * Called from the page when the user presses the pin icon.
+   * Uses the GoogleMapsService to pin all nearby businesses within a 5000 meter radius.
+   */
   findNearby() {
     this.toggleProgressbar();
 
@@ -71,6 +90,9 @@ export class HomeTabPage implements OnInit {
     });
   }
 
+  /**
+   * Shows/Hides the HTMLIonProgressBarElement at the top of the page.
+   */
   private toggleProgressbar() {
     this.progressBar.classList.toggle("hidden");
   }

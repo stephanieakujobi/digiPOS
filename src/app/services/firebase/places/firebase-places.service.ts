@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { Place } from 'src/app/models/places/Place';
 import { PlaceSaveState } from 'src/app/classes/places/PlaceSaveState';
@@ -12,37 +12,47 @@ import { Subscription } from 'rxjs';
   providedIn: 'root'
 })
 /**
- * The FirebasePlaceService provides real-time data streaming to a Firebase CloudFirestore.
+ * The FirebasePlacesService provides real-time data streaming to a Firebase CloudFirestore.
  * It is used to perform CRUD operations on the saved Placees of sales representitives, and stores these Placees server-side.
- * This service works in conjunction with the FirebaseAuthService. A user must first be authenticated into the app before an instance of a FirebasePlaceService
+ * This service works in conjunction with the FirebaseAuthService. A user must first be authenticated into the app before an instance of a FirebasePlacesService
  * can exist, else an error is thrown. 
  * When a user is authenticated, their saved Placees will be retrieved from the CloudFirestore.
  */
-export class FirebasePlacesService {
+export class FirebasePlacesService implements OnDestroy {
   private static readonly REPORTED_PLACES_COL: string = "reported_places";
   private static _reportedPlaces: ReportedPlace[] = [];
 
+  private subscriptions: Subscription;
   private pFormatter: PlaceFormatter;
 
   /**
-   * Creates a new FirebasePlaceService.
+   * Creates a new FirebasePlacesService.
    * @param authService The FirebaseAuthService used to synchronize data changes on the currently logged-in user's saved Placees.
    */
   constructor(private authService: FirebaseAuthService, private afs: AngularFirestore) {
     if(!FirebaseAuthService.userIsAuthenticated) {
-      throw new Error("FirebaseAuthService must have a user authenticated before FirebasePlaceService can be instantiated.");
+      throw new Error("FirebaseAuthService must have a user authenticated before FirebasePlacesService can be instantiated.");
     }
 
+    this.subscriptions = new Subscription();
     this.pFormatter = new PlaceFormatter();
     this.loadReportedPlaces();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  /**
+   * Loads all reported Places from a dedicated Firestore collection.
+   * These Places can be pinned on the map if desired by the user.
+   */
   private loadReportedPlaces() {
     const collection: AngularFirestoreCollection<ReportedPlace> = this.afs.collection(FirebasePlacesService.REPORTED_PLACES_COL);
 
-    collection.valueChanges().subscribe(places => {
+    this.subscriptions.add(collection.valueChanges().subscribe(places => {
       FirebasePlacesService._reportedPlaces = places;
-    });
+    }));
   }
 
   /**
@@ -180,6 +190,11 @@ export class FirebasePlacesService {
     return result;
   }
 
+  /**
+   * Reports a place into a dedicated Firestore collection with the currently logged-in user's Contact info, describing them as the one who reported the Place.
+   * @param place The Place to report
+   * @param callback The callback containing the CRUDResult of the operation to run upon completion.
+   */
   public async reportPlace(place: Place, callback: (result: CRUDResult) => void) {
     const reportedPlace: ReportedPlace = {
       info: place.info,
@@ -195,6 +210,12 @@ export class FirebasePlacesService {
     }
   }
 
+  /**
+   * Called from reportPlace if the Place being reported does not exist under the user's saved Places.
+   * Adds a new reported Place to to the Firestore collection.
+   * @param place The Place to report.
+   * @param callback The callback containing the CRUDResult of the operation to run upon completion.
+   */
   private async reportNewPlace(place: ReportedPlace, callback: (result: CRUDResult) => void) {
     await this.afs.collection(FirebasePlacesService.REPORTED_PLACES_COL).add(place)
       .then(() => {
@@ -205,6 +226,12 @@ export class FirebasePlacesService {
       });
   }
 
+  /**
+   * Called from reportPlace if the Place being reported already exists under the user's saved Places.
+   * Selects this existing Place from the Firestore collection and updates it.
+   * @param place The Place to report.
+   * @param callback The callback containing the CRUDResult of the operation to run upon completion.
+   */
   private reportExistingPlace(place: ReportedPlace, callback: (result: CRUDResult) => void) {
     const subscription = new Subscription();
 
@@ -232,14 +259,30 @@ export class FirebasePlacesService {
     }));
   }
 
+  /**
+   * Checks if an address string exists in the user's saved Places.
+   * @param address the address string to compare.
+   * @returns True if the address exists, and false if not.
+   */
   public savedAddressExists(address: string): boolean {
     return this.addressExistsInCollection(address, this.savedPlaces);
   }
 
+  /**
+   * Checks if an address string exists in the reported Places Firestore collection.
+   * @param address the address string to compare.
+   * @returns True if the address exists, and false if not.
+   */
   public reportedAddressExists(address: string): boolean {
     return this.addressExistsInCollection(address, this.reportedPlaces);
   }
 
+  /**
+   * Checks if an address string exists in a collection of Places or ReportedPlaces.
+   * @param address The address string to compare.
+   * @param collection The collection of Places or Reported places to check for the address string in.
+   * @returns True if the address exists, and false if not.
+   */
   private addressExistsInCollection(address: string, collection: Place[] | ReportedPlace[]): boolean {
     let result = false;
 
@@ -262,6 +305,9 @@ export class FirebasePlacesService {
     return this.authService.authedSalesRep.savedPlaces;
   }
 
+  /**
+   * The reference to all Places that have been reported.
+   */
   public get reportedPlaces(): ReportedPlace[] {
     return FirebasePlacesService._reportedPlaces;
   }

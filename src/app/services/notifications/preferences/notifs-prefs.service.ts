@@ -1,33 +1,34 @@
 import { Injectable } from '@angular/core';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { NotifsPrefs } from 'src/app/classes/notifications/NotifsPrefs';
+import { PopupsService } from '../../global/popups.service';
 
 @Injectable({
   providedIn: 'root'
 })
 
 /**
- * The AppNotifsPrefsService provides a way to save and load user notification preferences locally on the user's device.
+ * The NotifsPrefsService provides a way to save and load user Notification preferences locally on the user's device.
  */
-export class AppNotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
+export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
   private static readonly storageKey = "notifications_preferences";
   private static _prefs = new NotifsPrefs();
 
   /**
-   * Creates a new AppNotifsPrefsService instance.
+   * Creates a new NotifsPrefsService instance.
    * @param nativeStorage The NativeStorage used to save and load notifiation preferences.
    */
   constructor(private nativeStorage: NativeStorage) { }
 
   /**
-   * Loads the user's notification preferences.
+   * Loads the user's Notification preferences.
    * If there are no pre-existing preferences, a new AppNotifsPrefs object will be created and saved instead.
-   * @returns The user's notification preferences represented in an AppNotifsPrefs object.
+   * @returns The user's Notification preferences represented in an AppNotifsPrefs object.
    */
   public async loadPrefs(): Promise<NotifsPrefs> {
     let prefsResult: NotifsPrefs;
 
-    await this.nativeStorage.getItem(AppNotifsPrefsService.storageKey).then(
+    await this.nativeStorage.getItem(NotifsPrefsService.storageKey).then(
       savedPrefs => {
         prefsResult = savedPrefs;
       },
@@ -38,30 +39,31 @@ export class AppNotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
       }
     );
 
-    AppNotifsPrefsService._prefs = prefsResult;
+    NotifsPrefsService._prefs = prefsResult;
     return prefsResult;
   }
 
   /**
-   * Updates the user's notification preferences.
+   * Updates the user's Notification preferences.
    * @param prefs The new set of preferences to save.
    * @returns A true or false result representing if the save was successful or not respectively.
    */
   public async savePrefs(prefs: NotifsPrefs): Promise<boolean> {
     let didSucceed: boolean = false;
 
-    await this.nativeStorage.setItem(AppNotifsPrefsService.storageKey, prefs).then(
-      () => {
+    await this.nativeStorage.setItem(NotifsPrefsService.storageKey, prefs)
+      .then(() => {
         didSucceed = true;
-        AppNotifsPrefsService._prefs = prefs;
-      },
-      error => console.error('Error storing item', error)
-    );
+        NotifsPrefsService._prefs = prefs;
+      });
 
     return didSucceed;
   }
 
+  /**
+   * The user's current Notification preferences.
+   */
   public static get prefs() {
-    return AppNotifsPrefsService._prefs;
+    return NotifsPrefsService._prefs;
   }
 }

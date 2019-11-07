@@ -1,13 +1,29 @@
 import { Injectable } from '@angular/core';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
-import { ModalOptions, ComponentRef, ComponentProps } from '@ionic/core';
+import { ComponentRef, ComponentProps } from '@ionic/core';
 
 @Injectable({
   providedIn: 'root'
 })
+
+/**
+ * The PopupsService allows various pop-up elements to display to the user, such as alerts, toasts, and modals.
+ */
 export class PopupsService {
+  /**
+   * Creates a new PopupsService
+   * @param alertController The AlertController used to display alerts to the user.
+   * @param toastController The ToastController used to display toasts to the user.
+   * @param modalController The ModalController used to display modals to the user.
+   */
   constructor(private alertController: AlertController, private toastController: ToastController, private modalController: ModalController) { }
 
+  /**
+   * Shows a basic alert window with a header, message, and close button.
+   * @param header The header text to display.
+   * @param message The message text to display.
+   * @param closeButtonText The text to display in the close button.
+   */
   public async showAlert(header: string, message: string, closeButtonText: string) {
     const alert = await this.createAlert(header, message);
     alert.buttons = [
@@ -20,6 +36,13 @@ export class PopupsService {
     await alert.present();
   }
 
+  /**
+   * Shows an alert window with "yes" and "no" buttons.
+   * @param header The header text to display.
+   * @param message The message text to display. 
+   * @param onYesClicked The callback function to run when the user presses the "yes" button.
+   * @param onNoClicked The callback function to run when the user presses the "no" button.
+   */
   public async showConfirmationAlert(header: string, message: string, onYesClicked: () => void, onNoClicked: () => void) {
     const alert = await this.createAlert(header, message);
     alert.buttons = [
@@ -38,7 +61,7 @@ export class PopupsService {
   }
 
   /**
-   * Presents a toast to the user. The toast will disappear automatically after two seconds.
+   * Shows a toast to the user. The toast will disappear automatically after two seconds.
    * @param message The message to display in the toast.
    */
   public async showToast(message: string, topOfViewport: boolean = false) {
@@ -52,6 +75,12 @@ export class PopupsService {
     await toast.present();
   }
 
+  /**
+   * Creates and displays a modal page to the user.
+   * @param component The component page reference to display.
+   * @param properties Any properties that may be passed to the modal page.
+   * @param onDismissed The callback function to run when the user dismisses the modal page.
+   */
   public async showModal(component: ComponentRef, properties: ComponentProps<ComponentRef>, onDismissed: (data: any) => void) {
     const modal = await this.modalController.create({
       component: component,
@@ -66,6 +95,12 @@ export class PopupsService {
     });
   }
 
+  /**
+   * Scaffholds the alert-creation process for all alert-creation functions.
+   * @param header The header text to display in the alert.
+   * @param message The message text to display in the alert.
+   * @returns A new HTMLIonAlertElement.
+   */
   private async createAlert(header: string, message: string): Promise<HTMLIonAlertElement> {
     const alert = await this.alertController.create({
       header: header,

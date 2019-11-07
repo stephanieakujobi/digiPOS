@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { PlacesPrefs } from 'src/app/classes/places/PlacesPrefs';
-import { AppPlacesPrefsService } from 'src/app/services/places/preferences/app-places-prefs.service';
+import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service';
 
 @Component({
   selector: 'app-places-prefs-modal',
@@ -21,7 +21,7 @@ export class PlacesPrefsModalPage {
    * @param modalController The ModalController used to dismis this modal.
    */
   constructor(private modalController: ModalController) {
-    this.prefs = AppPlacesPrefsService.prefs;
+    this.prefs = PlacesPrefsService.prefs;
   }
 
   /**

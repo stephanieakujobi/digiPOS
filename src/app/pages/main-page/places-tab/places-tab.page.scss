@@ -8,10 +8,4 @@ ion-list .list-item {
     margin-right: 16px;
     margin-left: 5px;
   }
-
-  &:not(.starred) {
-    ion-icon.list-item-icon {
-      opacity: 0;
-    }
-  }
 }

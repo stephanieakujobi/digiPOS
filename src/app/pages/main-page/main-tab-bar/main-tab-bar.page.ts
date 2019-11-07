@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { AppNotification } from 'src/app/classes/notifications/AppNotification';
-import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
-import { NotifSeverity } from 'src/app/classes/notifications/NotifSeverity';
+import { Notification } from 'src/app/classes/notifications/Notification';
+import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service';
 import { NavController } from '@ionic/angular';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
-import { AppPlacesPrefsService } from 'src/app/services/places/preferences/app-places-prefs.service';
-import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
+import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service';
+import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
 
 @Component({
   selector: 'app-main-tab-bar',
@@ -22,13 +21,16 @@ export class MainTabBarPage implements OnInit {
   /**
    * Creates a new MainTabBarPage
    * @param navController The NavController used to redirect the user back to the LoginPage if they are not authenticated.
-   * @param notifsStorage The AppNotifsStorageService used to load the user's saved AppNotifications on their device.
+   * @param notifsStorage The NotifsStorageService used to load the user's saved Notifications on their device.
+   * @param placesPrefsService The PlacesPrefsService used to load the user's saved Places preferences.
+   * @param notifsPrefsService The NotifsPrefsService used to load the user's saved Notifications preferences.
    */
   constructor(
     private navController: NavController,
-    private notifsStorage: AppNotifsStorageService,
-    private bPrefsService: AppPlacesPrefsService,
-    private nPrefsService: AppNotifsPrefsService) { }
+    private notifsStorage: NotifsStorageService,
+    private placesPrefsService: PlacesPrefsService,
+    private notifsPrefsService: NotifsPrefsService
+  ) { }
 
   ngOnInit() {
     if(!FirebaseAuthService.userIsAuthenticated) {
@@ -36,9 +38,12 @@ export class MainTabBarPage implements OnInit {
     }
   }
 
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
   async ionViewWillEnter() {
-    await this.bPrefsService.loadPrefs();
-    await this.nPrefsService.loadPrefs();
+    await this.placesPrefsService.loadPrefs();
+    await this.notifsPrefsService.loadPrefs();
     await this.testSaveNotifs(); //TEMPORARY
     await this.loadNotifications();
   }
@@ -47,18 +52,18 @@ export class MainTabBarPage implements OnInit {
    * TEMPORARY TEST METHOD.
    */
   private async testSaveNotifs() {
-    let notifs: AppNotification[] = [
-      new AppNotification("TITLE", "SUMMARY"),
-      new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 3", "SUMMARY 3", "alert", new Date(2019, 10, 20)),
-      new AppNotification("TITLE 4", "SUMMARY 4", "error", new Date(2019, 10, 10))
+    let notifs: Notification[] = [
+      new Notification("TITLE", "SUMMARY"),
+      new Notification("TITLE 2", "SUMMARY 2"),
+      new Notification("TITLE 3", "SUMMARY 3", "alert", new Date(2019, 10, 20)),
+      new Notification("TITLE 4", "SUMMARY 4", "error", new Date(2019, 10, 10))
     ];
 
     await this.notifsStorage.saveNotifs(notifs);
   }
 
   /**
-   * Loads the user's saved notifications upon successful login.
+   * Loads the user's saved Notifications upon successful login.
    */
   private async loadNotifications() {
     await this.notifsStorage.loadNotifs();
@@ -66,11 +71,11 @@ export class MainTabBarPage implements OnInit {
   }
 
   /**
-   * Updates the number displayed next to the notification tab's bell icon, representing how many unread AppNotifications the user has.
+   * Updates the number displayed next to the Notifications tab's bell icon, representing how many unread Notifications the user has.
    */
   public static updateUnreadNotifsBadge() {
     const badge = document.getElementById("notifs-badge") as HTMLIonBadgeElement;
-    const unreadNotifsLength = AppNotifsStorageService.notifications.filter(notif => !notif.isRead).length;
+    const unreadNotifsLength = NotifsStorageService.notifications.filter(notif => !notif.isRead).length;
 
     badge.innerText = unreadNotifsLength.toString();
 

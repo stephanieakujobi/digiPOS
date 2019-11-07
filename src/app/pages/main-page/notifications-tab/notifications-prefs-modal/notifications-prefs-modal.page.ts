@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { ModalController, NavParams } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { NotifsPrefs } from 'src/app/classes/notifications/NotifsPrefs';
-import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
+import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
 
 @Component({
   selector: 'app-notifications-prefs-modal',
@@ -10,17 +10,17 @@ import { AppNotifsPrefsService } from 'src/app/services/notifications/preference
 })
 
 /**
- * The NotificationsSettingsModal is a modal page that contains the various options for users to configure for their Notifications.
+ * The NotifsPrefsModalPage is a modal page that contains the various options for users to configure for their Notifications.
  */
 export class NotifsPrefsModalPage {
   private prefs: NotifsPrefs;
 
   /**
-   * Creates a new NotificationsSettingsModal
+   * Creates a new NotifsPrefsModalPage
    * @param modalController The reference to the ModalController that created this modal.
    */
   constructor(private modalController: ModalController) {
-    this.prefs = AppNotifsPrefsService.prefs;
+    this.prefs = NotifsPrefsService.prefs;
   }
 
   /**

@@ -12,8 +12,12 @@ import { Contact } from 'src/app/models/places/Contact';
  * The page displayed to the user when they select the "My Profile" tab.
  */
 export class ProfileTabPage {
-  private userInfo: Contact;
+  private userInfo: Contact; //Interpolated in profile-tab.page.html
 
+  /**
+   * Creates a new ProfileTabPage
+   * @param fbAuthService The FirebaseAuthService used to retrieve the currently logged-in user's profile data.
+   */
   constructor(private fbAuthService: FirebaseAuthService) {
     this.userInfo = this.fbAuthService.authedSalesRep.info;
   }

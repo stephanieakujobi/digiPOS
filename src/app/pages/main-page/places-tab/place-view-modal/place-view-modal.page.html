@@ -106,6 +106,6 @@
 
   <ion-button [disabled]="!formIsValid" (click)="onReportPlace()" *ngIf="!isAddingNewPlace">
     <ion-icon slot="start" name="cloud-upload"></ion-icon>
-    Report Place
+    {{place.isReported ? "Update Report" : "Report Place"}}
   </ion-button>
 </ion-content>

@@ -2,6 +2,8 @@
   <ion-toolbar color="primary">
     <ion-title>Home</ion-title>
   </ion-toolbar>
+  <ion-searchbar id="address-searchbar" placeholder="Find a place..." animated (keyup.enter)="findPlace()" *ngIf="mapFinishedLoading">
+  </ion-searchbar>
 </ion-header>
 
 <ion-content>
@@ -10,10 +12,7 @@
 
   <div id="map"></div>
 
-  <div id="controls" class="hidden">
-    <ion-searchbar id="address-searchbar" placeholder="Find an address..." animated (keyup.enter)="findAddress()">
-    </ion-searchbar>
-
+  <div *ngIf="mapFinishedLoading">
     <ion-fab id="nearby-search-fab" vertical="bottom" horizontal="end">
       <ion-fab-button size="small" (click)="findNearby()">
         <ion-icon name="pin"></ion-icon>

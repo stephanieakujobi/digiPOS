@@ -1,42 +1,49 @@
-#map {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
+ion-header {
+  background: var(--ion-color-primary);
 
-ion-searchbar {
-  position: absolute;
-  top: 0;
-  padding: 16px;
-  --background: var(--ion-color-secondary);
-  opacity: 0.6;
-  transition: 0.25s;
-
-  &.searchbar-has-focus {
-    opacity: 1;
-  }
-}
-
-ion-fab {
-  bottom: 18px;
-
-  ion-fab-button {
+  ion-searchbar {
+    padding-top: 0;
     --background: var(--ion-color-secondary);
-    --color: var(--google-maps-grey);
-    opacity: 0.7;
+  }
+}
+
+ion-content {
+  position: relative;
+
+  ion-progress-bar {
+    position: absolute;
+    top: 0;
+    background-color: var(--ion-color-light);
+    z-index: 1;
   }
 
-  &#center-location-fab {
-    right: 60px;
+  #map {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
-  &#nearby-search-fab {
-    right: 3px;
-    bottom: 93px;
-  }
+  ion-fab {
+    bottom: 18px;
 
-  &#clear-nearby-search-fab {
-    right: 3px;
-    bottom: 139px;
+    ion-fab-button {
+      --background: var(--ion-color-secondary);
+      --color: var(--google-maps-grey);
+      opacity: 0.7;
+    }
+
+    &#center-location-fab {
+      right: 60px;
+    }
+
+    &#nearby-search-fab {
+      right: 3px;
+      bottom: 93px;
+    }
+
+    &#clear-nearby-search-fab {
+      right: 3px;
+      bottom: 139px;
+    }
   }
 }

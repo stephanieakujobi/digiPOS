@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationsTabPage } from './notifications-tab.page';
-import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
+import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service';
 
 @NgModule({
   imports: [
@@ -14,7 +14,7 @@ import { AppNotifsStorageService } from 'src/app/services/notifications/storage/
     RouterModule.forChild([{ path: '', component: NotificationsTabPage }])
   ],
   providers: [
-    AppNotifsStorageService
+    NotifsStorageService
   ],
   declarations: [NotificationsTabPage]
 })

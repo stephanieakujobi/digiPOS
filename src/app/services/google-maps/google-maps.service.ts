@@ -16,7 +16,7 @@ import { FirebasePlacesService } from '../firebase/places/firebase-places.servic
 import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { Place } from 'src/app/models/places/Place';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
-import { AppPlacesPrefsService } from '../places/preferences/app-places-prefs.service';
+import { PlacesPrefsService } from '../places/preferences/places-prefs.service';
 import { PopupsService } from '../global/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
@@ -44,11 +44,15 @@ export class GoogleMapsService implements OnDestroy {
    * Creates a new GoogleMapsService.
    * @param platform The Platform used to detect when the native device is ready for native system calls to be made.
    * @param geolocation The Geolocation used to track the user's device.
+   * @param fbpService The FirebasePlacesService used to display Places on the map.
+   * @param http The HTTP used to create HTTP requests to the Google Maps API.
+   * @param popupsService the PopupsService used to display various pop-up messages to the user.
+   * @param launchNavigator the LaunchNavigator used to launch the user's native maps application when starting a route to a Place on the map.
    */
   constructor(
     private platform: Platform,
     private geolocation: Geolocation,
-    private fbbService: FirebasePlacesService,
+    private fbpService: FirebasePlacesService,
     private http: HTTP,
     private popupsService: PopupsService,
     private launchNavigator: LaunchNavigator
@@ -63,6 +67,7 @@ export class GoogleMapsService implements OnDestroy {
   /**
    * Creates a new GoogleMap centered on the user's current location.
    * @param mapElementId The id attribute of an HTML element to insert the map.
+   * @param onComplete The callback function to run when the map has finished initializing.
    */
   public async initMap(mapElementId: string, onComplete: () => void) {
     await this.platform.ready();
@@ -71,20 +76,16 @@ export class GoogleMapsService implements OnDestroy {
     onComplete();
   }
 
-  /**
-   * Unsubscribes from all events when this page is unloaded.
-   * This prevents the same events being subscribed to multiple times over, which would cause memory leaks.
-   * @see https://angular.io/api/core/OnDestroy for more info on ngOnDestroy.
-   */
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
 
   /**
    * Creates a new map on the page and centers the camera & user marker to the user's current location when initialized.
+   * @param mapElementId The id attribute of an HTML element to insert the map.
    */
   private async createMap(mapElementId: string) {
-    let mapOptions: GoogleMapOptions = {
+    const mapOptions: GoogleMapOptions = {
       controls: {
         myLocationButton: false,
         myLocation: true,
@@ -94,7 +95,7 @@ export class GoogleMapsService implements OnDestroy {
 
     this.map = GoogleMaps.create(mapElementId, mapOptions);
 
-    let userGeoPos = await this.geolocation.getCurrentPosition();
+    const userGeoPos = await this.geolocation.getCurrentPosition();
     this.userPosition = new LatLng(userGeoPos.coords.latitude, userGeoPos.coords.longitude);
 
     await this.map.moveCamera({
@@ -125,6 +126,11 @@ export class GoogleMapsService implements OnDestroy {
     }));
   }
 
+  /**
+   * Centers a map on an optional ILatLng position.
+   * If no position is specified, then the map is centered on the user's position instead.
+   * @param position The optional position to center the map onto.
+   */
   public async centerMap(position?: ILatLng) {
     const centerPosition: ILatLng = position == null ? this.userPosition : position;
 
@@ -136,32 +142,43 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = position == null;
   }
 
-  public centerOnSavedPlace(place: MapPlace) {
+  /**
+   * Searches the user's saved Places for the provided Place, and if an existing match is found, the map will be centered on the Place.
+   * @param place The saved Place to view.
+   */
+  public async viewSavedPlace(place: MapPlace) {
     const placeMarkers: PlaceMarker[] = this.savedMarkers.filter(m => m.place.address == place.address);
 
     if(placeMarkers.length != 0) {
-      this.centerMap(placeMarkers[0].place.position);
-      placeMarkers[0].marker.setAnimation("BOUNCE");
+      const savedPlaceMarker = placeMarkers[0];
+
+      for(const placeMarker of this.savedMarkers) {
+        placeMarker.hideInfoWindow();
+      }
+
+      await this.centerMap(savedPlaceMarker.place.position);
+      savedPlaceMarker.marker.setAnimation("BOUNCE");
+      savedPlaceMarker.showInfoWindow();
     }
   }
 
+  /**
+   * Adds a PlaceMarker at the locations of all the user's saved Places.
+   */
   public pinSavedPlaces() {
     this.clearSavedMarkers();
 
-    this.fbbService.savedPlaces.forEach(place => {
+    this.fbpService.savedPlaces.forEach(place => {
       this.addPlaceMarker(this.bFormatter.mapPlaceFromPlace(place));
     });
   }
 
-  public async addPlaceSearchMarker(place: MapPlace) {
-    if(this.searchMarker != null) {
-      this.searchMarker.remove();
-    }
-
-    this.searchMarker = await this.addPlaceMarker(place, false);
-    this.centerMap(place.position);
-  }
-
+  /**
+   * Adds a new PlaceMarker onto the map. The location of the PlaceMarker on the map will be on the position value of the associated MapPlace.
+   * @param place The MapPlace to associate with the PlaceMarker.
+   * @param saveReference Whether to cache a reference to this PlaceMarker. True by default.
+   * @returns The newly created Placemarker.
+   */
   public async addPlaceMarker(place: MapPlace, saveReference: boolean = true): Promise<PlaceMarker> {
     const placeMarker = await PlaceMarker.instantiate(this.map, place,
       () => this.onPlaceMarkerSaved(placeMarker),
@@ -186,32 +203,61 @@ export class GoogleMapsService implements OnDestroy {
     return placeMarker;
   }
 
+  /**
+   * Adds a PlaceMarker and assigns the reference to the cached searchMarker.
+   * @param place The MapPlace to associate with the PlaceMarker.
+   */
+  private async addPlaceSearchMarker(place: MapPlace) {
+    if(this.searchMarker != null) {
+      this.searchMarker.remove();
+    }
+
+    this.searchMarker = await this.addPlaceMarker(place, false);
+    this.centerMap(place.position);
+  }
+
+  /**
+   * The callback function for when the user saves a Place from a PlaceMarker's InfoWindow.
+   * Converts the MapPlace reference to a Place and uses the FirebasePlacesService to save the Place.
+   * @param placeMarker The PlaceMarker that was saved.
+   */
   private async onPlaceMarkerSaved(placeMarker: PlaceMarker) {
     const place: Place = this.bFormatter.placeFromMapPlace(placeMarker.place);
-    const result: CRUDResult = await this.fbbService.addPlace(place);
+    const result: CRUDResult = await this.fbpService.addPlace(place);
 
     this.updatePlaceMarker(result, placeMarker);
   }
 
+  /**
+   * The callback function for when the user un-saves a Place from a PlaceMarker's InfoWindow.
+   * Converts the MapPlace reference to a Place and uses the FirebasePlacesService to delete the Place.
+   * If the user's saved Places preferences require confirmation before deleting a Place, then they will be prompted beforehand.
+   * @param placeMarker The PlaceMarker that was un-saved.
+   */
   private async onPlaceMarkerUnaved(placeMarker: PlaceMarker) {
     const place: Place = this.bFormatter.placeFromMapPlace(placeMarker.place);
-    let result: CRUDResult = await this.fbbService.addPlace(place);
+    let result: CRUDResult = await this.fbpService.addPlace(place);
 
-    if(AppPlacesPrefsService.prefs.askBeforeDelete) {
+    if(PlacesPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
         async () => {
-          result = await this.fbbService.deletePlace(place);
+          result = await this.fbpService.deletePlace(place);
           this.updatePlaceMarker(result, placeMarker);
         },
         null
       );
     }
     else {
-      result = await this.fbbService.deletePlace(place);
+      result = await this.fbpService.deletePlace(place);
       this.updatePlaceMarker(result, placeMarker);
     }
   }
 
+  /**
+   * The callback function for when the user starts a route to a Place from a PlaceMarker's InfoWindow.
+   * Uses the LaunchNavigator to launch the native maps application on the user's device with the destination set to the PlaceMarker's MapPlace.
+   * @param placeMarker The PlaceMarker that the user has started a route to.
+   */
   private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
     let options: LaunchNavigatorOptions = {
       start: `${this.userPosition.lat}, ${this.userPosition.lng}`,
@@ -219,12 +265,17 @@ export class GoogleMapsService implements OnDestroy {
     }
 
     this.launchNavigator.navigate(placeMarker.place.address, options)
-      .then(
-        success => console.log('Launched navigator'),
-        error => console.log('Error launching navigator', error)
-      );
+      .catch(() => {
+        this.popupsService.showToast("Failed to launch maps - unknown error.")
+      });
   }
 
+  /**
+   * Removes and re-adds a PlaceMarker based on the success of a provided CRUDResult.
+   * Used for when the user saves or un-saves a PlaceMarker.
+   * @param result The CRUDResult operation that was performed.
+   * @param placeMarker The PlaceMarker to update.
+   */
   private updatePlaceMarker(result: CRUDResult, placeMarker: PlaceMarker) {
     if(result.wasSuccessful) {
       placeMarker.place.isSaved = !placeMarker.place.isSaved;
@@ -235,10 +286,16 @@ export class GoogleMapsService implements OnDestroy {
     this.popupsService.showToast(result.message);
   }
 
-  public findAddress(queryString: string, callback: (place: MapPlace) => void) {
+  /**
+   * Makes an HTTP request to the Google Maps API, searching for a Place based on the provided query string.
+   * The query string should ideally be either be a name or address, but any kind of input value will be accepted.
+   * @param queryString the string value to search with the API request.
+   * @param callback The callback function containing the search result formatted as a MapPlace.
+   */
+  public findPlace(queryString: string, callback: (place: MapPlace) => void) {
     queryString = this.bFormatter.formatAddressString(queryString);
 
-    this.http.get(`http://localhost:3000/findplace?address=${queryString}`, {}, {})
+    this.http.get(`http://localhost:3000/findplace?searchtext=${queryString}`, {}, {})
       .then(response => {
         const places: MapPlace[] = this.parsePlacesResponse(response);
 
@@ -248,7 +305,7 @@ export class GoogleMapsService implements OnDestroy {
         }
         else {
           if(places[0].isSaved) {
-            this.centerOnSavedPlace(places[0]);
+            this.viewSavedPlace(places[0]);
           }
           else {
             this.addPlaceSearchMarker(places[0]);
@@ -257,12 +314,18 @@ export class GoogleMapsService implements OnDestroy {
           callback(places[0]);
         }
       })
-      .catch(() => {
+      .catch(err => {
+        console.log(err);
         this.popupsService.showToast("A network error occurred while searching for an address.");
         callback(null);
       });
   }
 
+  /**
+   * Makes an HTTP request to the Google Maps API, searching for nearby Places within a radius.
+   * @param radius The radius in meters to search for places from the user's current location.
+   * @param callback The callback function containing the search results formatted as an array of MapPlaces.
+   */
   public findNearby(radius: number, callback: (places: MapPlace[]) => void) {
     this.http.get(`http://localhost:3000/findnearby?lat=${this.userPosition.lat}&lng=${this.userPosition.lng}&radius=${radius}`, {}, {})
       .then(response => {
@@ -291,6 +354,11 @@ export class GoogleMapsService implements OnDestroy {
       });
   }
 
+  /**
+   * Parses the response returned from a Google Maps API request into an array of MapPlaces.
+   * @param response The HTTP response returned from a Google Maps API request.
+   * @returns an array of MapPlaces from the response data.
+   */
   private parsePlacesResponse(response: HTTPResponse): MapPlace[] {
     let results: MapPlace[] = [];
 
@@ -307,31 +375,41 @@ export class GoogleMapsService implements OnDestroy {
           lat: data.places[i].geometry.location.lat,
           lng: data.places[i].geometry.location.lng
         },
-        isSaved: this.fbbService.savedAddressExists(address),
-        isReported: this.fbbService.reportedAddressExists(address)
+        isSaved: this.fbpService.savedAddressExists(address),
+        isReported: this.fbpService.reportedAddressExists(address)
       });
     }
 
     return results;
   }
 
-  public updateSavedPlace(place: MapPlace) {
-    place.isSaved = this.fbbService.savedAddressExists(place.address);
-  }
-
+  /**
+   * Removes all cached PlaceMarkers pinning the user's saved Places.
+   */
   private clearSavedMarkers() {
     const arrLength = this.savedMarkers.length;
 
     for(let i = 0; i < arrLength; i++) {
       this.savedMarkers[i].remove();
     }
+
+    this.savedMarkers = [];
   }
 
+  /**
+   * Removes all general PlaceMarkers pinned from searching Places.
+   */
   public clearNearbyMarkers() {
     const arrLength = this.nearbyMarkers.length;
 
     for(let i = 0; i < arrLength; i++) {
       this.nearbyMarkers[i].remove();
     }
+
+    if(this.searchMarker != null) {
+      this.searchMarker.remove();
+    }
+
+    this.nearbyMarkers = [];
   }
 }

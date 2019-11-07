@@ -24,6 +24,7 @@
         <ion-select-option value="ascending">Ascending</ion-select-option>
         <ion-select-option value="descending">Descending</ion-select-option>
         <ion-select-option value="starred">Starred</ion-select-option>
+        <ion-select-option value="reported">Reported</ion-select-option>
         <ion-select-option value="savedMap">Saved from map</ion-select-option>
         <ion-select-option value="savedManual">Saved manually</ion-select-option>
       </ion-select>
@@ -48,8 +49,13 @@
               <span class="place-address">{{p.info.address.addressString}}</span>
             </p>
           </ion-label>
-          <ion-icon class="list-item-icon" name="star" color="tertiary"></ion-icon>
-        </ion-item>
+          
+          <ion-icon class="list-item-icon" name="cloud-done" color="primary" *ngIf="p.isReported"></ion-icon>
+          <ion-icon class="list-item-icon" name="cloud-outline" color="medium" *ngIf="!p.isReported"></ion-icon>
+
+          <ion-icon class="list-item-icon" name="star" color="tertiary" *ngIf="p.saveState == 'starred'"></ion-icon>
+          <ion-icon class="list-item-icon" name="star-outline" color="medium" *ngIf="p.saveState != 'starred'"></ion-icon>
+          </ion-item>
       </div>
 
       <ion-item-options side="start" (ionSwipe)="onDeletePlace(p, slideItem, placeElement)">
@@ -75,8 +81,7 @@
           </ion-label>
         </ion-item-option>
 
-        <ion-item-option color="tertiary" (click)="onStarPlace(p, slideItem)" expandable
-          *ngIf="p.saveState == 'saved'">
+        <ion-item-option color="tertiary" (click)="onStarPlace(p, slideItem)" expandable *ngIf="p.saveState == 'saved'">
           <ion-label>
             <ion-icon name="star-outline" color="secondary"></ion-icon>
             Star

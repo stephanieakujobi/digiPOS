@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { PlaceViewModalPage } from './place-view-modal/place-view-modal.page';
 import { PlacesPrefsModalPage } from './places-prefs/places-prefs-modal.page';
-import { AppPlacesPrefsService } from 'src/app/services/places/preferences/app-places-prefs.service';
+import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase-places.service';
 import { Place } from 'src/app/models/places/Place';
@@ -22,10 +22,10 @@ export class PlacesTabPage {
   /**
    * Creates a new PlaceTabPage.
    * @param fbpService The FirebasePlacesService used to execute CRUD operations on the user's saved Places.
-   * @param prefsService The AppPlacesPrefsService used to update the user's saved Places preferences.
+   * @param prefsService The PlacesPrefsService used to update the user's saved Places preferences.
    * @param popupsService The PopupsService used to display alerts, toasts, and modals.
    */
-  constructor(private fbpService: FirebasePlacesService, private prefsService: AppPlacesPrefsService, private popupsService: PopupsService) { }
+  constructor(private fbpService: FirebasePlacesService, private prefsService: PlacesPrefsService, private popupsService: PopupsService) { }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
@@ -52,6 +52,9 @@ export class PlacesTabPage {
         case "starred":
           this.sortPlacesByStarred();
           break;
+        case "reported":
+          this.sortPlacesByReported();
+          break;
         case "savedMap":
           this.sortPlacesByMapSave();
           break;
@@ -67,15 +70,15 @@ export class PlacesTabPage {
    * @param ascending If true, the list will be sorted in ascending order, else in descending order.
    */
   private sortPlacesAscDesc(ascending: boolean) {
-    this.fbpService.savedPlaces.sort((b1, b2) => {
+    this.fbpService.savedPlaces.sort((p1, p2) => {
       let result: number;
-      const b1Name = b1.info.name.toLowerCase();
-      const b2Name = b2.info.name.toLowerCase();
+      const p1Name = p1.info.name.toLowerCase();
+      const p2Name = p2.info.name.toLowerCase();
 
-      if(b1Name < b2Name) {
+      if(p1Name < p2Name) {
         result = ascending ? -1 : 1;
       }
-      else if(b1Name > b2Name) {
+      else if(p1Name > p2Name) {
         result = ascending ? 1 : -1;
       }
       else {
@@ -90,21 +93,28 @@ export class PlacesTabPage {
    * Sorts the list of saved Places by displaying all starred Places at the top of the list first.
    */
   private sortPlacesByStarred() {
-    this.fbpService.savedPlaces.sort(b => b.saveState == "starred" ? -1 : 0);
+    this.fbpService.savedPlaces.sort(p => p.saveState == "starred" ? -1 : 0);
+  }
+
+  /**
+   * Sorts the list of saved Places by displaying all reported Places at the top of the list first.
+   */
+  private sortPlacesByReported() {
+    this.fbpService.savedPlaces.sort(p => p.isReported ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Places by displaying all Places saved from the map first.
    */
   private sortPlacesByMapSave() {
-    this.fbpService.savedPlaces.sort(b => !b.wasManuallySaved ? -1 : 0);
+    this.fbpService.savedPlaces.sort(p => !p.wasManuallySaved ? -1 : 0);
   }
 
   /**
    * Sorts the list of saved Places by displaying all Places saved manually by the user first.
    */
   private sortPlacesByManualSave() {
-    this.fbpService.savedPlaces.sort(b => b.wasManuallySaved ? -1 : 0);
+    this.fbpService.savedPlaces.sort(p => p.wasManuallySaved ? -1 : 0);
   }
 
   /**
@@ -138,7 +148,7 @@ export class PlacesTabPage {
    * @param placeElement The HTMLElement to animate upon deletion.
    */
   async onDeletePlace(place: Place, ionItemSliding: HTMLIonItemSlidingElement, placeElement: HTMLElement) {
-    if(AppPlacesPrefsService.prefs.askBeforeDelete) {
+    if(PlacesPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
         () => this.doDeletePlace(place, ionItemSliding, placeElement),
         () => ionItemSliding.close()
@@ -167,9 +177,8 @@ export class PlacesTabPage {
       if(!result.wasSuccessful) {
         placeElement.classList.remove("deleting");
       }
-      else {
-        this.sortPlaces();
-      }
+
+      this.sortPlaces();
     }, 300);
   }
 
@@ -206,8 +215,13 @@ export class PlacesTabPage {
     }, 250);
   }
 
+  /**
+   * Called from the page when the user presses the button to view a place on the HomeTabPage's map.
+   * References the HomeTabPage to redirect the user.
+   * @param place The Place to show on the HomeTabPage's map.
+   */
   onViewPlaceOnMap(place: Place) {
-    HomeTabPage.showSavedPlace(place);
+    HomeTabPage.viewSavedPlace(place);
   }
 
   /**
@@ -216,20 +230,21 @@ export class PlacesTabPage {
    * Once the user closes the modal, their preferences are saved.
    */
   async openPrefsModal() {
-    this.popupsService.showModal(PlacesPrefsModalPage, null, data => {
-      this.prefsService.savePrefs(data);
+    this.popupsService.showModal(PlacesPrefsModalPage, null, async data => {
+      const saveSuccess: boolean = await this.prefsService.savePrefs(data);
+      this.popupsService.showToast(saveSuccess? "Preferences updated." : "Failed to update preferences - unknown error");
     });
   }
 
   /**
    * Creates a new PlaceViewModalPage to edit information for a Place.
    * @param existingPlace The optional existing Place to pass to the modal, whose information will be pre-filled in its form.
-   *                         If an existing Place is passed, then this Place will be updated insted, rather than added as a new saved Place.
+   *                      If an existing Place is passed, then this Place will be updated insted, rather than added as a new saved Place.
    */
   async openPlaceViewModal(existingPlace?: Place) {
     const props: ComponentProps<ComponentRef> = {
       existingPlace: existingPlace,
-      fbbService: this.fbpService
+      fbpService: this.fbpService
     }
 
     this.popupsService.showModal(PlaceViewModalPage, props, data => {
@@ -263,6 +278,7 @@ export class PlacesTabPage {
    * Updates this Place under the user's profile.
    * @param original The original Place to update.
    * @param updated The new Place to replace with the original Place.
+   * @param showResultToast Whether or not to display a toast message to the user upon update.
    */
   private async updateSavedPlace(original: Place, updated: Place, showResultToast: boolean) {
     const result: CRUDResult = await this.fbpService.updatePlace(original, updated);

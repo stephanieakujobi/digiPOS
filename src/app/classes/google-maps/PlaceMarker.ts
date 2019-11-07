@@ -1,4 +1,4 @@
-import { Marker, GoogleMap, GoogleMapsEvent, MarkerIcon } from '@ionic-native/google-maps';
+import { Marker, GoogleMap, GoogleMapsEvent, MarkerIcon, HtmlInfoWindow, MarkerOptions } from '@ionic-native/google-maps';
 import { MapPlace } from 'src/app/models/google-maps/MapPlace';
 import { InfoWindow } from './InfoWindow';
 import { OnDestroy } from '@angular/core';
@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 export class PlaceMarker implements OnDestroy {
     private _place: MapPlace;
     private _marker: Marker;
+    private infoWindow: HtmlInfoWindow;
 
     private onSavedCallback: Function;
     private onUnsavedCallback: Function;
@@ -56,24 +57,14 @@ export class PlaceMarker implements OnDestroy {
         let placeMarker: PlaceMarker;
 
         await map.addMarker({ position: place.position }).then((marker: Marker) => {
-            let iconURL: string = null;
+            marker.setAnimation("DROP");
 
             if(place.isReported) {
-                iconURL = "assets/images/map-icons/place-marker-reported.png";
+                this.setMarkerIcon(marker, "assets/images/map-icons/place-marker-reported.png");
             }
             else if(place.isSaved) {
-                iconURL = "assets/images/map-icons/place-marker-saved.png";
+                this.setMarkerIcon(marker, "assets/images/map-icons/place-marker-saved.png");
             }
-
-            marker.setIcon({
-                url: iconURL,
-                size: {
-                    width: 24,
-                    height: 38
-                }
-            });
-
-            marker.setAnimation("DROP");
 
             placeMarker = new PlaceMarker(place, marker, onSaved, onUnsaved, onRoute);
         });
@@ -82,10 +73,25 @@ export class PlaceMarker implements OnDestroy {
     }
 
     /**
+     * Assigns a custom MarkerIcon to a map Marker.
+     * @param marker The Marker whose MarkerIcon to set.
+     * @param iconUrl The URL to the icon image.
+     */
+    private static setMarkerIcon(marker: Marker, iconUrl: string) {
+        marker.setIcon({
+            url: iconUrl,
+            size: {
+                width: 24,
+                height: 38
+            }
+        });
+    }
+
+    /**
      * Adds an InfoWindow for this PlaceMarker's Marker containing the information from its associated MapPlace.
      */
     private addPlaceInfoWindow() {
-        const infoWindow = InfoWindow.ForMapPlace(this.place,
+        this.infoWindow = InfoWindow.ForMapPlace(this.place,
             wasSaved => {
                 if(wasSaved) {
                     this.onSavedCallback(this.place);
@@ -98,8 +104,23 @@ export class PlaceMarker implements OnDestroy {
         );
 
         this.subscriptions.add(this.marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
-            infoWindow.open(this.marker);
+            this.infoWindow.open(this.marker);
         }));
+    }
+
+    /**
+     * Shows the InfoWindow associated with this PlaceMarker.
+     */
+    public showInfoWindow() {
+        //The 1ms delay is here because selecting the "view on map" button on a saved Place resulted in the InfoWindow not displaying properly.
+        setTimeout(() => this.infoWindow.open(this.marker), 1);
+    }
+
+    /**
+     * Hides the InfoWindow associated with this PlaceMarker.
+     */
+    public hideInfoWindow() {
+        this.infoWindow.close();
     }
 
     /**

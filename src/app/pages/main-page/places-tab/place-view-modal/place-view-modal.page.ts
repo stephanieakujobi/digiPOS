@@ -10,6 +10,9 @@ import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase
   templateUrl: './place-view-modal.page.html',
   styleUrls: ['./place-view-modal.page.scss'],
 })
+/**
+ * The modal page displayed to the user when they click on a saved Place to view/edit.
+ */
 export class PlaceViewModalPage {
   private place: Place;
   private originalPlace: Place;
@@ -30,7 +33,24 @@ export class PlaceViewModalPage {
    */
   constructor(private modalController: ModalController, private navParams: NavParams, private popupsService: PopupsService) {
     this.pFormatter = new PlaceFormatter();
-    this.fbpService = this.navParams.get("fbbService") as FirebasePlacesService;
+    this.fbpService = this.navParams.get("fbpService") as FirebasePlacesService;
+    this.initPlaceData();
+  }
+
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
+  ionViewWillEnter() {
+    (document.getElementById("modal-title") as HTMLIonTitleElement).textContent = this.modalTitle;
+    this.validateForm();
+  }
+
+  /**
+   * Checks if an existing Place instance has been passed from the NavParams to display.
+   * If an existing Place has been passed, then the data from the Place will be pre-filled into the modal page's input fields,
+   * else a blank Place template will be displayed instead.
+   */
+  private initPlaceData() {
     let existingPlace = this.navParams.get("existingPlace") as Place;
 
     if(existingPlace != null) {
@@ -51,14 +71,6 @@ export class PlaceViewModalPage {
   }
 
   /**
-   * @see https://ionicframework.com/docs/angular/lifecycle
-   */
-  ionViewWillEnter() {
-    (document.getElementById("modal-title") as HTMLIonTitleElement).textContent = this.modalTitle;
-    this.validateForm();
-  }
-
-  /**
    * Called from the page when the user clicks the "X" button on the navigation bar.
    * Checks if the user has made any edits in the form, and if so, displays an alert to the user prompting if they're sure they want to 
    * close this modal without saving their changes, else just closes the modal.
@@ -67,14 +79,21 @@ export class PlaceViewModalPage {
     const changesWereMade = JSON.stringify(this.place) !== JSON.stringify(this.originalPlace);
 
     if(changesWereMade) {
-      this.popupsService.showConfirmationAlert("Discard Changes", "Are you sure you want to discard your changes?", () => this.modalController.dismiss(), null);
+      this.popupsService.showConfirmationAlert("Discard Changes", "Are you sure you want to discard your changes?", () => this.discard(), null);
     }
     else {
-      this.modalController.dismiss({
-        action: "discarded",
-        place: null
-      });
+      this.discard();
     }
+  }
+
+  /**
+   * Dismisses this modal page with no returned Place data.
+   */
+  private discard() {
+    this.modalController.dismiss({
+      action: "discarded",
+      place: null
+    });
   }
 
   /**
@@ -82,9 +101,7 @@ export class PlaceViewModalPage {
    * All other fields, plus the postal code of the Address, are optional.
    */
   validateForm() {
-    this.formIsValid =
-      this.place.info.name != ""
-      && this.place.info.address.addressString != ""
+    this.formIsValid = this.place.info.name != "" && this.place.info.address.addressString != "";
   }
 
   /**
@@ -105,6 +122,11 @@ export class PlaceViewModalPage {
     }
   }
 
+  /**
+   * Called from the page when the user presses the button to report a Place.
+   * Checks if any key input values have not been filled in before reporting the Place, and if so, prompts the user for confirmation
+   * that they wish to report a Place with some missing information.
+   */
   onReportPlace() {
     const ownerValues = Object.values(this.place.info.owner);
     const contactPersonValues = Object.values(this.place.info.contactPerson);
@@ -120,6 +142,10 @@ export class PlaceViewModalPage {
     }
   }
 
+  /**
+   * Called from onReportPlace when it has been confirmed that the Place can be reported.
+   * Uses the FirebaseBusinessService to report the Place.
+   */
   private doReportPlace() {
     this.fbpService.reportPlace(this.place, result => {
       this.popupsService.showToast(result.message);
@@ -135,10 +161,16 @@ export class PlaceViewModalPage {
     });
   }
 
+  /**
+   * Called from onFormSubmit.
+   * Checks if the address that the user has entered into the form already exists in the user's saved Places.
+   * If so, they will be alerted that they cannot save this duplicate address.
+   * @param address The address string to compare.
+   */
   private addressIsDuplicate(address: string): boolean {
     let result = false;
 
-    const formattedAddress: string = address.toLowerCase();
+    const formattedAddress: string = this.pFormatter.formatAddressString(address).toLowerCase();
 
     for(const place of this.otherSavedPlaces) {
       if(formattedAddress === place.info.address.addressString) {
