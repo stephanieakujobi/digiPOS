@@ -2,8 +2,8 @@ import { Component } from "@angular/core";
 import { IonItemSliding } from "@ionic/angular";
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-bar.page';
-import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
-import { NotificationsPrefsModal } from './notifications-prefs-modal/notifications-prefs.modal';
+import { NotifSeverity } from 'src/app/classes/notifications/NotifSeverity';
+import { NotifsPrefsModalPage } from './notifications-prefs-modal/notifications-prefs-modal.page';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
 import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
 import { PopupsService } from 'src/app/services/global/popups.service';
@@ -53,7 +53,7 @@ export class NotificationsTabPage {
       case "read":
         this.sortNotifsByRead();
         break;
-      case "information":
+      case "info":
       case "alert":
       case "error":
         this.sortNotifsBySeverity(sortSelect.value);
@@ -162,7 +162,7 @@ export class NotificationsTabPage {
    * Sorts all AppNotifications in the page by their severity level.
    * @param severity The NotificationSeverity to sort by, of which the matching AppNotifications will be displayed at the top of the list.
    */
-  private sortNotifsBySeverity(severity: AppNotifSeverity) {
+  private sortNotifsBySeverity(severity: NotifSeverity) {
     this.notifications.sort(notif => (notif.severity === severity ? -1 : 1));
   }
 
@@ -172,7 +172,7 @@ export class NotificationsTabPage {
    * Once the user closes the modal, their notification preferences are saved.
    */
   async openPrefsModal() {
-    this.popupsService.showModal(NotificationsPrefsModal, null, data => {
+    this.popupsService.showModal(NotifsPrefsModalPage, null, data => {
       console.log(data);
       this.prefsService.savePrefs(data);
     })

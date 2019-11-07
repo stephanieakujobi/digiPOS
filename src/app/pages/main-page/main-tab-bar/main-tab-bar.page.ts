@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AppNotification } from 'src/app/classes/notifications/AppNotification';
 import { AppNotifsStorageService } from 'src/app/services/notifications/storage/app-notifis-storage.service';
-import { AppNotifSeverity } from 'src/app/classes/notifications/AppNotifSeverity';
+import { NotifSeverity } from 'src/app/classes/notifications/NotifSeverity';
 import { NavController } from '@ionic/angular';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
-import { AppBusinessesPrefsService } from 'src/app/services/businesses/preferences/app-businesses-prefs.service';
+import { AppPlacesPrefsService } from 'src/app/services/places/preferences/app-places-prefs.service';
 import { AppNotifsPrefsService } from 'src/app/services/notifications/preferences/app-notifs-prefs.service';
 
 @Component({
@@ -27,7 +27,7 @@ export class MainTabBarPage implements OnInit {
   constructor(
     private navController: NavController,
     private notifsStorage: AppNotifsStorageService,
-    private bPrefsService: AppBusinessesPrefsService,
+    private bPrefsService: AppPlacesPrefsService,
     private nPrefsService: AppNotifsPrefsService) { }
 
   ngOnInit() {
@@ -50,8 +50,8 @@ export class MainTabBarPage implements OnInit {
     let notifs: AppNotification[] = [
       new AppNotification("TITLE", "SUMMARY"),
       new AppNotification("TITLE 2", "SUMMARY 2"),
-      new AppNotification("TITLE 3", "SUMMARY 3", AppNotifSeverity.Alert, new Date(2019, 10, 20)),
-      new AppNotification("TITLE 4", "SUMMARY 4", AppNotifSeverity.Error, new Date(2019, 10, 10))
+      new AppNotification("TITLE 3", "SUMMARY 3", "alert", new Date(2019, 10, 20)),
+      new AppNotification("TITLE 4", "SUMMARY 4", "error", new Date(2019, 10, 10))
     ];
 
     await this.notifsStorage.saveNotifs(notifs);

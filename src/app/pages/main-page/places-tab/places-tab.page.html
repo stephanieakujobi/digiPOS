@@ -1,0 +1,103 @@
+<ion-header>
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="end">
+      <ion-button (click)="openPlaceViewModal()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+      <ion-button (click)="openPrefsModal()">
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Saved Places</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="sticky-controls-container {{fbpService.savedPlaces.length == 0 ? 'hidden' : ''}}">
+
+    <ion-item lines="none">
+      <ion-label>Sort By:</ion-label>
+      <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="ascending"
+        (ionChange)="sortPlaces()">
+        <ion-select-option value="ascending">Ascending</ion-select-option>
+        <ion-select-option value="descending">Descending</ion-select-option>
+        <ion-select-option value="starred">Starred</ion-select-option>
+        <ion-select-option value="savedMap">Saved from map</ion-select-option>
+        <ion-select-option value="savedManual">Saved manually</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-searchbar type="text" placeholder="Search names or addresses" animated debounce="250"
+      (ionChange)="searchPlace($event)">
+    </ion-searchbar>
+
+  </div>
+
+  <ion-list class="ion-item-sliding-list" lines="full">
+    <ion-item-sliding *ngFor="let p of fbpService.savedPlaces" #slideItem>
+
+      <div class="list-item place {{p.saveState == 'starred' ? 'starred' : ''}}" #placeElement>
+        <ion-item (click)="editPlaceInfo(p)">
+          <ion-icon class="saved-type-icon" [name]="p.wasManuallySaved ? 'create' : 'map'" color="primary"></ion-icon>
+          <ion-label>
+            <h2 class="place-name">{{p.info.name}}</h2>
+            <p>
+              <ion-icon class="list-item-sub-icon" name="pin"></ion-icon>
+              <span class="place-address">{{p.info.address.addressString}}</span>
+            </p>
+          </ion-label>
+          <ion-icon class="list-item-icon" name="star" color="tertiary"></ion-icon>
+        </ion-item>
+      </div>
+
+      <ion-item-options side="start" (ionSwipe)="onDeletePlace(p, slideItem, placeElement)">
+        <ion-item-option color="danger" expandable (click)="onDeletePlace(p, slideItem, placeElement)">
+          <ion-label>
+            <ion-icon name="trash" color="secondary"></ion-icon>
+            Delete
+          </ion-label>
+        </ion-item-option>
+      </ion-item-options>
+
+      <ion-item-options side="end" (ionSwipe)="onStarPlace(p, slideItem)">
+        <ion-item-option color="primary" (click)="editPlaceInfo(p, slideItem)">
+          <ion-label>
+            <ion-icon name="create" color="secondary"></ion-icon>
+            Edit Info
+          </ion-label>
+        </ion-item-option>
+        <ion-item-option color="primary" (click)="onViewPlaceOnMap(p, slideItem)" *ngIf="!p.wasManuallySaved">
+          <ion-label>
+            <ion-icon name="pin" color="secondary"></ion-icon>
+            View on Map
+          </ion-label>
+        </ion-item-option>
+
+        <ion-item-option color="tertiary" (click)="onStarPlace(p, slideItem)" expandable
+          *ngIf="p.saveState == 'saved'">
+          <ion-label>
+            <ion-icon name="star-outline" color="secondary"></ion-icon>
+            Star
+          </ion-label>
+        </ion-item-option>
+        <ion-item-option color="tertiary" (click)="onStarPlace(p, slideItem)" expandable
+          *ngIf="p.saveState == 'starred'">
+          <ion-label>
+            <ion-icon name="star" color="secondary"></ion-icon>
+            Un-Star
+          </ion-label>
+        </ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
+  </ion-list>
+
+  <ion-item class="empty-list-content" lines="none" *ngIf="fbpService.savedPlaces.length == 0">
+    <div>
+      <ion-label>You have no saved places</ion-label>
+      <ion-icon name="globe"></ion-icon>
+    </div>
+  </ion-item>
+</ion-content>

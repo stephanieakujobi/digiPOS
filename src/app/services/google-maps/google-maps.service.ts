@@ -10,13 +10,13 @@ import {
   ILatLng,
   LatLng,
 } from '@ionic-native/google-maps';
-import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
+import { MapPlace } from 'src/app/models/google-maps/MapPlace';
 import { HTTP, HTTPResponse } from '@ionic-native/http/ngx';
-import { FirebaseBusinessService } from '../firebase/businesses/firebase-business.service';
-import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
-import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
+import { FirebasePlacesService } from '../firebase/places/firebase-places.service';
+import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
+import { Place } from 'src/app/models/places/Place';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
-import { AppBusinessesPrefsService } from '../businesses/preferences/app-businesses-prefs.service';
+import { AppPlacesPrefsService } from '../places/preferences/app-places-prefs.service';
 import { PopupsService } from '../global/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
@@ -38,7 +38,7 @@ export class GoogleMapsService implements OnDestroy {
   private nearbyMarkers: PlaceMarker[];
 
   private subscriptions: Subscription;
-  private bFormatter: BusinessFormatter;
+  private bFormatter: PlaceFormatter;
 
   /**
    * Creates a new GoogleMapsService.
@@ -48,7 +48,7 @@ export class GoogleMapsService implements OnDestroy {
   constructor(
     private platform: Platform,
     private geolocation: Geolocation,
-    private fbbService: FirebaseBusinessService,
+    private fbbService: FirebasePlacesService,
     private http: HTTP,
     private popupsService: PopupsService,
     private launchNavigator: LaunchNavigator
@@ -57,7 +57,7 @@ export class GoogleMapsService implements OnDestroy {
     this.nearbyMarkers = [];
     this.savedMarkers = [];
     this.subscriptions = new Subscription();
-    this.bFormatter = new BusinessFormatter();
+    this.bFormatter = new PlaceFormatter();
   }
 
   /**
@@ -136,7 +136,7 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = position == null;
   }
 
-  public centerOnSavedPlace(place: IMapPlace) {
+  public centerOnSavedPlace(place: MapPlace) {
     const placeMarkers: PlaceMarker[] = this.savedMarkers.filter(m => m.place.address == place.address);
 
     if(placeMarkers.length != 0) {
@@ -148,12 +148,12 @@ export class GoogleMapsService implements OnDestroy {
   public pinSavedPlaces() {
     this.clearSavedMarkers();
 
-    this.fbbService.businesses.forEach(business => {
-      this.addPlaceMarker(this.bFormatter.businessToMapPlace(business));
+    this.fbbService.savedPlaces.forEach(place => {
+      this.addPlaceMarker(this.bFormatter.mapPlaceFromPlace(place));
     });
   }
 
-  public async addPlaceSearchMarker(place: IMapPlace) {
+  public async addPlaceSearchMarker(place: MapPlace) {
     if(this.searchMarker != null) {
       this.searchMarker.remove();
     }
@@ -162,7 +162,7 @@ export class GoogleMapsService implements OnDestroy {
     this.centerMap(place.position);
   }
 
-  public async addPlaceMarker(place: IMapPlace, saveReference: boolean = true): Promise<PlaceMarker> {
+  public async addPlaceMarker(place: MapPlace, saveReference: boolean = true): Promise<PlaceMarker> {
     const placeMarker = await PlaceMarker.instantiate(this.map, place,
       () => this.onPlaceMarkerSaved(placeMarker),
       () => this.onPlaceMarkerUnaved(placeMarker),
@@ -187,27 +187,27 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   private async onPlaceMarkerSaved(placeMarker: PlaceMarker) {
-    const business: IBusiness = this.bFormatter.mapPlaceToBusiness(placeMarker.place);
-    const result: CRUDResult = await this.fbbService.addBusiness(business);
+    const place: Place = this.bFormatter.placeFromMapPlace(placeMarker.place);
+    const result: CRUDResult = await this.fbbService.addPlace(place);
 
     this.updatePlaceMarker(result, placeMarker);
   }
 
   private async onPlaceMarkerUnaved(placeMarker: PlaceMarker) {
-    const business: IBusiness = this.bFormatter.mapPlaceToBusiness(placeMarker.place);
-    let result: CRUDResult = await this.fbbService.addBusiness(business);
+    const place: Place = this.bFormatter.placeFromMapPlace(placeMarker.place);
+    let result: CRUDResult = await this.fbbService.addPlace(place);
 
-    if(AppBusinessesPrefsService.prefs.askBeforeDelete) {
-      this.popupsService.showConfirmationAlert("Delete Business", "Are you sure you want to delete this business?",
+    if(AppPlacesPrefsService.prefs.askBeforeDelete) {
+      this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
         async () => {
-          result = await this.fbbService.deleteBusiness(business);
+          result = await this.fbbService.deletePlace(place);
           this.updatePlaceMarker(result, placeMarker);
         },
         null
       );
     }
     else {
-      result = await this.fbbService.deleteBusiness(business);
+      result = await this.fbbService.deletePlace(place);
       this.updatePlaceMarker(result, placeMarker);
     }
   }
@@ -235,12 +235,12 @@ export class GoogleMapsService implements OnDestroy {
     this.popupsService.showToast(result.message);
   }
 
-  public findAddress(queryString: string, callback: (place: IMapPlace) => void) {
+  public findAddress(queryString: string, callback: (place: MapPlace) => void) {
     queryString = this.bFormatter.formatAddressString(queryString);
 
     this.http.get(`http://localhost:3000/findplace?address=${queryString}`, {}, {})
       .then(response => {
-        const places: IMapPlace[] = this.parsePlacesResponse(response);
+        const places: MapPlace[] = this.parsePlacesResponse(response);
 
         if(places.length == 0) {
           this.popupsService.showToast("Could not find a place with this address.");
@@ -263,10 +263,10 @@ export class GoogleMapsService implements OnDestroy {
       });
   }
 
-  public findNearby(radius: number, callback: (places: IMapPlace[]) => void) {
+  public findNearby(radius: number, callback: (places: MapPlace[]) => void) {
     this.http.get(`http://localhost:3000/findnearby?lat=${this.userPosition.lat}&lng=${this.userPosition.lng}&radius=${radius}`, {}, {})
       .then(response => {
-        const places: IMapPlace[] = this.parsePlacesResponse(response);
+        const places: MapPlace[] = this.parsePlacesResponse(response);
         const arrLength = places.length;
 
         if(arrLength == 0) {
@@ -291,8 +291,8 @@ export class GoogleMapsService implements OnDestroy {
       });
   }
 
-  private parsePlacesResponse(response: HTTPResponse): IMapPlace[] {
-    let results: IMapPlace[] = [];
+  private parsePlacesResponse(response: HTTPResponse): MapPlace[] {
+    let results: MapPlace[] = [];
 
     const data = JSON.parse(response.data);
     const arrLength = data.places.length;
@@ -315,7 +315,7 @@ export class GoogleMapsService implements OnDestroy {
     return results;
   }
 
-  public updateSavedPlace(place: IMapPlace) {
+  public updateSavedPlace(place: MapPlace) {
     place.isSaved = this.fbbService.savedAddressExists(place.address);
   }
 

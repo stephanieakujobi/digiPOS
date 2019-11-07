@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
-import { IContact } from 'src/app/interfaces/businesses/IContact';
+import { Contact } from 'src/app/models/places/Contact';
 
 @Component({
   selector: 'profile-home-tab',
@@ -12,7 +12,7 @@ import { IContact } from 'src/app/interfaces/businesses/IContact';
  * The page displayed to the user when they select the "My Profile" tab.
  */
 export class ProfileTabPage {
-  private userInfo: IContact;
+  private userInfo: Contact;
 
   constructor(private fbAuthService: FirebaseAuthService) {
     this.userInfo = this.fbAuthService.authedSalesRep.info;

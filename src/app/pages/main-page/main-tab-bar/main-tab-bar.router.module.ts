@@ -23,13 +23,13 @@ const routes: Routes = [
         ]
       },
       {
-        path: "businesses-tab",
+        path: "places-tab",
         children: [
           {
             path: "",
             loadChildren: () =>
-              import("../businesses-tab/businesses-tab.module").then(
-                m => m.BusinessTabModule
+              import("../places-tab/places-tab.module").then(
+                m => m.PlacesTabModule
               )
           }
         ]

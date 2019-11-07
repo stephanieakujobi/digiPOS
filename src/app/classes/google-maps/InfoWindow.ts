@@ -1,23 +1,23 @@
 import { HtmlInfoWindow } from '@ionic-native/google-maps';
-import { IMapPlace } from '../../interfaces/google-maps/IMapPlace';
+import { MapPlace } from '../../models/google-maps/MapPlace';
 
 /**
  * A static utility class for providing Google Maps HtmlInfoWindow templates for specific use-cases.
  */
 export class InfoWindow {
     /**
-     * Private constructor prevents InfoWindow objects from being instantiated.
+     * Private constructor prevents this class from being instantiated.
      */
     private constructor() { }
 
     /**
-     * Creates an HtmlInfoWindow for a Business selected by the user on the map.
-     * @param place The Business that was selected.
-     * @param onSaveBtnClicked The callback function for when the user presses the "save/unsave business" button in the HtmlInfoWindow.
+     * Creates an HtmlInfoWindow for a Place selected by the user on the map.
+     * @param place The Place that was selected.
+     * @param onSaveBtnClicked The callback function for when the user presses the "save/unsave place" button in the HtmlInfoWindow.
      * @param onRouteBtnClicked The callback function for when the user presses the "start a route" button in the HtmlInfoWindow.
      * @returns A pre-content-filled HtmlInfoWindow object.
      */
-    public static ForPlaceLocation(place: IMapPlace, onSaveBtnClicked: (wasSaved: boolean) => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
+    public static ForMapPlace(place: MapPlace, onSaveBtnClicked: (wasSaved: boolean) => void, onRouteBtnClicked: () => void): HtmlInfoWindow {
         const infoWindow = new HtmlInfoWindow();
         const content: HTMLElement = document.createElement("div");
 
