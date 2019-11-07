@@ -8,10 +8,10 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NotificationsPrefsModalModule } from './pages/main-page/notifications-tab/notifications-prefs-modal/notifications-prefs.modal.module';
+import { NotificationsPrefsModalModule } from './pages/main-page/notifications-tab/notifications-prefs-modal/notifications-prefs-modal.module';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
-import { BusinessViewModalPageModule } from './pages/main-page/businesses-tab/business-view-modal/business-view-modal.module';
-import { BusinessPrefsModalPageModule } from './pages/main-page/businesses-tab/business-prefs/business-prefs-modal.module';
+import { PlaceViewModalPageModule } from './pages/main-page/places-tab/place-view-modal/place-view-modal.module';
+import { PlacesPrefsModalPageModule } from './pages/main-page/places-tab/places-prefs/places-prefs-modal.module';
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
@@ -19,7 +19,7 @@ import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { FirebaseAuthService } from './services/firebase/authentication/firebase-auth.service';
-import { FirebaseBusinessService } from './services/firebase/businesses/firebase-business.service';
+import { FirebasePlacesService } from './services/firebase/places/firebase-places.service';
 import { PopupsService } from './services/global/popups.service';
 import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
 
@@ -30,8 +30,8 @@ import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    BusinessViewModalPageModule,
-    BusinessPrefsModalPageModule,
+    PlaceViewModalPageModule,
+    PlacesPrefsModalPageModule,
     NotificationsPrefsModalModule,
     AngularFireModule.initializeApp(FIREBASE_CREDENTIALS),
     AngularFirestoreModule
@@ -43,7 +43,7 @@ import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
     NativeStorage,
     NativeGeocoder,
     FirebaseAuthService,
-    FirebaseBusinessService,
+    FirebasePlacesService,
     LaunchNavigator,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

@@ -1,0 +1,111 @@
+<ion-header>
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="end">
+      <ion-button (click)="onCloseButtonClicked()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title id="modal-title"></ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item id="map-saved-info" lines="none">
+    <ion-icon name="information-circle"></ion-icon>
+    <ion-label *ngIf="!place.wasManuallySaved">
+      Places saved from the map cannot have their name or address changed.
+    </ion-label>
+    <ion-label *ngIf="place.wasManuallySaved">
+      * Required fields.
+    </ion-label>
+  </ion-item>
+
+  <form id="add-place-form" [class]="isAddingNewPlace ? 'high-padding' : ''" (ngSubmit)="onFormSubmit()">
+    <ion-item>
+      <ion-label position="stacked">
+        <ion-icon name="pricetag"></ion-icon> Place Name
+      </ion-label>
+
+      <ion-input type="text" clearInput required autocomplete autocorrect name="place-name"
+        [(ngModel)]="place.info.name" (ionChange)="validateForm()" [readonly]="!place.wasManuallySaved">
+        *&nbsp;&nbsp;
+      </ion-input>
+
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">
+        <ion-icon name="pin"></ion-icon> Place Address
+      </ion-label>
+
+      <ion-input type="text" clearInput required autocomplete autocorrect name="place-address"
+        [(ngModel)]="place.info.address.addressString" (ionChange)="validateForm()"
+        [readonly]="!place.wasManuallySaved">
+        *&nbsp;&nbsp;
+      </ion-input>
+
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">
+        <ion-icon name="contact"></ion-icon> Place Owner
+      </ion-label>
+      <ion-input type="text" clearInput placeholder="Name" name="owner-name" [(ngModel)]="place.info.owner.name">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
+      <ion-input type="email" clearInput placeholder="Email" name="owner-email" [(ngModel)]="place.info.owner.email">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
+      <ion-input type="tel" clearInput placeholder="Phone Number" name="owner-phone-number"
+        [(ngModel)]="place.info.owner.phoneNumber">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+
+      <ion-label position="stacked">
+        <ion-icon name="contact"></ion-icon> Contact Person
+      </ion-label>
+      <ion-input type="text" clearInput placeholder="Name" name="contact-name"
+        [(ngModel)]="place.info.contactPerson.name">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
+      <ion-input type="email" clearInput placeholder="Email" name="contact-email"
+        [(ngModel)]="place.info.contactPerson.email">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
+      <ion-input type="tel" clearInput placeholder="Phone Number" name="contact-phone-number"
+        [(ngModel)]="place.info.contactPerson.phoneNumber">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">
+        <ion-icon name="cash"></ion-icon> Current POS Provider
+      </ion-label>
+      <ion-input type="text" clearInput name="current-provider" [(ngModel)]="place.info.currentProvider">
+        &nbsp;&nbsp;&nbsp;
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">
+        <ion-icon name="create"></ion-icon> Additional Notes
+      </ion-label>
+      <ion-textarea rows="5" name="additional-notes" [(ngModel)]="place.info.notes"></ion-textarea>
+    </ion-item>
+
+    <ion-button type="submit" [disabled]="!formIsValid">
+      <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+    </ion-button>
+  </form>
+
+  <ion-button [disabled]="!formIsValid" (click)="onReportPlace()" *ngIf="!isAddingNewPlace">
+    <ion-icon slot="start" name="cloud-upload"></ion-icon>
+    Report Place
+  </ion-button>
+</ion-content>

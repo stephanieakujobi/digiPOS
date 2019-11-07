@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Subscription, Observable } from 'rxjs';
-import { IContact } from 'src/app/interfaces/businesses/IContact';
-import { ISalesRep } from 'src/app/interfaces/ISalesRep';
+import { Contact } from 'src/app/models/places/Contact';
+import { SalesRep } from 'src/app/models/SalesRep';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 
 declare var require: any;
@@ -61,7 +61,7 @@ export class FirebaseAuthService {
           callback(new CRUDResult(false, "Invalid authentication."));
         }
         else {
-          this.successfulLogin(results[0].info as IContact, () => callback(new CRUDResult(true, "Authentication successful.")));
+          this.successfulLogin(results[0].info as Contact, () => callback(new CRUDResult(true, "Authentication successful.")));
         }
       }));
     }
@@ -73,9 +73,9 @@ export class FirebaseAuthService {
    * If no saved data exists for this user, a blank document will be created for them.
    * @param salesRepInfo The retrieved Contact info for the authenticated user.
    */
-  private successfulLogin(salesRepInfo: IContact, callback: () => void) {
+  private successfulLogin(salesRepInfo: Contact, callback: () => void) {
     //Create the select query...
-    const selectQuery = this.afs.collection<ISalesRep>(FirebaseAuthService.SALES_REPS, selectQuery => selectQuery
+    const selectQuery = this.afs.collection<SalesRep>(FirebaseAuthService.SALES_REPS, selectQuery => selectQuery
       .where("info.email", "==", salesRepInfo.email)
       .limit(1)
     ).snapshotChanges();
@@ -100,14 +100,14 @@ export class FirebaseAuthService {
    * Creates a blank document for the user's data.
    * @param info The Contact info to initialize with the data.
    */
-  private async createSalesRep(info: IContact) {
+  private async createSalesRep(info: Contact) {
     const newSalesRep = {
       info: info,
       profilePicUrl: "",
-      savedBusinesses: []
+      savedPlaces: []
     };
 
-    await this.afs.collection<ISalesRep>(FirebaseAuthService.SALES_REPS).add(newSalesRep);
+    await this.afs.collection<SalesRep>(FirebaseAuthService.SALES_REPS).add(newSalesRep);
   }
 
   /**
@@ -116,9 +116,9 @@ export class FirebaseAuthService {
    * @param id The user's document ID containing their saved data to read from.
    */
   private assignAuthedSalesRep(id: string, callback: () => void) {
-    const serverSalesRepRef: AngularFirestoreDocument<ISalesRep> = this.afs.doc<ISalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
+    const serverSalesRepRef: AngularFirestoreDocument<SalesRep> = this.afs.doc<SalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
 
-    serverSalesRepRef.valueChanges().subscribe((salesRep: ISalesRep) => {
+    serverSalesRepRef.valueChanges().subscribe((salesRep: SalesRep) => {
       FirebaseAuthService._authedSalesRep = {
         localRef: salesRep,
         serverRef: serverSalesRepRef
@@ -161,7 +161,7 @@ export class FirebaseAuthService {
    * The currently authenticated user, if one exists.
    * Can be null.
    */
-  public get authedSalesRep(): ISalesRep {
+  public get authedSalesRep(): SalesRep {
     return FirebaseAuthService._authedSalesRep.localRef;
   }
 }
@@ -170,6 +170,6 @@ export class FirebaseAuthService {
  * A container object holding both a local reference and server reference to an authenticated SalesRep.
  */
 interface IAuthedSalesRep {
-  localRef: ISalesRep;
-  serverRef: AngularFirestoreDocument<ISalesRep>;
+  localRef: SalesRep;
+  serverRef: AngularFirestoreDocument<SalesRep>;
 }

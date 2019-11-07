@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
-import { IMapPlace } from 'src/app/interfaces/google-maps/IMapPlace';
-import { IBusiness } from 'src/app/interfaces/businesses/IBusiness';
-import { BusinessFormatter } from 'src/app/classes/businesses/BusinessFormatter';
+import { MapPlace } from 'src/app/models/google-maps/MapPlace';
+import { Place } from 'src/app/models/places/Place'
+import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { NavController } from '@ionic/angular';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 
@@ -56,9 +56,9 @@ export class HomeTabPage implements OnInit {
     }
   }
 
-  public static showSavedBusiness(business: IBusiness) {
+  public static showSavedPlace(business: Place) {
     this.navController.navigateRoot("/main/tabs/home-tab").then(() => {
-      const place: IMapPlace = new BusinessFormatter().businessToMapPlace(business);
+      const place: MapPlace = new PlaceFormatter().mapPlaceFromPlace(business);
       this.gmapsService.centerOnSavedPlace(place);
     });
   }

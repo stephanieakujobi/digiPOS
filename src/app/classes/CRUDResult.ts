@@ -6,9 +6,20 @@ export class CRUDResult {
     private _wasSuccessful: boolean;
     private _resultMessage: string;
 
+    /**
+     * The template result for when the user tries to perform a CRUD operation without being authenticated into the app.
+     */
     public static readonly USER_NOT_AUTHENTICATED: CRUDResult = new CRUDResult(false, "Authentication error - user not logged in.");
-    public static readonly BUSINESS_DOES_NOT_EXIST: CRUDResult = new CRUDResult(false, "Failed to update - business does not exist.");
-    public static readonly DUPLICATE_BUSINESS_EXISTS: CRUDResult = new CRUDResult(false, "Failed to save business - address already exists.");
+ 
+    /**
+     * The template result for when the user tries to perform a CRUD operation on a saved Place that does not exist in the database.
+     */
+    public static readonly PLACE_DOES_NOT_EXIST: CRUDResult = new CRUDResult(false, "Failed to update - place does not exist.");
+   
+    /**
+     * The template result for when the user tries to save a Place with an address that already exists in their saved Places.
+     */
+    public static readonly DUPLICATE_PLACE_EXISTS: CRUDResult = new CRUDResult(false, "Failed to save place - address already exists.");
 
     /**
      * Creates a new CRUDResult.

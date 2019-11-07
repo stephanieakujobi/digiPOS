@@ -9,8 +9,8 @@ const routes: Routes = [
     loadChildren: () =>
       import("./pages/main-page/main-tab-bar/main-tab-bar.module").then(m => m.MainTabBarModule)
   },
-  { path: 'business-view-modal', loadChildren: './pages/main-page/businesses-tab/business-view-modal/business-view-modal.module#BusinessViewModalPageModule' },
-  { path: 'business-prefs-modal', loadChildren: './pages/main-page/businesses-tab/business-prefs/business-prefs-modal.module#BusinessPrefsModalPageModule' }
+  { path: 'place-view-modal', loadChildren: './pages/main-page/places-tab/place-view-modal/place-view-modal.module#PlaceViewModalPageModule' },
+  { path: 'places-prefs-modal', loadChildren: './pages/main-page/places-tab/places-prefs/places-prefs-modal.module#PlacesPrefsModalPageModule' }
 
 ];
 @NgModule({
