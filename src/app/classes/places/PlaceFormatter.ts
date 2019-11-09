@@ -72,6 +72,11 @@ export class PlaceFormatter {
         return clone;
     }
 
+    /**
+     * Clones a Place, formats its address, marks it as "saved", and sets its "dateSaved" & "dateUpdated" parameters to today's date.
+     * @param place The Place to mark as a newly saved.
+     * @returns The cloned newly saved Place.
+     */
     public newSavedPlace(place: Place): Place {
         let newPlace = this.clonePlace(place);
         newPlace = this.formatPlaceAddress(newPlace);
@@ -84,6 +89,12 @@ export class PlaceFormatter {
         return newPlace;
     }
 
+    /**
+     * Clones a Place, formats its address, marks it as "saved", and sets its "dateUpdated" parameters to today's date.
+     * If the Place has no "savedDate" value, it will also be set to today's date.
+     * @param place The Place to mark as updated.
+     * @returns The cloned updated Place.
+     */
     public updatedPlace(place: Place): Place {
         let updatedPlace = this.clonePlace(place);
         updatedPlace = this.formatPlaceAddress(updatedPlace);
