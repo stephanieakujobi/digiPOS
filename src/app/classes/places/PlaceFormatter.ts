@@ -1,5 +1,6 @@
 import { Place } from 'src/app/models/places/Place';
 import { MapPlace } from 'src/app/models/google-maps/MapPlace';
+import { ReportedPlace } from 'src/app/models/places/ReportedPlace';
 
 /**
  * A utility class for providing formatting options for Places and provides conversion operations between a Place and a MapPlace.
@@ -141,6 +142,16 @@ export class PlaceFormatter {
         };
     }
 
+    public mapPlaceFromReportedPlace(place: ReportedPlace, isSaved: boolean): MapPlace {
+        return {
+            name: place.info.name,
+            address: place.info.address.addressString,
+            position: place.info.address.position,
+            isSaved: isSaved,
+            isReported: true
+        };
+    }
+
     /**
      * Trims all leading and trailing whitespaces in all data fields of a Place.
      * @param place The Place to trim.
@@ -177,8 +188,8 @@ export class PlaceFormatter {
      * @returns a new string formatted as an address.
      */
     public formatAddressString(address: string): string {
-        //Remove invalid symbols from the address. Commas and '@' are allowed.
-        let fAddress = address.replace(/[_+\-.!#$%^&*=~`(){}\[\]:;\\/|<>"']/g, '');
+        //Remove invalid symbols from the address. spaces, commas, '@', and '#' are allowed.
+        let fAddress = address.replace(/[_+\-.!$%^&*=~`(){}\[\]:;\\/|<>"']/g, '');
 
         //Remove 2+ consecutive spaces fom the address. Single spaces are allowed.
         fAddress = fAddress.replace(/ {2,}/g, ' ');
@@ -189,8 +200,11 @@ export class PlaceFormatter {
         //Remove 2+ consecutive '@'s fom the address. Single '@'s are allowed.
         fAddress = fAddress.replace(/@{2,}/g, '@');
 
+        //Remove 2+ consecutive '#'s fom the address. Single '#'s are allowed.
+        fAddress = fAddress.replace(/#{2,}/g, '#');
+
         //Remove any remaining leading & trailing valid symbols.
-        fAddress = fAddress.replace(/(^[ ,]*)|([ ,@]*$)/g, '');
+        fAddress = fAddress.replace(/(^[ ,]*)|([ ,@]*$)|([ ,#]*$)/g, '');
 
         return fAddress.trim();
     }

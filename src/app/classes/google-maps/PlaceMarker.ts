@@ -59,11 +59,14 @@ export class PlaceMarker implements OnDestroy {
         await map.addMarker({ position: place.position }).then((marker: Marker) => {
             marker.setAnimation("DROP");
 
-            if(place.isReported) {
-                this.setMarkerIcon(marker, "assets/images/map-icons/place-marker-reported.png");
+            if(place.isSaved && place.isReported) {
+                this.setMarkerIcon(marker, "assets/images/map-icons/place-marker-blue.png");
             }
-            else if(place.isSaved) {
-                this.setMarkerIcon(marker, "assets/images/map-icons/place-marker-saved.png");
+            else if(place.isSaved && !place.isReported) {
+                this.setMarkerIcon(marker, "assets/images/map-icons/place-marker-orange.png");
+            }
+            else if(!place.isSaved && place.isReported) {
+                this.setMarkerIcon(marker, "assets/images/map-icons/place-marker-blue-faded.png");
             }
 
             placeMarker = new PlaceMarker(place, marker, onSaved, onUnsaved, onRoute);

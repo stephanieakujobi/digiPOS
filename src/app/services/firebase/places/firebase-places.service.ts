@@ -258,6 +258,19 @@ export class FirebasePlacesService implements OnDestroy {
     }));
   }
 
+  public placeIsSavedAndReported(place: Place | ReportedPlace): boolean {
+    let isSaved = false;
+    let isReported = false;
+
+    isSaved = this.savedPlaces.filter(p => p.info.address.addressString == place.info.address.addressString).length != 0;
+
+    if(isSaved) {
+      isReported = this.reportedPlaces.filter(p => p.info.address.addressString == place.info.address.addressString).length != 0;
+    }
+
+    return isReported && isSaved;
+  }
+
   /**
    * Checks if an address string exists in the user's saved Places.
    * @param address the address string to compare.

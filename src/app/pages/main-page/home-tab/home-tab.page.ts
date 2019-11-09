@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Injectable } from '@angular/core';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
 import { MapPlace } from 'src/app/models/google-maps/MapPlace';
 import { Place } from 'src/app/models/places/Place'
@@ -38,6 +38,7 @@ export class HomeTabPage implements OnInit {
     this.gmapsService.initMap("map", () => {
       this.toggleProgressbar();
       this.gmapsService.pinSavedPlaces();
+      this.gmapsService.pinReportedPlaces();
       this.mapFinishedLoading = true;
     });
   }

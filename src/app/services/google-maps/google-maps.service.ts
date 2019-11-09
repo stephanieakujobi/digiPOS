@@ -35,10 +35,11 @@ export class GoogleMapsService implements OnDestroy {
 
   private searchMarker: PlaceMarker;
   private savedMarkers: PlaceMarker[];
+  private reportedMarkers: PlaceMarker[];
   private nearbyMarkers: PlaceMarker[];
 
   private subscriptions: Subscription;
-  private bFormatter: PlaceFormatter;
+  private pFormatter: PlaceFormatter;
 
   /**
    * Creates a new GoogleMapsService.
@@ -60,8 +61,9 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = false;
     this.nearbyMarkers = [];
     this.savedMarkers = [];
+    this.reportedMarkers = [];
     this.subscriptions = new Subscription();
-    this.bFormatter = new PlaceFormatter();
+    this.pFormatter = new PlaceFormatter();
   }
 
   /**
@@ -147,52 +149,68 @@ export class GoogleMapsService implements OnDestroy {
    * @param place The saved Place to view.
    */
   public async viewSavedPlace(place: MapPlace) {
-    const placeMarkers: PlaceMarker[] = this.savedMarkers.filter(m => m.place.address == place.address);
+    this.viewPlaceInPlaceMarkers(place, this.savedMarkers);
+  }
 
-    if(placeMarkers.length != 0) {
-      const savedPlaceMarker = placeMarkers[0];
+  public async viewReportedPlace(place: MapPlace) {
+    this.viewPlaceInPlaceMarkers(place, this.reportedMarkers);
+  }
 
+  private async viewPlaceInPlaceMarkers(place: MapPlace, collection: PlaceMarker[]) {
+    const result: PlaceMarker[] = collection.filter(m => m.place.address == place.address);
+
+    if(result.length != 0) {
       for(const placeMarker of this.savedMarkers) {
         placeMarker.hideInfoWindow();
       }
+      for(const placeMarker of this.reportedMarkers) {
+        placeMarker.hideInfoWindow();
+      }
 
-      await this.centerMap(savedPlaceMarker.place.position);
-      savedPlaceMarker.marker.setAnimation("BOUNCE");
-      savedPlaceMarker.showInfoWindow();
+      await this.centerMap(result[0].place.position);
+      result[0].showInfoWindow();
     }
   }
 
   /**
    * Adds a PlaceMarker at the locations of all the user's saved Places.
    */
-  public pinSavedPlaces() {
+  public async pinSavedPlaces() {
     this.clearSavedMarkers();
 
-    this.fbpService.savedPlaces.forEach(place => {
-      this.addPlaceMarker(this.bFormatter.mapPlaceFromPlace(place));
-    });
+    for(const place of this.fbpService.savedPlaces) {
+      await this.addPlaceMarker(this.pFormatter.mapPlaceFromPlace(place));
+    }
+  }
+
+  public async pinReportedPlaces() {
+    this.clearReportedMarkers();
+
+    for(const place of this.fbpService.reportedPlaces) {
+      await this.addPlaceMarker(this.pFormatter.mapPlaceFromReportedPlace(place, this.fbpService.placeIsSavedAndReported(place)));
+    }
   }
 
   /**
    * Adds a new PlaceMarker onto the map. The location of the PlaceMarker on the map will be on the position value of the associated MapPlace.
    * @param place The MapPlace to associate with the PlaceMarker.
-   * @param saveReference Whether to cache a reference to this PlaceMarker. True by default.
+   * @param cacheReference Whether to cache a reference to this PlaceMarker. True by default.
    * @returns The newly created Placemarker.
    */
-  public async addPlaceMarker(place: MapPlace, saveReference: boolean = true): Promise<PlaceMarker> {
+  public async addPlaceMarker(place: MapPlace, cacheReference: boolean = true): Promise<PlaceMarker> {
     const placeMarker = await PlaceMarker.instantiate(this.map, place,
       () => this.onPlaceMarkerSaved(placeMarker),
       () => this.onPlaceMarkerUnaved(placeMarker),
       () => this.onPlaceMarkerStartRoute(placeMarker),
     );
 
-    if(saveReference) {
-      if(place.isSaved) {
-        if(this.savedMarkers.length == 0) {
+    if(cacheReference) {
+      if(place.isSaved || place.isReported) {
+        if(place.isSaved && (this.savedMarkers.length == 0 || (this.savedMarkers.filter(m => m.place.address == place.address).length == 0))) {
           this.savedMarkers.push(placeMarker);
         }
-        else if(this.savedMarkers.filter(m => m.place.address == place.address).length == 0) {
-          this.savedMarkers.push(placeMarker);
+        if(place.isReported && (this.reportedMarkers.length == 0 || (this.reportedMarkers.filter(m => m.place.address == place.address).length == 0))) {
+          this.reportedMarkers.push(placeMarker);
         }
       }
       else {
@@ -222,7 +240,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param placeMarker The PlaceMarker that was saved.
    */
   private async onPlaceMarkerSaved(placeMarker: PlaceMarker) {
-    const place: Place = this.bFormatter.placeFromMapPlace(placeMarker.place);
+    const place: Place = this.pFormatter.placeFromMapPlace(placeMarker.place);
     const result: CRUDResult = await this.fbpService.addPlace(place);
 
     this.updatePlaceMarker(result, placeMarker);
@@ -235,7 +253,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param placeMarker The PlaceMarker that was un-saved.
    */
   private async onPlaceMarkerUnaved(placeMarker: PlaceMarker) {
-    const place: Place = this.bFormatter.placeFromMapPlace(placeMarker.place);
+    const place: Place = this.pFormatter.placeFromMapPlace(placeMarker.place);
     let result: CRUDResult = await this.fbpService.addPlace(place);
 
     if(PlacesPrefsService.prefs.askBeforeDelete) {
@@ -278,9 +296,15 @@ export class GoogleMapsService implements OnDestroy {
    */
   private updatePlaceMarker(result: CRUDResult, placeMarker: PlaceMarker) {
     if(result.wasSuccessful) {
-      placeMarker.place.isSaved = !placeMarker.place.isSaved;
-      this.addPlaceMarker(placeMarker.place);
+      const place: MapPlace = placeMarker.place;
+      place.isSaved = !place.isSaved;
+
+      if(!place.isSaved) {
+        this.savedMarkers.splice(this.savedMarkers.indexOf(placeMarker, 1));
+      }
+
       placeMarker.remove();
+      this.addPlaceMarker(place);
     }
 
     this.popupsService.showToast(result.message);
@@ -293,7 +317,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param callback The callback function containing the search result formatted as a MapPlace.
    */
   public findPlace(queryString: string, callback: (place: MapPlace) => void) {
-    queryString = this.bFormatter.formatAddressString(queryString);
+    queryString = this.pFormatter.formatAddressString(queryString);
 
     this.http.get(`http://localhost:3000/findplace?searchtext=${queryString}`, {}, {})
       .then(response => {
@@ -307,6 +331,9 @@ export class GoogleMapsService implements OnDestroy {
           if(places[0].isSaved) {
             this.viewSavedPlace(places[0]);
           }
+          else if(places[0].isReported) {
+            this.viewReportedPlace(places[0]);
+          }
           else {
             this.addPlaceSearchMarker(places[0]);
           }
@@ -314,8 +341,7 @@ export class GoogleMapsService implements OnDestroy {
           callback(places[0]);
         }
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
         this.popupsService.showToast("A network error occurred while searching for an address.");
         callback(null);
       });
@@ -386,30 +412,32 @@ export class GoogleMapsService implements OnDestroy {
   /**
    * Removes all cached PlaceMarkers pinning the user's saved Places.
    */
-  private clearSavedMarkers() {
-    const arrLength = this.savedMarkers.length;
+  public clearSavedMarkers() {
+    this.clearPlaceMarkers(this.savedMarkers);
+  }
 
-    for(let i = 0; i < arrLength; i++) {
-      this.savedMarkers[i].remove();
-    }
-
-    this.savedMarkers = [];
+  public clearReportedMarkers() {
+    this.clearPlaceMarkers(this.reportedMarkers);
   }
 
   /**
    * Removes all general PlaceMarkers pinned from searching Places.
    */
   public clearNearbyMarkers() {
-    const arrLength = this.nearbyMarkers.length;
-
-    for(let i = 0; i < arrLength; i++) {
-      this.nearbyMarkers[i].remove();
-    }
+    this.clearPlaceMarkers(this.nearbyMarkers);
 
     if(this.searchMarker != null) {
       this.searchMarker.remove();
     }
+  }
 
-    this.nearbyMarkers = [];
+  private clearPlaceMarkers(markers: PlaceMarker[]) {
+    const arrLength = markers.length;
+
+    for(let i = 0; i < arrLength; i++) {
+      markers[i].remove();
+    }
+
+    markers.splice(0, arrLength);
   }
 }
