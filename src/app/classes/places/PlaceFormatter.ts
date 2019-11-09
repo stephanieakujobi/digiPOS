@@ -72,6 +72,32 @@ export class PlaceFormatter {
         return clone;
     }
 
+    public newSavedPlace(place: Place): Place {
+        let newPlace = this.clonePlace(place);
+        newPlace = this.formatPlaceAddress(newPlace);
+        newPlace.saveState = "saved";
+
+        const today = new Date();
+        newPlace.dateSaved = today;
+        newPlace.dateUpdated = today;
+
+        return newPlace;
+    }
+
+    public updatedPlace(place: Place): Place {
+        let updatedPlace = this.clonePlace(place);
+        updatedPlace = this.formatPlaceAddress(updatedPlace);
+
+        const today = new Date();
+
+        updatedPlace.dateUpdated = today;
+        if(updatedPlace.dateSaved == null) {
+            updatedPlace.dateSaved = today;
+        }
+
+        return updatedPlace;
+    }
+
     /**
      * Creates a new Place instance with the data from a MapPlace instance.
      * @param mapPlace the MapPlace to reference.

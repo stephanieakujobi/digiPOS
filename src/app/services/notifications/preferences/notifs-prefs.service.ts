@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { NotifsPrefs } from 'src/app/classes/notifications/NotifsPrefs';
-import { PopupsService } from '../../global/popups.service';
+import { IAppPrefsService } from 'src/app/interfaces/IAppPrefsService';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +25,7 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
    * If there are no pre-existing preferences, a new AppNotifsPrefs object will be created and saved instead.
    * @returns The user's Notification preferences represented in an AppNotifsPrefs object.
    */
-  public async loadPrefs(): Promise<NotifsPrefs> {
+  public async loadPrefs() {
     let prefsResult: NotifsPrefs;
 
     await this.nativeStorage.getItem(NotifsPrefsService.storageKey).then(
@@ -40,7 +40,6 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
     );
 
     NotifsPrefsService._prefs = prefsResult;
-    return prefsResult;
   }
 
   /**

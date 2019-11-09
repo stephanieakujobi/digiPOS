@@ -68,14 +68,13 @@ export class FirebasePlacesService implements OnDestroy {
       result = CRUDResult.DUPLICATE_PLACE_EXISTS;
     }
     else {
-      place.saveState = "saved";
-      place = this.pFormatter.formatPlaceAddress(place);
-      this.savedPlaces.push(place);
+      const newPlace = this.pFormatter.newSavedPlace(place);
+      this.savedPlaces.push(newPlace);
 
       const serverUpdate: CRUDResult = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
-        this.savedPlaces.splice(this.savedPlaces.indexOf(place), 1);
+        this.savedPlaces.splice(this.savedPlaces.indexOf(newPlace), 1);
         result = new CRUDResult(false, "Failed to update place - internal server error.");
       }
       else {
@@ -100,13 +99,13 @@ export class FirebasePlacesService implements OnDestroy {
       result = CRUDResult.PLACE_DOES_NOT_EXIST;
     }
     else {
-      updated = this.pFormatter.formatPlaceAddress(updated);
-      this.savedPlaces[this.savedPlaces.indexOf(original)] = updated;
+      const updatedPlace = this.pFormatter.updatedPlace(updated);
+      this.savedPlaces[this.savedPlaces.indexOf(original)] = updatedPlace;
 
       const serverUpdate = await this.authService.synchronize();
 
       if(!serverUpdate.wasSuccessful) {
-        this.savedPlaces[this.savedPlaces.indexOf(updated)] = original;
+        this.savedPlaces[this.savedPlaces.indexOf(updatedPlace)] = original;
         result = new CRUDResult(false, "Failed to update place - internal server error.");
       }
       else {

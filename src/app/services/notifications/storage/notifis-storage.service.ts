@@ -39,19 +39,17 @@ export class NotifsStorageService {
    */
   public async loadNotifs(): Promise<boolean> {
     let didSucceed: boolean = false;
+    NotifsStorageService._notifications = [];
 
     await this.nativeStorage.getItem(NotifsStorageService.storageKey).then(
       data => {
-        NotifsStorageService._notifications = [];
-
         data.forEach((element: any) => {
           const notif = new Notification(element._title, element._summary, element._severity, new Date(element._dateReceived));
           NotifsStorageService._notifications.push(notif);
         });
 
         didSucceed = true;
-      },
-      error => console.error(error)
+      }
     );
 
     return didSucceed;

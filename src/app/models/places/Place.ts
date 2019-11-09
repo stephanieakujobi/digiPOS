@@ -9,4 +9,6 @@ export interface Place {
     saveState: PlaceSaveState;
     wasManuallySaved: boolean;
     isReported: boolean;
+    dateSaved?: Date;
+    dateUpdated?: Date;
 }

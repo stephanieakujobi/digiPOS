@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PlacesPrefs } from 'src/app/classes/Places/PlacesPrefs';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
+import { IAppPrefsService } from 'src/app/interfaces/IAppPrefsService';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class PlacesPrefsService implements IAppPrefsService<PlacesPrefs> {
    * If there are no pre-existing preferences, a new PlacesPrefs object will be created and saved instead.
    * @returns The user's Places preferences represented in an PlacesPrefs object.
    */
-  public async loadPrefs(): Promise<PlacesPrefs> {
+  public async loadPrefs() {
     let prefsResult: PlacesPrefs;
 
     await this.nativeStorage.getItem(PlacesPrefsService.storageKey).then(
@@ -37,7 +38,6 @@ export class PlacesPrefsService implements IAppPrefsService<PlacesPrefs> {
     );
 
     PlacesPrefsService._prefs = prefsResult;
-    return prefsResult;
   }
 
   /**
