@@ -12,6 +12,4 @@ export interface PlaceInfo {
     contactPerson: Contact;
     currentProvider: string;
     notes: string;
-    dateSaved: Date?;
-    dateUpdated: Date?;
 }
