@@ -14,11 +14,15 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
   private static readonly storageKey = "notifications_preferences";
   private static _prefs = new NotifsPrefs();
 
+  private onUpdatedCallbacks: Function[];
+
   /**
    * Creates a new NotifsPrefsService instance.
    * @param nativeStorage The NativeStorage used to save and load notifiation preferences.
    */
-  constructor(private nativeStorage: NativeStorage) { }
+  constructor(private nativeStorage: NativeStorage) {
+    this.onUpdatedCallbacks = [];
+  }
 
   /**
    * Loads the user's Notification preferences.
@@ -56,7 +60,15 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
         NotifsPrefsService._prefs = prefs;
       });
 
+    if(didSucceed) {
+      this.onUpdatedCallbacks.forEach(c => c());
+    }
+
     return didSucceed;
+  }
+
+  public subscribeOnUpdated(callback: Function) {
+    this.onUpdatedCallbacks.push(callback);
   }
 
   /**

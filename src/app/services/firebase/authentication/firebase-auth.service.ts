@@ -144,7 +144,7 @@ export class FirebaseAuthService {
     else {
       await FirebaseAuthService._authedSalesRep.serverRef.update(this.authedSalesRep)
         .then(() => result = new CRUDResult(true))
-        .catch(error => result = new CRUDResult(false, error));
+        .catch(() => result = new CRUDResult(false, "Failed to update place - internal server error."));
     }
 
     return result;

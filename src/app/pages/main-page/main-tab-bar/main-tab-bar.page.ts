@@ -5,6 +5,7 @@ import { NavController } from '@ionic/angular';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
 import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service';
 import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
+import { NotifsGeneratorService } from 'src/app/services/notifications/generator/notifs-generator.service';
 
 @Component({
   selector: 'app-main-tab-bar',
@@ -26,10 +27,12 @@ export class MainTabBarPage implements OnInit {
    * @param notifsPrefsService The NotifsPrefsService used to load the user's saved Notifications preferences.
    */
   constructor(
+    private authService: FirebaseAuthService,
     private navController: NavController,
     private notifsStorage: NotifsStorageService,
     private placesPrefsService: PlacesPrefsService,
-    private notifsPrefsService: NotifsPrefsService
+    private notifsPrefsService: NotifsPrefsService,
+    private notifsGenerator: NotifsGeneratorService
   ) { }
 
   ngOnInit() {
@@ -44,22 +47,10 @@ export class MainTabBarPage implements OnInit {
   async ionViewWillEnter() {
     await this.placesPrefsService.loadPrefs();
     await this.notifsPrefsService.loadPrefs();
-    await this.testSaveNotifs(); //TEMPORARY
     await this.loadNotifications();
-  }
 
-  /**
-   * TEMPORARY TEST METHOD.
-   */
-  private async testSaveNotifs() {
-    let notifs: Notification[] = [
-      new Notification("TITLE", "SUMMARY"),
-      new Notification("TITLE 2", "SUMMARY 2"),
-      new Notification("TITLE 3", "SUMMARY 3", "alert", new Date(2019, 10, 20)),
-      new Notification("TITLE 4", "SUMMARY 4", "error", new Date(2019, 10, 10))
-    ];
-
-    await this.notifsStorage.saveNotifs(notifs);
+    this.notifsGenerator.subscribeOnNotifGenerated(MainTabBarPage.updateUnreadNotifsBadge);
+    this.notifsGenerator.watchProcesses();
   }
 
   /**

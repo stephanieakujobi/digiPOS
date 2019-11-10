@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { Notification } from 'src/app/classes/notifications/Notification';
+import { not } from '@angular/compiler/src/output/output_ast';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,10 @@ export class NotifsStorageService {
     let didSucceed: boolean = false;
 
     await this.nativeStorage.setItem(NotifsStorageService.storageKey, notifications)
-      .then(() => didSucceed = true);
+      .then(() => {
+        didSucceed = true;
+        NotifsStorageService._notifications = notifications;
+      });
 
     return didSucceed;
   }
@@ -39,20 +43,47 @@ export class NotifsStorageService {
    */
   public async loadNotifs(): Promise<boolean> {
     let didSucceed: boolean = false;
-    NotifsStorageService._notifications = [];
 
-    await this.nativeStorage.getItem(NotifsStorageService.storageKey).then(
-      data => {
+    await this.nativeStorage.getItem(NotifsStorageService.storageKey)
+      .then(data => {
+        NotifsStorageService._notifications = [];
+
         data.forEach((element: any) => {
           const notif = new Notification(element._title, element._summary, element._severity, new Date(element._dateReceived));
+          notif.isRead = element._isRead;
           NotifsStorageService._notifications.push(notif);
         });
 
         didSucceed = true;
-      }
-    );
+      })
+      .catch(() => NotifsStorageService._notifications = []);
 
     return didSucceed;
+  }
+
+  public async addNotif(notif: Notification): Promise<boolean> {
+    const notifications = NotifsStorageService.notifications;
+    notifications.push(notif);
+    return await this.saveNotifs(notifications);
+  }
+
+  public async deleteNotif(notif: Notification): Promise<boolean> {
+    const notifications = NotifsStorageService.notifications;
+    notifications.splice(notifications.indexOf(notif), 1);
+    return await this.saveNotifs(notifications);
+  }
+
+  public hasNotif(notif: Notification): boolean {
+    let result = false;
+
+    for(const existingNotif of NotifsStorageService.notifications) {
+      if(existingNotif.title == notif.title && existingNotif.summary == notif.summary) {
+        result = true;
+        break;
+      }
+    }
+
+    return result;
   }
 
   /**
