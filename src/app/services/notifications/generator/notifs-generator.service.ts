@@ -4,20 +4,36 @@ import { NotifsPrefsService } from '../preferences/notifs-prefs.service';
 import { NotifProcess } from 'src/app/classes/notifications/NotifProcess';
 import { Notification } from 'src/app/classes/notifications/Notification';
 import { FirebasePlacesService } from '../../firebase/places/firebase-places.service';
+import { Vibration } from '@ionic-native/vibration/ngx';
+import { Push, PushObject } from '@ionic-native/push/ngx';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotifsGeneratorService {
   private processes: NotifProcess[];
-  private onGeneratedCallbacls: Function[];
+  private onGeneratedCallbacks: Function[];
 
-  constructor(private storageService: NotifsStorageService, private prefsService: NotifsPrefsService, private fbpService: FirebasePlacesService) {
+  private pushPermissionEnabled: boolean;
+
+  constructor(
+    private storageService: NotifsStorageService,
+    private prefsService: NotifsPrefsService,
+    private fbpService: FirebasePlacesService,
+    private vibration: Vibration,
+    private push: Push
+  ) {
     this.processes = [];
-    this.onGeneratedCallbacls = [];
+    this.onGeneratedCallbacks = [];
 
+    this.checkPushPermissionEnabled();
     this.placesNotUpdatedOverTime();
     prefsService.subscribeOnUpdated(() => this.watchProcesses());
+  }
+
+  private async checkPushPermissionEnabled() {
+    const permission = await this.push.hasPermission();
+    this.pushPermissionEnabled = permission.isEnabled;
   }
 
   public watchProcesses() {
@@ -32,7 +48,7 @@ export class NotifsGeneratorService {
   private placesNotUpdatedOverTime() {
     const process = new NotifProcess(() => {
 
-      for(const place of this.fbpService.savedPlaces) {
+      for(const place of this.fbpService.savedPlaces.filter(p => !p.isReported)) {
         const daysSinceUpdate = Math.floor((new Date(place.dateUpdated).getTime() - new Date(place.dateSaved).getTime()) / 8.64e+7);
 
         if(daysSinceUpdate > 6) {
@@ -52,7 +68,7 @@ export class NotifsGeneratorService {
   }
 
   public subscribeOnNotifGenerated(callback: Function) {
-    this.onGeneratedCallbacls.push(callback);
+    this.onGeneratedCallbacks.push(callback);
   }
 
   private async addNotification(notif: Notification) {
@@ -60,8 +76,40 @@ export class NotifsGeneratorService {
       const addSuccess = await this.storageService.addNotif(notif);
 
       if(addSuccess) {
-        this.onGeneratedCallbacls.forEach(c => c());
+        this.notifGeneratedPush();
+        this.notifGeneratedVibrate();
+        this.onGeneratedCallbacks.forEach(c => c());
       }
+    }
+  }
+
+  private notifGeneratedPush() {
+    if(this.pushPermissionEnabled && NotifsPrefsService.prefs.enablePushNotifs) {
+      this.push.createChannel({
+        id: "testchannel1",
+        description: "The test channel.",
+        importance: 3
+      });
+
+      const pushObject: PushObject = this.push.init({
+        ios: {
+          alert: true,
+          badge: true,
+          sound: false
+        }
+      });
+
+      pushObject.on('notification').subscribe((notification: any) => console.log('Received a notification', notification));
+
+      pushObject.on('registration').subscribe((registration: any) => console.log('Device registered', registration));
+
+      pushObject.on('error').subscribe(error => console.error('Error with Push plugin', error));
+    }
+  }
+
+  private notifGeneratedVibrate() {
+    if(NotifsPrefsService.prefs.vibrateOnNotifReceived) {
+      this.vibration.vibrate([800, 600, 800]);
     }
   }
 }
