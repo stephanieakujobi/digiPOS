@@ -3,22 +3,25 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { NotifsPrefs } from 'src/app/classes/notifications/NotifsPrefs';
 import { IAppPrefsService } from 'src/app/interfaces/IAppPrefsService';
 
-@Injectable({
-  providedIn: 'root'
-})
-
 /**
  * The NotifsPrefsService provides a way to save and load user Notification preferences locally on the user's device.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
   private static readonly storageKey = "notifications_preferences";
   private static _prefs = new NotifsPrefs();
+
+  private onUpdatedCallbacks: Function[];
 
   /**
    * Creates a new NotifsPrefsService instance.
    * @param nativeStorage The NativeStorage used to save and load notifiation preferences.
    */
-  constructor(private nativeStorage: NativeStorage) { }
+  constructor(private nativeStorage: NativeStorage) {
+    this.onUpdatedCallbacks = [];
+  }
 
   /**
    * Loads the user's Notification preferences.
@@ -56,7 +59,19 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
         NotifsPrefsService._prefs = prefs;
       });
 
+    if(didSucceed) {
+      this.onUpdatedCallbacks.forEach(c => c());
+    }
+
     return didSucceed;
+  }
+
+  /**
+   * Call a function when this NotifsPrefsService updates the users NotifPrefs.
+   * @param callback The function to call.
+   */
+  public subscribeOnUpdated(callback: Function) {
+    this.onUpdatedCallbacks.push(callback);
   }
 
   /**

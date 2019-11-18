@@ -83,7 +83,7 @@ export class PlaceFormatter {
         newPlace = this.formatPlaceAddress(newPlace);
         newPlace.saveState = "saved";
 
-        const today = new Date();
+        const today = new Date().toDateString();
         newPlace.dateSaved = today;
         newPlace.dateUpdated = today;
 
@@ -100,7 +100,7 @@ export class PlaceFormatter {
         let updatedPlace = this.clonePlace(place);
         updatedPlace = this.formatPlaceAddress(updatedPlace);
 
-        const today = new Date();
+        const today = new Date().toDateString();
 
         updatedPlace.dateUpdated = today;
         if(updatedPlace.dateSaved == null) {

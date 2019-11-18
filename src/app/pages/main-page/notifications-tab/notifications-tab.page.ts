@@ -8,23 +8,22 @@ import { NotifsStorageService } from 'src/app/services/notifications/storage/not
 import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
 import { PopupsService } from 'src/app/services/global/popups.service';
 
+/**
+ * The page displayed to the user when they select the Notifications tab.
+ * Shows the user all the Notifications they have received, if any.
+ */
 @Component({
   selector: "notifications-home-tab",
   templateUrl: "notifications-tab.page.html",
   styleUrls: ["notifications-tab.page.scss"]
 })
-
-/**
- * The page displayed to the user when they select the Notifications tab.
- * Shows the user all the Notifications they have received, if any.
- */
 export class NotificationsTabPage {
   /**
    * Creates a new NotificationsTabPage.
    * @param prefsService The NotifsPrefsService used to update the user's notification preferences when changed.
    * @param popupsService The PopupsService used to display alerts and modals.
    */
-  constructor(private prefsService: NotifsPrefsService, private popupsService: PopupsService) { }
+  constructor(private storageService: NotifsStorageService, private prefsService: NotifsPrefsService, private popupsService: PopupsService) { }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
@@ -80,12 +79,15 @@ export class NotificationsTabPage {
    * @param notification The Notification to mark as read or unread.
    * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
    */
-  toggleNotifRead(notification: Notification, ionItemSliding: IonItemSliding) {
+  async toggleNotifRead(notification: Notification, ionItemSliding: IonItemSliding) {
     notification.isRead = !notification.isRead;
-    MainTabBarPage.updateUnreadNotifsBadge();
-    ionItemSliding.close();
+    const toggleSuccess = await this.storageService.saveNotifs(this.notifications);
 
-    this.sortNotifs();
+    if(toggleSuccess) {
+      MainTabBarPage.updateUnreadNotifsBadge();
+      ionItemSliding.close();
+      this.sortNotifs();
+    }
   }
 
   /**
@@ -118,9 +120,11 @@ export class NotificationsTabPage {
     ionItemSliding.close();
     notifElement.classList.add("deleting");
 
-    setTimeout(() => {
-      this.notifications.splice(this.notifications.indexOf(notification), 1);
-      MainTabBarPage.updateUnreadNotifsBadge();
+    setTimeout(async () => {
+      const deleteSuccess = await this.storageService.deleteNotif(notification);
+      if(deleteSuccess) {
+        MainTabBarPage.updateUnreadNotifsBadge();
+      }
     }, 300);
   }
 
@@ -172,7 +176,7 @@ export class NotificationsTabPage {
   async openPrefsModal() {
     this.popupsService.showModal(NotifsPrefsModalPage, null, async data => {
       const saveSuccess: boolean = await this.prefsService.savePrefs(data);
-      this.popupsService.showToast(saveSuccess? "Preferences updated." : "Failed to update preferences - unknown error");
+      this.popupsService.showToast(saveSuccess ? "Preferences updated." : "Failed to update preferences - unknown error");
     })
   }
 
