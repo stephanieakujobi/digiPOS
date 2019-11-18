@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { Notification } from 'src/app/classes/notifications/Notification';
-import { not } from '@angular/compiler/src/output/output_ast';
-
-@Injectable({
-  providedIn: 'root'
-})
 
 /**
  * The AppNotifsStorageService provides a way to store Notifications locally on a user's device.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class NotifsStorageService {
   private static _notifications: Notification[] = [];
   private static readonly storageKey = "notifications";
@@ -61,18 +59,33 @@ export class NotifsStorageService {
     return didSucceed;
   }
 
+  /**
+   * Stores a new Notification locally on the user's device.
+   * @param notif The Notification to store.
+   * @returns A true/false value indicating if storage was successful or not.
+   */
   public async addNotif(notif: Notification): Promise<boolean> {
     const notifications = NotifsStorageService.notifications;
     notifications.push(notif);
     return await this.saveNotifs(notifications);
   }
 
+  /**
+   * Deletes an existing Notification stored locally on the user's device.
+   * @param notif The Notification to delete.
+   * @returns A true/false value indicating if deletion was successful or not.
+   */
   public async deleteNotif(notif: Notification): Promise<boolean> {
     const notifications = NotifsStorageService.notifications;
     notifications.splice(notifications.indexOf(notif), 1);
     return await this.saveNotifs(notifications);
   }
 
+  /**
+   * Searches the user's stored Notifications for one with a matching title & summary to the provided Notification.
+   * @param notif The Notification to compare.
+   * @returns A true/false value indicating if the Notification exists in the user's stored Notifications.
+   */
   public hasNotif(notif: Notification): boolean {
     let result = false;
 
@@ -87,7 +100,7 @@ export class NotifsStorageService {
   }
 
   /**
-   * The user's current notifications.
+   * The user's current Notifications stored on their device.
    */
   public static get notifications(): Notification[] {
     return this._notifications;

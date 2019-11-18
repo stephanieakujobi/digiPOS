@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Notification } from 'src/app/classes/notifications/Notification';
 import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service';
 import { NavController } from '@ionic/angular';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
@@ -7,18 +6,16 @@ import { PlacesPrefsService } from 'src/app/services/places/preferences/places-p
 import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
 import { NotifsGeneratorService } from 'src/app/services/notifications/generator/notifs-generator.service';
 
+/**
+ * The wrapper page containing the main tab bar displayed at the bottom of the app after the user logs in.
+ * This page is also the parent page to all the pages within each tab.
+ */
 @Component({
   selector: 'app-main-tab-bar',
   templateUrl: 'main-tab-bar.page.html',
   styleUrls: ['main-tab-bar.page.scss']
 })
-
-/**
- * The wrapper page containing the main tab bar displayed at the bottom of the app after the user logs in.
- * This page is also the parent page to all the pages within each tab.
- */
 export class MainTabBarPage implements OnInit {
-
   /**
    * Creates a new MainTabBarPage
    * @param navController The NavController used to redirect the user back to the LoginPage if they are not authenticated.
@@ -27,12 +24,11 @@ export class MainTabBarPage implements OnInit {
    * @param notifsPrefsService The NotifsPrefsService used to load the user's saved Notifications preferences.
    */
   constructor(
-    private authService: FirebaseAuthService,
     private navController: NavController,
     private notifsStorage: NotifsStorageService,
     private placesPrefsService: PlacesPrefsService,
     private notifsPrefsService: NotifsPrefsService,
-    private notifsGenerator: NotifsGeneratorService
+    private notifsGenerator: NotifsGeneratorService,
   ) { }
 
   ngOnInit() {

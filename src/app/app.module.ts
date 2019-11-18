@@ -23,7 +23,7 @@ import { FirebasePlacesService } from './services/firebase/places/firebase-place
 import { PopupsService } from './services/global/popups.service';
 import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
-import { Push } from '@ionic-native/push/ngx';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -47,8 +47,8 @@ import { Push } from '@ionic-native/push/ngx';
     FirebaseAuthService,
     FirebasePlacesService,
     LaunchNavigator,
+    LocalNotifications,
     Vibration,
-    Push,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

@@ -62,6 +62,14 @@ ion-toast {
   }
 }
 
+ion-modal {
+  --background: rgba(255, 255, 255, 0.8) !important;
+
+  ion-content {
+    --background: transparent;
+  }
+}
+
 ion-list.ion-item-sliding-list {
   margin: 0;
 

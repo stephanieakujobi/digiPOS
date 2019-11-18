@@ -8,16 +8,15 @@ import { NotifsStorageService } from 'src/app/services/notifications/storage/not
 import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
 import { PopupsService } from 'src/app/services/global/popups.service';
 
+/**
+ * The page displayed to the user when they select the Notifications tab.
+ * Shows the user all the Notifications they have received, if any.
+ */
 @Component({
   selector: "notifications-home-tab",
   templateUrl: "notifications-tab.page.html",
   styleUrls: ["notifications-tab.page.scss"]
 })
-
-/**
- * The page displayed to the user when they select the Notifications tab.
- * Shows the user all the Notifications they have received, if any.
- */
 export class NotificationsTabPage {
   /**
    * Creates a new NotificationsTabPage.

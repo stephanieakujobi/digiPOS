@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { ComponentRef, ComponentProps } from '@ionic/core';
 
-@Injectable({
-  providedIn: 'root'
-})
-
 /**
  * The PopupsService allows various pop-up elements to display to the user, such as alerts, toasts, and modals.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class PopupsService {
   /**
    * Creates a new PopupsService
@@ -65,6 +64,8 @@ export class PopupsService {
    * @param message The message to display in the toast.
    */
   public async showToast(message: string, topOfViewport: boolean = false) {
+    this.toastController.dismiss();
+
     const toast = await this.toastController.create({
       message: message,
       duration: 2000,
