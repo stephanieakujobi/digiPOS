@@ -13,25 +13,25 @@
 
 <ion-content>
 
-  <ion-item lines="full">
+  <ion-item lines="none">
     <ion-label>Enable notifications</ion-label>
     <ion-checkbox slot="start" [(ngModel)]="prefs.enableNotifs"></ion-checkbox>
   </ion-item>
 
-  <ion-list>
+  <ion-list lines="none">
     <ion-item>
       <ion-label>Enable push notifications</ion-label>
       <ion-checkbox slot="start" [(ngModel)]="prefs.enablePushNotifs" [disabled]="!prefs.enableNotifs"></ion-checkbox>
     </ion-item>
 
     <ion-item>
-      <ion-label>Vibrate when notification received</ion-label>
+      <ion-label>Enable vibration</ion-label>
       <ion-checkbox slot="start" [(ngModel)]="prefs.vibrateOnNotifReceived" [disabled]="!prefs.enableNotifs">
       </ion-checkbox>
     </ion-item>
   </ion-list>
 
-  <ion-item lines="full">
+  <ion-item lines="none">
     <ion-label>Ask before deleting notifications</ion-label>
     <ion-checkbox slot="start" [(ngModel)]="prefs.askBeforeDelete"></ion-checkbox>
   </ion-item>

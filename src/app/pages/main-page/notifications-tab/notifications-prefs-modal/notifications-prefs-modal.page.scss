@@ -1,13 +1,10 @@
 ion-list {
   padding: 0;
+  margin: 0;
 
   ion-checkbox {
-    margin-left: 16px;
+    margin-left: 26px;
     --border-color-checked: var(--ion-color-primary-tint);
     --background-checked: var(--ion-color-primary-tint);
-  }
-
-  &.ios {
-    margin-top: 16px;
   }
 }
