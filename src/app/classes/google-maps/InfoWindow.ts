@@ -25,7 +25,7 @@ export class InfoWindow {
             `<h5>${place.name}</h5>`,
             `<p>${place.address}</p>`,
             `<div style="position: absolute; bottom: 20px; width: 91.5%;">`,
-            this.infoWindowButton((place.isSaved ? "Un-save" : "Save") + " place", place.isSaved ? "close-circle" : "add-circle"),
+            this.infoWindowButton((place.isSaved ? "Delete" : "Save") + " place", place.isSaved ? "close-circle" : "add-circle"),
             this.infoWindowButton("Start a route", "navigate"),
             "</div>"
         ].join("");

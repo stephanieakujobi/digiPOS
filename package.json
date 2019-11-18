@@ -101,13 +101,13 @@
       "cordova-plugin-nativestorage": {},
       "cordova-plugin-nativegeocoder": {},
       "cordova-plugin-advanced-http": {},
+      "cordova-plugin-vibration": {},
+      "cordova-support-google-services": {},
+      "cordova-plugin-local-notification": {},
       "uk.co.workingedge.phonegap.plugin.launchnavigator": {
         "OKHTTP_VERSION": "3.10.0",
         "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBQeKmHxvR9RHreO7AsgLDYrPuEPV3IUM8"
-      },
-      "cordova-plugin-vibration": {},
-      "cordova-support-google-services": {},
-      "cordova-plugin-local-notification": {}
+      }
     },
     "platforms": [
       "browser"

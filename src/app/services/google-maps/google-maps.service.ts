@@ -89,9 +89,11 @@ export class GoogleMapsService implements OnDestroy {
   private async createMap(mapElementId: string) {
     const mapOptions: GoogleMapOptions = {
       controls: {
-        myLocationButton: false,
         myLocation: true,
-        zoom: true
+        zoom: true,
+        myLocationButton: false,
+        mapToolbar: false,
+        indoorPicker: false
       }
     }
 
@@ -283,7 +285,8 @@ export class GoogleMapsService implements OnDestroy {
     }
 
     this.launchNavigator.navigate(placeMarker.place.address, options)
-      .catch(() => {
+      .catch(err => {
+        console.log(err);
         this.popupsService.showToast("Failed to launch maps - unknown error.")
       });
   }

@@ -1,15 +1,20 @@
-ion-item#map-saved-info {
-  display: block;
-  width: 100%;
-  color: var(--ion-color-medium);
-  font-size: 13px;
+ion-item {
+  border-radius: 10px;
 
-  ion-icon {
-    margin-right: 6px;
-  }
+  &#map-saved-info {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+    color: var(--ion-color-medium);
+    font-size: 13px;
 
-  ion-label {
-    white-space: inherit;
+    ion-icon {
+      margin-right: 6px;
+    }
+
+    ion-label {
+      white-space: inherit;
+    }
   }
 }
 
