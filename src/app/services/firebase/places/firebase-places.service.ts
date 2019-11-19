@@ -8,9 +8,6 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { ReportedPlace } from 'src/app/models/places/ReportedPlace';
 import { Subscription } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
 /**
  * The FirebasePlacesService provides real-time data streaming to a Firebase CloudFirestore.
  * It is used to perform CRUD operations on the saved Placees of sales representitives, and stores these Placees server-side.
@@ -18,6 +15,9 @@ import { Subscription } from 'rxjs';
  * can exist, else an error is thrown. 
  * When a user is authenticated, their saved Placees will be retrieved from the CloudFirestore.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class FirebasePlacesService implements OnDestroy {
   private static readonly REPORTED_PLACES_COL: string = "reported_places";
   private static _reportedPlaces: ReportedPlace[] = [];

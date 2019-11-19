@@ -3,13 +3,12 @@ import { PlacesPrefs } from 'src/app/classes/Places/PlacesPrefs';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { IAppPrefsService } from 'src/app/interfaces/IAppPrefsService';
 
-@Injectable({
-  providedIn: 'root'
-})
-
 /**
  * The PlacesPrefsService handles read/write operations on the user's saved Businesses preferences.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class PlacesPrefsService implements IAppPrefsService<PlacesPrefs> {
   private static readonly storageKey = "businesses_preferences";
   private static _prefs = new PlacesPrefs();

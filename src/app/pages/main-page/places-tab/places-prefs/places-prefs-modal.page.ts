@@ -3,16 +3,15 @@ import { ModalController, NavParams } from '@ionic/angular';
 import { PlacesPrefs } from 'src/app/classes/places/PlacesPrefs';
 import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service';
 
+/**
+ * The modal page opened when the user presses the settings icon on the top-right of the BusinessesPage.
+ * Displays the user's current saved Businesses preferences, allowing them to be rewritten.
+ */
 @Component({
   selector: 'app-places-prefs-modal',
   templateUrl: './places-prefs-modal.page.html',
   styleUrls: ['./places-prefs-modal.page.scss'],
 })
-
-/**
- * The modal page opened when the user presses the settings icon on the top-right of the BusinessesPage.
- * Displays the user's current saved Businesses preferences, allowing them to be rewritten.
- */
 export class PlacesPrefsModalPage {
   private prefs: PlacesPrefs;
 

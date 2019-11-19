@@ -7,15 +7,14 @@ import { CRUDResult } from 'src/app/classes/CRUDResult';
 
 declare var require: any;
 
-@Injectable({
-  providedIn: 'root'
-})
-
 /**
  * The FirebaseAuthService is responsible for authenticating users and holding a reference to the currently authenticated user.
  * It performs read/write operations on an AngularFirestore to obtain the user data and stores the reference as a SalesRep.
  * Changes made to the SalesRep object are reflected in real-time on the AngularFirestore.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class FirebaseAuthService {
   private static readonly SALES_REPS_AUTH: string = "sales_reps_auth";
   private static readonly SALES_REPS: string = "sales_reps";

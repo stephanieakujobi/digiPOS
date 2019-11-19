@@ -21,13 +21,12 @@ import { PopupsService } from '../global/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 
-@Injectable({
-  providedIn: 'root'
-})
-
 /**
  * The GoogleMapsService provides the functions the app needs for the user interacting with a GooleMap.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
   private mapShouldFollowUser: boolean;
@@ -41,7 +40,7 @@ export class GoogleMapsService implements OnDestroy {
   private subscriptions: Subscription;
   private pFormatter: PlaceFormatter;
 
-  private readonly serverDomain = "https://cpos-capstone-server.herokuapp.com";
+  private readonly apiHost = "https://cpos-capstone-server.herokuapp.com";
 
   /**
    * Creates a new GoogleMapsService.
@@ -136,13 +135,16 @@ export class GoogleMapsService implements OnDestroy {
    * Centers a map on an optional ILatLng position.
    * If no position is specified, then the map is centered on the user's position instead.
    * @param position The optional position to center the map onto.
+   * @param zoom The optional zoom the set the map's camera to.
    */
-  public async centerMap(position?: ILatLng) {
-    const centerPosition: ILatLng = position == null ? this.userPos : position;
+  public async centerMap(position?: ILatLng, zoom?: number) {
+    const centerPosition: ILatLng = position != null ? position : this.userPos;
+    const cameraZoom = zoom != null ? zoom : this.map.getCameraZoom();
 
     await this.map.animateCamera({
       target: centerPosition,
-      duration: 500
+      duration: 500,
+      zoom: cameraZoom
     });
 
     this.mapShouldFollowUser = position == null;
@@ -156,10 +158,19 @@ export class GoogleMapsService implements OnDestroy {
     this.viewPlaceInPlaceMarkers(place, this.savedMarkers);
   }
 
+  /**
+   * Searches the database's reported Places for the provided Place, and if an existing match is found, the map will be centered on the Place.
+   * @param place The saved Place to view.
+   */
   public async viewReportedPlace(place: MapPlace) {
     this.viewPlaceInPlaceMarkers(place, this.reportedMarkers);
   }
 
+  /**
+   * Selects a MapPlace from a collection of PlaceMarkers to view on the map.
+   * @param place the MapPlace to view.
+   * @param collection The collection of PlaceMarkers to search for the MapPlace.
+   */
   private async viewPlaceInPlaceMarkers(place: MapPlace, collection: PlaceMarker[]) {
     const result: PlaceMarker[] = collection.filter(m => m.place.address == place.address);
 
@@ -187,6 +198,9 @@ export class GoogleMapsService implements OnDestroy {
     }
   }
 
+  /**
+   * Adds a PlaceMarker at the locations of all the database's reported Places.
+   */
   public async pinReportedPlaces() {
     this.clearReportedMarkers();
 
@@ -322,7 +336,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param callback The callback function containing the search result formatted as a MapPlace.
    */
   public findPlace(queryString: string, callback: (place: MapPlace) => void) {
-    this.http.get(`${this.serverDomain}/findplace?searchtext=${queryString}&lat=${this.userPos.lat}&lng=${this.userPos.lng}`, {}, {})
+    this.http.get(`${this.apiHost}/findplace?searchtext=${queryString}&lat=${this.userPos.lat}&lng=${this.userPos.lng}`, {}, {})
       .then(response => {
         const places: MapPlace[] = this.parsePlacesResponse(response);
 
@@ -356,7 +370,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param callback The callback function containing the search results formatted as an array of MapPlaces.
    */
   public findNearby(radius: number, callback: (places: MapPlace[]) => void) {
-    this.http.get(`${this.serverDomain}/findnearby?lat=${this.userPos.lat}&lng=${this.userPos.lng}&radius=${radius}`, {}, {})
+    this.http.get(`${this.apiHost}/findnearby?lat=${this.userPos.lat}&lng=${this.userPos.lng}&radius=${radius}`, {}, {})
       .then(response => {
         const places: MapPlace[] = this.parsePlacesResponse(response);
         const arrLength = places.length;
@@ -366,6 +380,7 @@ export class GoogleMapsService implements OnDestroy {
           callback(null);
         }
         else {
+          this.centerMap(this.userPos, 10);
           this.clearNearbyMarkers();
 
           for(let i = 0; i < arrLength; i++) {
@@ -419,6 +434,9 @@ export class GoogleMapsService implements OnDestroy {
     this.clearPlaceMarkers(this.savedMarkers);
   }
 
+  /**
+   * Removes all cached PlaceMarkers pinning the database's reported Places.
+   */
   public clearReportedMarkers() {
     this.clearPlaceMarkers(this.reportedMarkers);
   }

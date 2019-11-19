@@ -3,15 +3,14 @@ import { ModalController } from '@ionic/angular';
 import { NotifsPrefs } from 'src/app/classes/notifications/NotifsPrefs';
 import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
 
+/**
+ * The NotifsPrefsModalPage is a modal page that contains the various options for users to configure for their Notifications.
+ */
 @Component({
   selector: 'app-notifications-prefs-modal',
   templateUrl: './notifications-prefs-modal.page.html',
   styleUrls: ['./notifications-prefs-modal.page.scss'],
 })
-
-/**
- * The NotifsPrefsModalPage is a modal page that contains the various options for users to configure for their Notifications.
- */
 export class NotifsPrefsModalPage {
   private prefs: NotifsPrefs;
 

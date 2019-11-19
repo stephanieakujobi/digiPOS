@@ -3,15 +3,14 @@ import { FirebaseAuthService } from 'src/app/services/firebase/authentication/fi
 import { NavController, ToastController } from '@ionic/angular';
 import { PopupsService } from 'src/app/services/global/popups.service';
 
+/**
+ * The first page the user sees when they launch the app, prompting them to login.
+ */
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-
-/**
- * The first page the user sees when they launch the app, prompting them to login.
- */
 export class LoginPage {
   private loginProgress: HTMLIonProgressBarElement;
 

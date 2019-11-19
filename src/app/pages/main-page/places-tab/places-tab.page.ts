@@ -9,15 +9,14 @@ import { PopupsService } from 'src/app/services/global/popups.service';
 import { ComponentRef, ComponentProps } from '@ionic/core';
 import { HomeTabPage } from '../home-tab/home-tab.page';
 
+/**
+ * The page displayed to the user when they select the "Places" tab.
+ */
 @Component({
   selector: 'app-places-tab',
   templateUrl: 'places-tab.page.html',
   styleUrls: ['places-tab.page.scss']
 })
-
-/**
- * The page displayed to the user when they select the "Places" tab.
- */
 export class PlacesTabPage {
   /**
    * Creates a new PlaceTabPage.

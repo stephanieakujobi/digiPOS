@@ -5,14 +5,14 @@ import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { PopupsService } from 'src/app/services/global/popups.service';
 import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase-places.service';
 
+/**
+ * The modal page displayed to the user when they click on a saved Place to view/edit.
+ */
 @Component({
   selector: 'app-place-view-modal',
   templateUrl: './place-view-modal.page.html',
   styleUrls: ['./place-view-modal.page.scss'],
 })
-/**
- * The modal page displayed to the user when they click on a saved Place to view/edit.
- */
 export class PlaceViewModalPage {
   private place: Place;
   private originalPlace: Place;
