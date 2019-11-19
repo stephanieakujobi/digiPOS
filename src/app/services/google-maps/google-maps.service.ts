@@ -322,8 +322,6 @@ export class GoogleMapsService implements OnDestroy {
    * @param callback The callback function containing the search result formatted as a MapPlace.
    */
   public findPlace(queryString: string, callback: (place: MapPlace) => void) {
-    queryString = this.pFormatter.formatAddressString(queryString);
-
     this.http.get(`${this.serverDomain}/findplace?searchtext=${queryString}&lat=${this.userPos.lat}&lng=${this.userPos.lng}`, {}, {})
       .then(response => {
         const places: MapPlace[] = this.parsePlacesResponse(response);
@@ -364,7 +362,7 @@ export class GoogleMapsService implements OnDestroy {
         const arrLength = places.length;
 
         if(arrLength == 0) {
-          this.popupsService.showToast("Could not find a place with this address.");
+          this.popupsService.showToast("No nearby places could be found.");
           callback(null);
         }
         else {
@@ -436,6 +434,10 @@ export class GoogleMapsService implements OnDestroy {
     }
   }
 
+  /**
+   * Removes all PlaceMarkers from an array.
+   * @param markers The array of PlaceMarkers to clear.
+   */
   private clearPlaceMarkers(markers: PlaceMarker[]) {
     const arrLength = markers.length;
 

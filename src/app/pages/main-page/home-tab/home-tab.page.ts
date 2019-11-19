@@ -86,7 +86,7 @@ export class HomeTabPage implements OnInit {
   findNearby() {
     this.toggleProgressbar();
 
-    this.gmapsService.findNearby(5000, () => {
+    this.gmapsService.findNearby(100000, () => {
       this.toggleProgressbar();
     });
   }

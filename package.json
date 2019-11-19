@@ -46,7 +46,6 @@
     "cordova-plugin-nativegeocoder": "^3.2.2",
     "cordova-plugin-nativestorage": "^2.3.2",
     "cordova-plugin-vibration": "^3.1.1",
-    "cordova-support-google-services": "1.3.2",
     "core-js": "^2.5.4",
     "firebase": "^7.2.2",
     "phonegap-plugin-multidex": "^1.0.0",
@@ -102,11 +101,10 @@
       "cordova-plugin-nativegeocoder": {},
       "cordova-plugin-advanced-http": {},
       "cordova-plugin-vibration": {},
-      "cordova-support-google-services": {},
       "cordova-plugin-local-notification": {},
       "uk.co.workingedge.phonegap.plugin.launchnavigator": {
         "OKHTTP_VERSION": "3.10.0",
-        "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBQeKmHxvR9RHreO7AsgLDYrPuEPV3IUM8"
+        "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBQffU3Ij5dt5Uc8LYoFQO4q2CDLyyusM8"
       }
     },
     "platforms": [

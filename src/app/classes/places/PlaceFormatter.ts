@@ -191,21 +191,41 @@ export class PlaceFormatter {
         //Remove invalid symbols from the address. spaces, commas, '@', and '#' are allowed.
         let fAddress = address.replace(/[_+\-.!$%^&*=~`(){}\[\]:;\\/|<>"']/g, '');
 
-        //Remove 2+ consecutive spaces fom the address. Single spaces are allowed.
-        fAddress = fAddress.replace(/ {2,}/g, ' ');
-
-        //Remove 2+ consecutive commas fom the address. Single commas are allowed.
-        fAddress = fAddress.replace(/,{2,}/g, ',');
-
-        //Remove 2+ consecutive '@'s fom the address. Single '@'s are allowed.
-        fAddress = fAddress.replace(/@{2,}/g, '@');
-
-        //Remove 2+ consecutive '#'s fom the address. Single '#'s are allowed.
-        fAddress = fAddress.replace(/#{2,}/g, '#');
-
-        //Remove any remaining leading & trailing valid symbols.
-        fAddress = fAddress.replace(/(^[ ,]*)|([ ,@]*$)|([ ,#]*$)/g, '');
+        fAddress = this.removeConsecutiveChars(fAddress, " ,@#");
+        fAddress = this.removeLeadingTrailingChars(fAddress, " ,@#");
 
         return fAddress.trim();
+    }
+
+    /**
+     * Removes two or more consecutive characters from a string and returns the result as a new string.
+     * @param text The string to format.
+     * @param characters The consecutive characters to remove.
+     */
+    private removeConsecutiveChars(text: string, characters: string): string {
+        let formattedText = text;
+
+        for(const char of characters) {
+            const regex = new RegExp(`${char}{2,}`, "g")
+            formattedText = formattedText.replace(regex, char);
+        }
+
+        return formattedText;
+    }
+
+    /**
+     * Removes any leading or trailing characters from a string and returns the result as a new string.
+     * @param text The string to format.
+     * @param characters The leading or trailing characters to remove.
+     */
+    private removeLeadingTrailingChars(text: string, characters: string): string {
+        let formattedText = text;
+
+        for(const char of characters) {
+            const regex = new RegExp(`^${char}|${char}$`, "g")
+            formattedText = formattedText.replace(regex, '');
+        }
+
+        return formattedText;
     }
 }
