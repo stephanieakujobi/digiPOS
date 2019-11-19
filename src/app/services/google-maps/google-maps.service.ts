@@ -31,7 +31,7 @@ import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-na
 export class GoogleMapsService implements OnDestroy {
   private map: GoogleMap;
   private mapShouldFollowUser: boolean;
-  private userPosition: ILatLng;
+  private userPos: ILatLng;
 
   private searchMarker: PlaceMarker;
   private savedMarkers: PlaceMarker[];
@@ -40,6 +40,8 @@ export class GoogleMapsService implements OnDestroy {
 
   private subscriptions: Subscription;
   private pFormatter: PlaceFormatter;
+
+  private readonly serverDomain = "https://cpos-capstone-server.herokuapp.com";
 
   /**
    * Creates a new GoogleMapsService.
@@ -100,10 +102,10 @@ export class GoogleMapsService implements OnDestroy {
     this.map = GoogleMaps.create(mapElementId, mapOptions);
 
     const userGeoPos = await this.geolocation.getCurrentPosition();
-    this.userPosition = new LatLng(userGeoPos.coords.latitude, userGeoPos.coords.longitude);
+    this.userPos = new LatLng(userGeoPos.coords.latitude, userGeoPos.coords.longitude);
 
     await this.map.moveCamera({
-      target: this.userPosition,
+      target: this.userPos,
       zoom: 18
     });
   }
@@ -115,11 +117,11 @@ export class GoogleMapsService implements OnDestroy {
   private subscribeEvents() {
     //Event called in intervals, tracking the user's current location.
     this.subscriptions.add(this.geolocation.watchPosition({ enableHighAccuracy: true }).subscribe((pos: Geoposition) => {
-      this.userPosition = new LatLng(pos.coords.latitude, pos.coords.longitude);
+      this.userPos = new LatLng(pos.coords.latitude, pos.coords.longitude);
 
       if(this.mapShouldFollowUser) {
         this.map.animateCamera({
-          target: this.userPosition,
+          target: this.userPos,
           duration: 100
         });
       }
@@ -136,7 +138,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param position The optional position to center the map onto.
    */
   public async centerMap(position?: ILatLng) {
-    const centerPosition: ILatLng = position == null ? this.userPosition : position;
+    const centerPosition: ILatLng = position == null ? this.userPos : position;
 
     await this.map.animateCamera({
       target: centerPosition,
@@ -280,7 +282,7 @@ export class GoogleMapsService implements OnDestroy {
    */
   private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
     let options: LaunchNavigatorOptions = {
-      start: `${this.userPosition.lat}, ${this.userPosition.lng}`,
+      start: `${this.userPos.lat}, ${this.userPos.lng}`,
       app: this.launchNavigator.APP.GOOGLE_MAPS
     }
 
@@ -322,7 +324,7 @@ export class GoogleMapsService implements OnDestroy {
   public findPlace(queryString: string, callback: (place: MapPlace) => void) {
     queryString = this.pFormatter.formatAddressString(queryString);
 
-    this.http.get(`http://localhost:3000/findplace?searchtext=${queryString}`, {}, {})
+    this.http.get(`${this.serverDomain}/findplace?searchtext=${queryString}&lat=${this.userPos.lat}&lng=${this.userPos.lng}`, {}, {})
       .then(response => {
         const places: MapPlace[] = this.parsePlacesResponse(response);
 
@@ -356,7 +358,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param callback The callback function containing the search results formatted as an array of MapPlaces.
    */
   public findNearby(radius: number, callback: (places: MapPlace[]) => void) {
-    this.http.get(`http://localhost:3000/findnearby?lat=${this.userPosition.lat}&lng=${this.userPosition.lng}&radius=${radius}`, {}, {})
+    this.http.get(`${this.serverDomain}/findnearby?lat=${this.userPos.lat}&lng=${this.userPos.lng}&radius=${radius}`, {}, {})
       .then(response => {
         const places: MapPlace[] = this.parsePlacesResponse(response);
         const arrLength = places.length;

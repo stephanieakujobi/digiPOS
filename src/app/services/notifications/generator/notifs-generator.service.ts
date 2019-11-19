@@ -108,7 +108,8 @@ export class NotifsGeneratorService {
         text: notif.summary,
         launch: true,
         autoClear: true,
-        sticky: false
+        sticky: false,
+        smallIcon: "file://assets/icon"
       });
     }
 
