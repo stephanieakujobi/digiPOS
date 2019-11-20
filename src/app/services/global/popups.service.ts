@@ -9,6 +9,8 @@ import { ComponentRef, ComponentProps } from '@ionic/core';
   providedIn: 'root'
 })
 export class PopupsService {
+  private activeToast: HTMLIonToastElement;
+
   /**
    * Creates a new PopupsService
    * @param alertController The AlertController used to display alerts to the user.
@@ -64,16 +66,18 @@ export class PopupsService {
    * @param message The message to display in the toast.
    */
   public async showToast(message: string, topOfViewport: boolean = false) {
-    this.toastController.dismiss();
+    if(this.activeToast != null) {
+      this.activeToast.dismiss();
+    }
 
-    const toast = await this.toastController.create({
+    this.activeToast = await this.toastController.create({
       message: message,
       duration: 2000,
       position: topOfViewport ? "top" : "bottom",
       cssClass: topOfViewport ? "header-margin" : "tabs-margin"
     });
 
-    await toast.present();
+    await this.activeToast.present();
   }
 
   /**

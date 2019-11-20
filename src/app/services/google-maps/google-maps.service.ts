@@ -370,6 +370,8 @@ export class GoogleMapsService implements OnDestroy {
    * @param callback The callback function containing the search results formatted as an array of MapPlaces.
    */
   public findNearby(radius: number, callback: (places: MapPlace[]) => void) {
+    this.centerMap(this.userPos, 10);
+
     this.http.get(`${this.apiHost}/findnearby?lat=${this.userPos.lat}&lng=${this.userPos.lng}&radius=${radius}`, {}, {})
       .then(response => {
         const places: MapPlace[] = this.parsePlacesResponse(response);
@@ -380,7 +382,6 @@ export class GoogleMapsService implements OnDestroy {
           callback(null);
         }
         else {
-          this.centerMap(this.userPos, 10);
           this.clearNearbyMarkers();
 
           for(let i = 0; i < arrLength; i++) {

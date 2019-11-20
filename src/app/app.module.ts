@@ -8,8 +8,8 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { MapsPrefsModalPageModule } from './pages/main-page/home-tab/maps-prefs-modal/maps-prefs-modal/maps-prefs-modal.module';
 import { NotificationsPrefsModalModule } from './pages/main-page/notifications-tab/notifications-prefs-modal/notifications-prefs-modal.module';
-import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { PlaceViewModalPageModule } from './pages/main-page/places-tab/place-view-modal/place-view-modal.module';
 import { PlacesPrefsModalPageModule } from './pages/main-page/places-tab/places-prefs/places-prefs-modal.module';
 
@@ -18,6 +18,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
+import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { FirebaseAuthService } from './services/firebase/authentication/firebase-auth.service';
 import { FirebasePlacesService } from './services/firebase/places/firebase-places.service';
 import { PopupsService } from './services/global/popups.service';
@@ -32,6 +33,7 @@ import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
+    MapsPrefsModalPageModule,
     PlaceViewModalPageModule,
     PlacesPrefsModalPageModule,
     NotificationsPrefsModalModule,

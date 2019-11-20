@@ -25,8 +25,8 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
 
   /**
    * Loads the user's Notification preferences.
-   * If there are no pre-existing preferences, a new AppNotifsPrefs object will be created and saved instead.
-   * @returns The user's Notification preferences represented in an AppNotifsPrefs object.
+   * If there are no pre-existing preferences, a new NotifsPrefs object will be created and saved instead.
+   * @returns The user's Notification preferences represented in an NotifsPrefs object.
    */
   public async loadPrefs() {
     let prefsResult: NotifsPrefs;

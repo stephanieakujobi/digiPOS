@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="end">
+      <ion-button (click)="onCloseButtonClicked()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Map Preferences</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item lines="none">
+    <ion-img src="assets/images/map-icons/place-marker-orange.png"></ion-img>
+    <ion-label>Show my saved places</ion-label>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.showMySavedPlaces"></ion-checkbox>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-img src="assets/images/map-icons/place-marker-blue.png"></ion-img>
+    <ion-label>Show my reported places</ion-label>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.showMyReportedPlaces"></ion-checkbox>
+  </ion-item>
+
+  <ion-item lines="full">
+    <ion-img src="assets/images/map-icons/place-marker-blue-faded.png"></ion-img>
+    <ion-label>Show all reported places</ion-label>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.showAllReportedPlaces"></ion-checkbox>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-label>Max search distance</ion-label>
+  </ion-item>
+  <ion-item lines="none">
+    <ion-range min="10" max="100" step="5" color="primary" snaps ticks pin [(ngModel)]="prefs.searchRadiusKm">
+      <ion-label slot="end">{{prefs.searchRadiusKm}}km</ion-label>
+    </ion-range>
+  </ion-item>
+</ion-content>
