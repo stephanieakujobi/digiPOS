@@ -11,7 +11,7 @@ import { IAppPrefsService } from 'src/app/interfaces/IAppPrefsService';
 })
 export class PlacesPrefsService implements IAppPrefsService<PlacesPrefs> {
   private static readonly storageKey = "businesses_preferences";
-  private static _prefs = new PlacesPrefs();
+  private _prefs: PlacesPrefs;
 
   /**
    * Creates a new PlacesPrefsService instance.
@@ -36,7 +36,7 @@ export class PlacesPrefsService implements IAppPrefsService<PlacesPrefs> {
       }
     );
 
-    PlacesPrefsService._prefs = prefsResult;
+    this._prefs = prefsResult;
   }
 
   /**
@@ -50,7 +50,7 @@ export class PlacesPrefsService implements IAppPrefsService<PlacesPrefs> {
     await this.nativeStorage.setItem(PlacesPrefsService.storageKey, prefs)
       .then(() => {
         didSucceed = true;
-        PlacesPrefsService._prefs = prefs;
+        this._prefs = prefs;
       });
 
     return didSucceed;
@@ -59,7 +59,7 @@ export class PlacesPrefsService implements IAppPrefsService<PlacesPrefs> {
   /**
    * The user's current Places preferences.
    */
-  public static get prefs(): PlacesPrefs {
-    return PlacesPrefsService._prefs;
+  public get prefs(): PlacesPrefs {
+    return this._prefs;
   }
 }

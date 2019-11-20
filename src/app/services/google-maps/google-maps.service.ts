@@ -55,6 +55,7 @@ export class GoogleMapsService implements OnDestroy {
     private platform: Platform,
     private geolocation: Geolocation,
     private fbpService: FirebasePlacesService,
+    private placesPrefsService: PlacesPrefsService,
     private http: HTTP,
     private popupsService: PopupsService,
     private launchNavigator: LaunchNavigator
@@ -274,7 +275,7 @@ export class GoogleMapsService implements OnDestroy {
     const place: Place = this.pFormatter.placeFromMapPlace(placeMarker.place);
     let result: CRUDResult = await this.fbpService.addPlace(place);
 
-    if(PlacesPrefsService.prefs.askBeforeDelete) {
+    if(this.placesPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
         async () => {
           result = await this.fbpService.deletePlace(place);

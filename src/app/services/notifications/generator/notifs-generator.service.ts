@@ -48,7 +48,7 @@ export class NotifsGeneratorService {
    * If the user's NotifPrefs have Notifications disabled, then all processes are stopped instead.
    */
   public watchProcesses() {
-    if(NotifsPrefsService.prefs.enableNotifs) {
+    if(this.prefsService.prefs.enableNotifs) {
       this.processes.forEach(p => p.start());
     }
     else {
@@ -84,7 +84,7 @@ export class NotifsGeneratorService {
    * @param notif The Notification to add.
    */
   private async addNotification(notif: Notification) {
-    if(NotifsPrefsService.prefs.enableNotifs && !this.storageService.hasNotif(notif)) {
+    if(this.prefsService.prefs.enableNotifs && !this.storageService.hasNotif(notif)) {
       const addSuccess = await this.storageService.addNotif(notif);
 
       if(addSuccess) {
@@ -102,7 +102,7 @@ export class NotifsGeneratorService {
    * @param notif The Notification whose contents will be displayed in the push notification.
    */
   private async sendPushNotification(notif: Notification) {
-    if(NotifsPrefsService.prefs.enablePushNotifs && await this.localNotifs.hasPermission()) {
+    if(this.prefsService.prefs.enablePushNotifs && await this.localNotifs.hasPermission()) {
       this.localNotifs.schedule({
         title: notif.title,
         text: notif.summary,
@@ -127,7 +127,7 @@ export class NotifsGeneratorService {
    * The device will not vibrate if the user's NotifPrefs has vibration disabled.
    */
   private vibrateDevice() {
-    if(NotifsPrefsService.prefs.vibrateOnNotifReceived) {
+    if(this.prefsService.prefs.vibrateOnNotifReceived) {
       this.vibration.vibrate([100, 50, 100]);
     }
   }

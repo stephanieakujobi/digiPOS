@@ -125,8 +125,6 @@ export class HomeTabPage implements OnInit {
   }
 
   openPrefsModal() {
-    this.popupsService.showModal(MapsPrefsModalPage, null, data => {
-
-    });
+    this.popupsService.showModal(MapsPrefsModalPage);
   }
 }

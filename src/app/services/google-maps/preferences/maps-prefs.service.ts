@@ -8,7 +8,7 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 })
 export class MapsPrefsService implements IAppPrefsService<MapsPrefs> {
   private static readonly storageKey = "maps_preferences";
-  private static _prefs = new MapsPrefs();
+  private _prefs: MapsPrefs;
 
   /**
    * Creates a new GoogleMapsPrefsService instance.
@@ -18,8 +18,8 @@ export class MapsPrefsService implements IAppPrefsService<MapsPrefs> {
 
   /**
    * Loads the user's Google Maps preferences.
-   * If there are no pre-existing preferences, a new AppNotifsPrefs object will be created and saved instead.
-   * @returns The user's Notification preferences represented in an AppNotifsPrefs object.
+   * If there are no pre-existing preferences, a new MapsPrefs object will be created and saved instead.
+   * @returns The user's Notification preferences represented in an MapsPrefs object.
    */
   public async loadPrefs() {
     let prefsResult: MapsPrefs;
@@ -35,11 +35,11 @@ export class MapsPrefsService implements IAppPrefsService<MapsPrefs> {
       }
     );
 
-    MapsPrefsService._prefs = prefsResult;
+    this._prefs = prefsResult;
   }
 
   /**
-   * Updates the user's Notification preferences.
+   * Updates the user's Google Maps preferences.
    * @param prefs The new set of preferences to save.
    * @returns A true or false result representing if the save was successful or not respectively.
    */
@@ -49,16 +49,16 @@ export class MapsPrefsService implements IAppPrefsService<MapsPrefs> {
     await this.nativeStorage.setItem(MapsPrefsService.storageKey, prefs)
       .then(() => {
         didSucceed = true;
-        MapsPrefsService._prefs = prefs;
+        this._prefs = prefs;
       });
 
     return didSucceed;
   }
 
   /**
-   * The user's current Notification preferences.
+   * The user's current Google Maps preferences.
    */
-  public static get prefs() {
-    return MapsPrefsService._prefs;
+  public get prefs(): MapsPrefs {
+    return this._prefs;
   }
 }

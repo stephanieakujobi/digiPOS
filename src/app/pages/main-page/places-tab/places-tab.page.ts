@@ -147,7 +147,7 @@ export class PlacesTabPage {
    * @param placeElement The HTMLElement to animate upon deletion.
    */
   async onDeletePlace(place: Place, ionItemSliding: HTMLIonItemSlidingElement, placeElement: HTMLElement) {
-    if(PlacesPrefsService.prefs.askBeforeDelete) {
+    if(this.prefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
         () => this.doDeletePlace(place, ionItemSliding, placeElement),
         () => ionItemSliding.close()
@@ -229,10 +229,7 @@ export class PlacesTabPage {
    * Once the user closes the modal, their preferences are saved.
    */
   async openPrefsModal() {
-    this.popupsService.showModal(PlacesPrefsModalPage, null, async data => {
-      const saveSuccess: boolean = await this.prefsService.savePrefs(data);
-      this.popupsService.showToast(saveSuccess? "Preferences updated." : "Failed to update preferences - unknown error");
-    });
+    this.popupsService.showModal(PlacesPrefsModalPage);
   }
 
   /**

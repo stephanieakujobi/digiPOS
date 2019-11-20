@@ -11,7 +11,7 @@ import { IAppPrefsService } from 'src/app/interfaces/IAppPrefsService';
 })
 export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
   private static readonly storageKey = "notifications_preferences";
-  private static _prefs = new NotifsPrefs();
+  private _prefs: NotifsPrefs;
 
   private onUpdatedCallbacks: Function[];
 
@@ -42,7 +42,7 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
       }
     );
 
-    NotifsPrefsService._prefs = prefsResult;
+    this._prefs = prefsResult;
   }
 
   /**
@@ -56,7 +56,7 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
     await this.nativeStorage.setItem(NotifsPrefsService.storageKey, prefs)
       .then(() => {
         didSucceed = true;
-        NotifsPrefsService._prefs = prefs;
+        this._prefs = prefs;
       });
 
     if(didSucceed) {
@@ -77,7 +77,7 @@ export class NotifsPrefsService implements IAppPrefsService<NotifsPrefs> {
   /**
    * The user's current Notification preferences.
    */
-  public static get prefs() {
-    return NotifsPrefsService._prefs;
+  public get prefs() {
+    return this._prefs;
   }
 }

@@ -98,7 +98,7 @@ export class NotificationsTabPage {
    * @param notifElement The HTMLElement to animate upon deletion.
    */
   async onDeleteNotif(notification: Notification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
-    if(NotifsPrefsService.prefs.askBeforeDelete) {
+    if(this.prefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Notification", "Are you sure you want to delete this notification?",
         () => this.doDeleteNotif(notification, ionItemSliding, notifElement),
         () => ionItemSliding.close()
@@ -174,10 +174,7 @@ export class NotificationsTabPage {
    * Once the user closes the modal, their Notification preferences are saved.
    */
   async openPrefsModal() {
-    this.popupsService.showModal(NotifsPrefsModalPage, null, async data => {
-      const saveSuccess: boolean = await this.prefsService.savePrefs(data);
-      this.popupsService.showToast(saveSuccess ? "Preferences updated." : "Failed to update preferences - unknown error");
-    })
+    this.popupsService.showModal(NotifsPrefsModalPage);
   }
 
   /**

@@ -84,9 +84,9 @@ export class PopupsService {
    * Creates and displays a modal page to the user.
    * @param component The component page reference to display.
    * @param properties Any properties that may be passed to the modal page.
-   * @param onDismissed The callback function to run when the user dismisses the modal page.
+   * @param onDismissed The optional callback function to run when the user dismisses the modal page.
    */
-  public async showModal(component: ComponentRef, properties: ComponentProps<ComponentRef>, onDismissed: (data: any) => void) {
+  public async showModal(component: ComponentRef, properties?: ComponentProps<ComponentRef>, onDismissed?: (data: any) => void) {
     const modal = await this.modalController.create({
       component: component,
       componentProps: properties,
@@ -96,7 +96,9 @@ export class PopupsService {
     await modal.present();
 
     await modal.onWillDismiss().then(({ data }) => {
-      onDismissed(data);
+      if(onDismissed != null) {
+        onDismissed(data);
+      }
     });
   }
 

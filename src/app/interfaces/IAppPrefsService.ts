@@ -4,6 +4,11 @@
  */
 export interface IAppPrefsService<T> {
     /**
+     * The user's current preferences.
+     */
+    prefs: T;
+
+    /**
      * Loads the user's preferences from storage.
      */
     loadPrefs(): void;
