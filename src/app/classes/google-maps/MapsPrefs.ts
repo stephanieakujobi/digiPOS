@@ -14,6 +14,6 @@ export class MapsPrefs {
         this.showMySavedPlaces = true;
         this.showMyReportedPlaces = true;
         this.showAllReportedPlaces = true;
-        this.searchRadiusKm = 100;
+        this.searchRadiusKm = 50;
     }
 }

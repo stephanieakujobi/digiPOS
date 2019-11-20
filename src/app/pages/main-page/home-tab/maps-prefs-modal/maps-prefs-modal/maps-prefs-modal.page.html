@@ -34,7 +34,7 @@
     <ion-label>Max search distance</ion-label>
   </ion-item>
   <ion-item lines="none">
-    <ion-range min="10" max="100" step="5" color="primary" snaps ticks pin [(ngModel)]="prefs.searchRadiusKm">
+    <ion-range min="5" max="200" step="5" color="primary" snaps ticks pin [(ngModel)]="prefs.searchRadiusKm">
       <ion-label slot="end">{{prefs.searchRadiusKm}}km</ion-label>
     </ion-range>
   </ion-item>

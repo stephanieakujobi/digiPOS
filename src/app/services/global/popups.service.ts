@@ -42,9 +42,9 @@ export class PopupsService {
    * @param header The header text to display.
    * @param message The message text to display. 
    * @param onYesClicked The callback function to run when the user presses the "yes" button.
-   * @param onNoClicked The callback function to run when the user presses the "no" button.
+   * @param onNoClicked The optional callback function to run when the user presses the "no" button.
    */
-  public async showConfirmationAlert(header: string, message: string, onYesClicked: () => void, onNoClicked: () => void) {
+  public async showConfirmationAlert(header: string, message: string, onYesClicked: () => void, onNoClicked?: () => void) {
     const alert = await this.createAlert(header, message);
     alert.buttons = [
       {

@@ -1,10 +1,10 @@
 import { ModalController } from '@ionic/angular';
 import { PopupsService } from 'src/app/services/global/popups.service';
-import { IAppPrefsService } from 'src/app/interfaces/IAppPrefsService';
+import { PrefsService } from './PrefsService';
 export abstract class PrefsModal<T> {
     protected prefs: T;
 
-    constructor(private modalController: ModalController, private prefsService: IAppPrefsService<T>, private popupsService: PopupsService) {
+    constructor(private modalController: ModalController, private prefsService: PrefsService<T>, private popupsService: PopupsService) {
         this.prefs = prefsService.prefs;
     }
 

@@ -280,8 +280,7 @@ export class GoogleMapsService implements OnDestroy {
         async () => {
           result = await this.fbpService.deletePlace(place);
           this.updatePlaceMarker(result, placeMarker);
-        },
-        null
+        }
       );
     }
     else {
