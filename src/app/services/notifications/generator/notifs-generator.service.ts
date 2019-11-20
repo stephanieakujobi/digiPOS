@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { NotifsStorageService } from '../storage/notifis-storage.service';
-import { NotifsPrefsService } from '../preferences/notifs-prefs.service';
 import { TriggerProcess } from 'src/app/classes/notifications/TriggerProcess';
 import { Notification } from 'src/app/classes/notifications/Notification';
 import { FirebasePlacesService } from '../../firebase/places/firebase-places.service';
@@ -8,6 +6,7 @@ import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The NotifsGeneratorService watches for various events and sends the user Notifications where applicable.
@@ -21,16 +20,12 @@ export class NotifsGeneratorService {
 
   /**
    * Creates a new NotifsGeneratorService
-   * @param storageService The NotifsStorageService used to add/store the user's Notifications.
-   * @param prefsService The NotifsPrefsService used to determine if/how Notifications will be sent to the user.
    * @param fbpService The FirebasePlacesService used to monitor the user's saved Places and send notifications based on them in certain contexts.
    * @param vibration The Vibration service used to vibrate the user's device when receiving a Notification, if their preferences allow for it.
    * @param localNotifs The LocalNotifications used to show push notifications on the user's device, if their preferences allow for it.
    * @param navController The NavController used to navigate to the NotificationsPage when the user clicks on a push notification.
    */
   constructor(
-    private storageService: NotifsStorageService,
-    private prefsService: NotifsPrefsService,
     private fbpService: FirebasePlacesService,
     private vibration: Vibration,
     private localNotifs: LocalNotifications,
@@ -40,7 +35,7 @@ export class NotifsGeneratorService {
     this.onGeneratedCallbacks = [];
 
     this.addPlacesNotUpdatedProcess();
-    this.prefsService.subscribeOnUpdated(() => this.watchProcesses());
+    GlobalServices.notifsPrefsService.subscribeOnUpdated(() => this.watchProcesses());
   }
 
   /**
@@ -48,7 +43,7 @@ export class NotifsGeneratorService {
    * If the user's NotifPrefs have Notifications disabled, then all processes are stopped instead.
    */
   public watchProcesses() {
-    if(this.prefsService.prefs.enableNotifs) {
+    if(GlobalServices.notifsPrefsService.prefs.enableNotifs) {
       this.processes.forEach(p => p.start());
     }
     else {
@@ -84,8 +79,8 @@ export class NotifsGeneratorService {
    * @param notif The Notification to add.
    */
   private async addNotification(notif: Notification) {
-    if(this.prefsService.prefs.enableNotifs && !this.storageService.hasNotif(notif)) {
-      const addSuccess = await this.storageService.addNotif(notif);
+    if(GlobalServices.notifsPrefsService.prefs.enableNotifs && !GlobalServices.notifsStorageService.hasNotif(notif)) {
+      const addSuccess = await GlobalServices.notifsStorageService.addNotif(notif);
 
       if(addSuccess) {
         this.sendPushNotification(notif);
@@ -102,7 +97,7 @@ export class NotifsGeneratorService {
    * @param notif The Notification whose contents will be displayed in the push notification.
    */
   private async sendPushNotification(notif: Notification) {
-    if(this.prefsService.prefs.enablePushNotifs && await this.localNotifs.hasPermission()) {
+    if(GlobalServices.notifsPrefsService.prefs.enablePushNotifs && await this.localNotifs.hasPermission()) {
       this.localNotifs.schedule({
         title: notif.title,
         text: notif.summary,
@@ -127,7 +122,7 @@ export class NotifsGeneratorService {
    * The device will not vibrate if the user's NotifPrefs has vibration disabled.
    */
   private vibrateDevice() {
-    if(this.prefsService.prefs.vibrateOnNotifReceived) {
+    if(GlobalServices.notifsPrefsService.prefs.enableVibration) {
       this.vibration.vibrate([100, 50, 100]);
     }
   }

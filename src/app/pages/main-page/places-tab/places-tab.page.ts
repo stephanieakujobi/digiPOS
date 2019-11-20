@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { PlaceViewModalPage } from './place-view-modal/place-view-modal.page';
 import { PlacesPrefsModalPage } from './places-prefs/places-prefs-modal.page';
-import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase-places.service';
 import { Place } from 'src/app/models/places/Place';
 import { PopupsService } from 'src/app/services/global/popups.service';
 import { ComponentRef, ComponentProps } from '@ionic/core';
 import { HomeTabPage } from '../home-tab/home-tab.page';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The page displayed to the user when they select the "Places" tab.
@@ -21,10 +21,9 @@ export class PlacesTabPage {
   /**
    * Creates a new PlaceTabPage.
    * @param fbpService The FirebasePlacesService used to execute CRUD operations on the user's saved Places.
-   * @param prefsService The PlacesPrefsService used to update the user's saved Places preferences.
    * @param popupsService The PopupsService used to display alerts, toasts, and modals.
    */
-  constructor(private fbpService: FirebasePlacesService, private prefsService: PlacesPrefsService, private popupsService: PopupsService) { }
+  constructor(private fbpService: FirebasePlacesService, private popupsService: PopupsService) { }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
@@ -147,7 +146,7 @@ export class PlacesTabPage {
    * @param placeElement The HTMLElement to animate upon deletion.
    */
   async onDeletePlace(place: Place, ionItemSliding: HTMLIonItemSlidingElement, placeElement: HTMLElement) {
-    if(this.prefsService.prefs.askBeforeDelete) {
+    if(GlobalServices.placesPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
         () => this.doDeletePlace(place, ionItemSliding, placeElement),
         () => ionItemSliding.close()

@@ -15,19 +15,19 @@
   <ion-item lines="none">
     <ion-img src="assets/images/map-icons/place-marker-orange.png"></ion-img>
     <ion-label>Show my saved places</ion-label>
-    <ion-checkbox slot="start" [(ngModel)]="prefs.showMySavedPlaces"></ion-checkbox>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.showUserSavedPlaces"></ion-checkbox>
   </ion-item>
 
   <ion-item lines="none">
     <ion-img src="assets/images/map-icons/place-marker-blue.png"></ion-img>
     <ion-label>Show my reported places</ion-label>
-    <ion-checkbox slot="start" [(ngModel)]="prefs.showMyReportedPlaces"></ion-checkbox>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.showUserReportedPlaces"></ion-checkbox>
   </ion-item>
 
   <ion-item lines="full">
     <ion-img src="assets/images/map-icons/place-marker-blue-faded.png"></ion-img>
-    <ion-label>Show all reported places</ion-label>
-    <ion-checkbox slot="start" [(ngModel)]="prefs.showAllReportedPlaces"></ion-checkbox>
+    <ion-label>Show other reported places</ion-label>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.showOtherReportedPlaces"></ion-checkbox>
   </ion-item>
 
   <ion-item lines="none">

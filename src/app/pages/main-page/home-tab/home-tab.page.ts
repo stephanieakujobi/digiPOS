@@ -7,7 +7,7 @@ import { NavController } from '@ionic/angular';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { PopupsService } from 'src/app/services/global/popups.service';
 import { MapsPrefsModalPage } from './maps-prefs-modal/maps-prefs-modal/maps-prefs-modal.page';
-import { MapsPrefsService } from 'src/app/services/google-maps/preferences/maps-prefs.service';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The page displayed to the user when they select the "Home" tab.
@@ -25,20 +25,19 @@ export class HomeTabPage implements OnInit {
 
   private static gmapsService: GoogleMapsService;
   private static navController: NavController;
+  private static reloadMarkers: boolean = true;
 
   /**
    * Creates a new HomeTabPage
    * @param gmapsService The GoogleMapsService used to display an interactable GoogleMap to the user.
    * @param navController The NavController used to redirect the user to this page from the saved Places page when viewing a saved Place on the map.
    * @param popupsService The PopupsService used to show the MapsPrefsModalPage to the user.
-   * @param prefsService The MapsPrefsService used to update the user's Google Maps prefernces. 
    * @param keyboard The Keyboard used to hide the user's device's native keyboard when searching Places.
    */
   constructor(
     private gmapsService: GoogleMapsService,
     private navController: NavController,
     private popupsService: PopupsService,
-    private prefsService: MapsPrefsService,
     private keyboard: Keyboard
   ) {
     this.enableFindNearby = true;
@@ -50,8 +49,6 @@ export class HomeTabPage implements OnInit {
   async ngOnInit() {
     this.gmapsService.initMap("map", () => {
       this.toggleProgressbar();
-      this.gmapsService.pinSavedPlaces();
-      this.gmapsService.pinReportedPlaces();
       this.mapFinishedLoading = true;
     });
   }
@@ -61,6 +58,24 @@ export class HomeTabPage implements OnInit {
    */
   ionViewDidEnter() {
     this.progressBar = document.getElementById("progress-bar") as HTMLIonProgressBarElement;
+
+    if(HomeTabPage.reloadMarkers) {
+      if(GlobalServices.mapsPrefsService.prefs.showUserSavedPlaces) {
+        this.gmapsService.pinSavedPlaces();
+      }
+      if(GlobalServices.mapsPrefsService.prefs.showUserReportedPlaces) {
+        this.gmapsService.pinUserReportedPlaces();
+      }
+      if(GlobalServices.mapsPrefsService.prefs.showOtherReportedPlaces) {
+        this.gmapsService.pinOtherReportedPlaces();
+      }
+    }
+  }
+
+  ionViewWillLeave() {
+    this.gmapsService.clearSavedMarkers();
+    this.gmapsService.clearUserReportedMarkers();
+    this.gmapsService.clearOtherReportedMarkers();
   }
 
   /**
@@ -86,9 +101,12 @@ export class HomeTabPage implements OnInit {
    * @param place The Place to view on the map.
    */
   public static viewSavedPlace(place: Place) {
+    this.reloadMarkers = false;
+    const mapPlace: MapPlace = new PlaceFormatter().mapPlaceFromPlace(place);
+
     this.navController.navigateRoot("/main/tabs/home-tab").then(() => {
-      const mapPlace: MapPlace = new PlaceFormatter().mapPlaceFromPlace(place);
       this.gmapsService.viewSavedPlace(mapPlace);
+      setTimeout(() => this.reloadMarkers = true, 1);
     });
   }
 
@@ -102,7 +120,7 @@ export class HomeTabPage implements OnInit {
       this.playNearbySearchEffect();
       this.enableFindNearby = false;
 
-      this.gmapsService.findNearby(100000, () => {
+      this.gmapsService.findNearby(GlobalServices.mapsPrefsService.prefs.searchRadiusKm * 1000, () => {
         this.toggleProgressbar();
         this.enableFindNearby = true;
       });

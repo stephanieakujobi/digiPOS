@@ -4,6 +4,11 @@ import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Environment } from '@ionic-native/google-maps';
+import { MapsPrefsService } from './services/google-maps/preferences/maps-prefs.service';
+import { PlacesPrefsService } from './services/places/preferences/places-prefs.service';
+import { NotifsPrefsService } from './services/notifications/preferences/notifs-prefs.service';
+import { NotifsStorageService } from './services/notifications/storage/notifis-storage.service';
+import { GlobalServices } from './classes/global/GlobalServices';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +16,16 @@ import { Environment } from '@ionic-native/google-maps';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
-  constructor(private platform: Platform, private splashScreen: SplashScreen, private statusBar: StatusBar) {
+  constructor(
+    private platform: Platform,
+    private splashScreen: SplashScreen,
+    private statusBar: StatusBar,
+    mapsPrefsService: MapsPrefsService,
+    placesPrefsService: PlacesPrefsService,
+    notifsPrefsService: NotifsPrefsService,
+    notifsStorage: NotifsStorageService
+  ) {
+    GlobalServices.initialize(mapsPrefsService, placesPrefsService, notifsPrefsService, notifsStorage);
     this.initializeApp();
   }
 

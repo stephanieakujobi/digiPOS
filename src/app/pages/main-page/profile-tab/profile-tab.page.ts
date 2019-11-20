@@ -15,9 +15,8 @@ export class ProfileTabPage {
 
   /**
    * Creates a new ProfileTabPage
-   * @param fbAuthService The FirebaseAuthService used to retrieve the currently logged-in user's profile data.
    */
-  constructor(private fbAuthService: FirebaseAuthService) {
-    this.userInfo = this.fbAuthService.authedSalesRep.info;
+  constructor() {
+    this.userInfo = FirebaseAuthService.authedSalesRep.info;
   }
 }

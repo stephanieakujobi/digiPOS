@@ -5,7 +5,7 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
  * @param T The object serving as the model for user preferences that will be saved and loaded.
  */
 export abstract class PrefsService<T> {
-    private readonly storageKey: string
+    private readonly storageKey: string;
     private _prefs: T;
 
     /**

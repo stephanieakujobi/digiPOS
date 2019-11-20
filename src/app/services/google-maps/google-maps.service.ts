@@ -16,10 +16,11 @@ import { FirebasePlacesService } from '../firebase/places/firebase-places.servic
 import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { Place } from 'src/app/models/places/Place';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
-import { PlacesPrefsService } from '../places/preferences/places-prefs.service';
 import { PopupsService } from '../global/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
+import { FirebaseAuthService } from '../firebase/authentication/firebase-auth.service';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The GoogleMapsService provides the functions the app needs for the user interacting with a GooleMap.
@@ -34,7 +35,8 @@ export class GoogleMapsService implements OnDestroy {
 
   private searchMarker: PlaceMarker;
   private savedMarkers: PlaceMarker[];
-  private reportedMarkers: PlaceMarker[];
+  private userReportedMarkers: PlaceMarker[];
+  private otherReportedMarkers: PlaceMarker[];
   private nearbyMarkers: PlaceMarker[];
 
   private subscriptions: Subscription;
@@ -55,7 +57,6 @@ export class GoogleMapsService implements OnDestroy {
     private platform: Platform,
     private geolocation: Geolocation,
     private fbpService: FirebasePlacesService,
-    private placesPrefsService: PlacesPrefsService,
     private http: HTTP,
     private popupsService: PopupsService,
     private launchNavigator: LaunchNavigator
@@ -63,9 +64,12 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = false;
     this.nearbyMarkers = [];
     this.savedMarkers = [];
-    this.reportedMarkers = [];
+    this.userReportedMarkers = [];
+    this.otherReportedMarkers = [];
     this.subscriptions = new Subscription();
     this.pFormatter = new PlaceFormatter();
+
+    setInterval(() => console.log(this.savedMarkers, this.userReportedMarkers, this.otherReportedMarkers), 1000);
   }
 
   /**
@@ -160,31 +164,26 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   /**
-   * Searches the database's reported Places for the provided Place, and if an existing match is found, the map will be centered on the Place.
-   * @param place The saved Place to view.
-   */
-  public async viewReportedPlace(place: MapPlace) {
-    this.viewPlaceInPlaceMarkers(place, this.reportedMarkers);
-  }
-
-  /**
    * Selects a MapPlace from a collection of PlaceMarkers to view on the map.
    * @param place the MapPlace to view.
    * @param collection The collection of PlaceMarkers to search for the MapPlace.
    */
   private async viewPlaceInPlaceMarkers(place: MapPlace, collection: PlaceMarker[]) {
-    const result: PlaceMarker[] = collection.filter(m => m.place.address == place.address);
+    const existingPM: PlaceMarker[] = collection.filter(m => m.place.address == place.address);
 
-    if(result.length != 0) {
+    if(existingPM.length != 0) {
       for(const placeMarker of this.savedMarkers) {
         placeMarker.hideInfoWindow();
       }
-      for(const placeMarker of this.reportedMarkers) {
+      for(const placeMarker of this.userReportedMarkers) {
+        placeMarker.hideInfoWindow();
+      }
+      for(const placeMarker of this.otherReportedMarkers) {
         placeMarker.hideInfoWindow();
       }
 
-      await this.centerMap(result[0].place.position);
-      result[0].showInfoWindow();
+      await this.centerMap(place.position);
+      existingPM[0].showInfoWindow();
     }
   }
 
@@ -192,7 +191,7 @@ export class GoogleMapsService implements OnDestroy {
    * Adds a PlaceMarker at the locations of all the user's saved Places.
    */
   public async pinSavedPlaces() {
-    this.clearSavedMarkers();
+    this.clearPlaceMarkers(this.savedMarkers);
 
     for(const place of this.fbpService.savedPlaces) {
       await this.addPlaceMarker(this.pFormatter.mapPlaceFromPlace(place));
@@ -200,13 +199,28 @@ export class GoogleMapsService implements OnDestroy {
   }
 
   /**
-   * Adds a PlaceMarker at the locations of all the database's reported Places.
+   * Adds a PlaceMarker at the locations of all the user's reported Places.
    */
-  public async pinReportedPlaces() {
-    this.clearReportedMarkers();
+  public async pinUserReportedPlaces() {
+    this.clearPlaceMarkers(this.userReportedMarkers);
 
     for(const place of this.fbpService.reportedPlaces) {
-      await this.addPlaceMarker(this.pFormatter.mapPlaceFromReportedPlace(place, this.fbpService.placeIsSavedAndReported(place)));
+      if(place.reportedBy.email == FirebaseAuthService.authedSalesRep.info.email && this.fbpService.savedAddressExists(place.info.address.addressString)) {
+        await this.addPlaceMarker(this.pFormatter.mapPlaceFromReportedPlace(place, true));
+      }
+    }
+  }
+
+  /**
+   * Adds a PlaceMarker at the locations of all other reported Places in the database.
+   */
+  public async pinOtherReportedPlaces() {
+    this.clearPlaceMarkers(this.otherReportedMarkers);
+
+    for(const place of this.fbpService.reportedPlaces) {
+      if(!this.fbpService.savedAddressExists(place.info.address.addressString)) {
+        await this.addPlaceMarker(this.pFormatter.mapPlaceFromReportedPlace(place, false));
+      }
     }
   }
 
@@ -225,11 +239,14 @@ export class GoogleMapsService implements OnDestroy {
 
     if(cacheReference) {
       if(place.isSaved || place.isReported) {
-        if(place.isSaved && (this.savedMarkers.length == 0 || (this.savedMarkers.filter(m => m.place.address == place.address).length == 0))) {
+        if(place.isSaved && !place.isReported && this.markerCollectionContainsPlace(place, this.savedMarkers)) {
           this.savedMarkers.push(placeMarker);
         }
-        if(place.isReported && (this.reportedMarkers.length == 0 || (this.reportedMarkers.filter(m => m.place.address == place.address).length == 0))) {
-          this.reportedMarkers.push(placeMarker);
+        else if(place.isSaved && place.isReported && this.markerCollectionContainsPlace(place, this.userReportedMarkers)) {
+          this.userReportedMarkers.push(placeMarker);
+        }
+        else if(!place.isSaved && place.isReported && this.markerCollectionContainsPlace(place, this.otherReportedMarkers)) {
+          this.otherReportedMarkers.push(placeMarker);
         }
       }
       else {
@@ -238,6 +255,10 @@ export class GoogleMapsService implements OnDestroy {
     }
 
     return placeMarker;
+  }
+
+  private markerCollectionContainsPlace(place: MapPlace, collection: PlaceMarker[]): boolean {
+    return (collection.length == 0 || (collection.filter(m => m.place.address == place.address).length == 0));
   }
 
   /**
@@ -275,7 +296,7 @@ export class GoogleMapsService implements OnDestroy {
     const place: Place = this.pFormatter.placeFromMapPlace(placeMarker.place);
     let result: CRUDResult = await this.fbpService.addPlace(place);
 
-    if(this.placesPrefsService.prefs.askBeforeDelete) {
+    if(GlobalServices.placesPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
         async () => {
           result = await this.fbpService.deletePlace(place);
@@ -320,6 +341,7 @@ export class GoogleMapsService implements OnDestroy {
 
       if(!place.isSaved) {
         this.savedMarkers.splice(this.savedMarkers.indexOf(placeMarker, 1));
+        this.userReportedMarkers.splice(this.userReportedMarkers.indexOf(placeMarker, 1));
       }
 
       placeMarker.remove();
@@ -341,15 +363,20 @@ export class GoogleMapsService implements OnDestroy {
         const places: MapPlace[] = this.parsePlacesResponse(response);
 
         if(places.length == 0) {
-          this.popupsService.showToast("Could not find a place with this address.");
+          this.popupsService.showToast("Could not find any places in your area.");
           callback(null);
         }
         else {
           if(places[0].isSaved) {
-            this.viewSavedPlace(places[0]);
+            if(!places[0].isReported) {
+              this.viewSavedPlace(places[0]);
+            }
+            else {
+              this.viewPlaceInPlaceMarkers(places[0], this.userReportedMarkers);
+            }
           }
           else if(places[0].isReported) {
-            this.viewReportedPlace(places[0]);
+            this.viewPlaceInPlaceMarkers(places[0], this.otherReportedMarkers);
           }
           else {
             this.addPlaceSearchMarker(places[0]);
@@ -378,7 +405,7 @@ export class GoogleMapsService implements OnDestroy {
         const arrLength = places.length;
 
         if(arrLength == 0) {
-          this.popupsService.showToast("No nearby places could be found.");
+          this.popupsService.showToast("Could not find any places in your area.");
           callback(null);
         }
         else {
@@ -428,18 +455,19 @@ export class GoogleMapsService implements OnDestroy {
     return results;
   }
 
-  /**
-   * Removes all cached PlaceMarkers pinning the user's saved Places.
-   */
+
   public clearSavedMarkers() {
     this.clearPlaceMarkers(this.savedMarkers);
   }
 
-  /**
-   * Removes all cached PlaceMarkers pinning the database's reported Places.
-   */
-  public clearReportedMarkers() {
-    this.clearPlaceMarkers(this.reportedMarkers);
+  public clearUserReportedMarkers() {
+    console.log(this.userReportedMarkers);
+    this.clearPlaceMarkers(this.userReportedMarkers);
+    console.log(this.userReportedMarkers);
+  }
+
+  public clearOtherReportedMarkers() {
+    this.clearPlaceMarkers(this.otherReportedMarkers);
   }
 
   /**

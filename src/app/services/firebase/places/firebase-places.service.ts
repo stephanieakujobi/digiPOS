@@ -191,7 +191,7 @@ export class FirebasePlacesService implements OnDestroy {
     else {
       const reportedPlace: ReportedPlace = {
         info: place.info,
-        reportedBy: this.authService.authedSalesRep.info,
+        reportedBy: FirebaseAuthService.authedSalesRep.info,
         dateReported: new Date().toDateString()
       }
 
@@ -253,21 +253,6 @@ export class FirebasePlacesService implements OnDestroy {
     }));
   }
 
-  public placeIsSavedAndReported(place: Place | ReportedPlace): boolean {
-    let isSaved = false;
-    let isReported = false;
-
-    if(!FirebaseAuthService.userIsAuthenticated) {
-      isSaved = this.savedPlaces.filter(p => p.info.address.addressString == place.info.address.addressString).length != 0;
-
-      if(isSaved) {
-        isReported = this.reportedPlaces.filter(p => p.info.address.addressString == place.info.address.addressString).length != 0;
-      }
-    }
-
-    return isReported && isSaved;
-  }
-
   /**
    * Checks if an address string exists in the user's saved Places.
    * @param address the address string to compare.
@@ -313,7 +298,7 @@ export class FirebasePlacesService implements OnDestroy {
    * The user's saved Placees.
    */
   public get savedPlaces(): Place[] {
-    return FirebaseAuthService.userIsAuthenticated ? this.authService.authedSalesRep.savedPlaces : [];
+    return FirebaseAuthService.userIsAuthenticated ? FirebaseAuthService.authedSalesRep.savedPlaces : [];
   }
 
   /**
