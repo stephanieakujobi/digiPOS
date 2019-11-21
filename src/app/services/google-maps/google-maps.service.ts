@@ -21,6 +21,7 @@ import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 import { ReportedPlace } from 'src/app/models/places/ReportedPlace';
+import { async } from 'q';
 
 /**
  * The GoogleMapsService provides the functions the app needs for the user interacting with a GooleMap.
@@ -152,52 +153,57 @@ export class GoogleMapsService implements OnDestroy {
     this.mapShouldFollowUser = position == null;
   }
 
-
+  /**
+   * Pins the specified special PlaceMarkers on the map.
+   * @param saved Whether to show PlaceMarkers representing the user's saved Places on the map.
+   * @param savedReported Whether to show PlaceMarkers representing the user's saved and reported Places on the map.
+   * @param otherReported Whether to show PlaceMarkers representing all other reported Places in the database on the map.
+   */
   public async pinSpecialMarkers(saved: boolean, savedReported: boolean, otherReported: boolean) {
     this.clearSpecialMarkers();
 
     if(saved) {
       const places: Place[] = this.fbpService.savedPlaces.filter(p => !p.isReported);
-      for(const place of places) {
-        await this.addPlaceMarker(this.pFormatter.mapPlaceFromPlace(place));
-      }
+      places.forEach(async p => await this.addPlaceMarker(this.pFormatter.mapPlaceFromPlace(p)));
     }
 
     if(savedReported) {
       const places: Place[] = this.fbpService.savedPlaces.filter(p => p.isReported);
-      for(const place of places) {
-        await this.addPlaceMarker(this.pFormatter.mapPlaceFromPlace(place));
-      }
+      places.forEach(async p => await this.addPlaceMarker(this.pFormatter.mapPlaceFromPlace(p)));
     }
 
     if(otherReported) {
       const places: ReportedPlace[] = [];
 
       this.fbpService.reportedPlaces.forEach(rp => {
-        if(!this.fbpService.savedAddressExists(rp.info.address.addressString)) {
+        if(!this.fbpService.savedPlaces.find(sp => sp.info.address.addressString == rp.info.address.addressString)) {
           places.push(rp);
         }
       });
 
-      for(const place of places) {
-        await this.addPlaceMarker(this.pFormatter.mapPlaceFromReportedPlace(place, false));
-      }
+      places.forEach(async p => await this.addPlaceMarker(this.pFormatter.mapPlaceFromReportedPlace(p, false)));
     }
   }
 
+  /**
+   * Removes all special PlaceMarkers from the map.
+   */
   public clearSpecialMarkers() {
     this.specialMarkers.forEach(m => m.remove());
     this.specialMarkers = [];
   }
 
   /**
-   * Removes all general PlaceMarkers pinned from searching Places.
+   * Removes all generic PlaceMarkers pinned from searching Places.
    */
   public clearNearbyMarkers() {
     this.nearbyMarkers.forEach(m => m.remove());
     this.nearbyMarkers = [];
   }
 
+  /**
+   * Removes the generic map marker pinned by searching for a place.
+   */
   public clearSearchMarker() {
     if(this.searchMarker != null) {
       this.searchMarker.remove();
@@ -221,12 +227,15 @@ export class GoogleMapsService implements OnDestroy {
     }
   }
 
+  /**
+   * Hides any InfoWindows showing from all special PlaceMarkers, nearby PlaceMarkers, and the search PlaceMarker.
+   */
   private hideAllInfoWindows() {
-    for(const placeMarker of this.specialMarkers) {
-      placeMarker.hideInfoWindow();
-    }
-    for(const placeMarker of this.nearbyMarkers) {
-      placeMarker.hideInfoWindow();
+    this.specialMarkers.forEach(m => m.hideInfoWindow());
+    this.nearbyMarkers.forEach(m => m.hideInfoWindow());
+
+    if(this.searchMarker != null) {
+      this.searchMarker.hideInfoWindow();
     }
   }
 
@@ -269,6 +278,12 @@ export class GoogleMapsService implements OnDestroy {
     return placeMarker;
   }
 
+  /**
+   * Compares the address of a MapPlace to the addresses of a collection of PlaceMarkers for a match.
+   * @param place The MapPlace whose address to search.
+   * @param collection The collection of PlaceMarkers to search for the MapPlace's address in.
+   * @returns True if the MapPlace's address was found in the collection, and false if not.
+   */
   private markerExistsInCollection(place: MapPlace, collection: PlaceMarker[]): boolean {
     return !(collection.length == 0 || (collection.find(m => m.place.address == place.address) == null));
   }

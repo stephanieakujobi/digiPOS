@@ -77,6 +77,16 @@ export class HomeTabPage implements OnInit {
     }
   }
 
+  /**
+   * Shows/Hides the HTMLIonProgressBarElement at the top of the page.
+   */
+  private toggleProgressbar() {
+    this.progressBar.classList.toggle("hidden");
+  }
+
+  /**
+   * Reloads the special PlaceMarkers from the GoogleMapsService using the user's global MapPrefs to specify which special pins should be shown on the map.
+   */
   private reloadSpecialMarkers() {
     const prefs: MapsPrefs = GlobalServices.mapsPrefsService.prefs;
     this.gmapsService.pinSpecialMarkers(prefs.showSavedPlaces, prefs.showSavedReportedPlaces, prefs.showOtherReportedPlaces);
@@ -134,12 +144,16 @@ export class HomeTabPage implements OnInit {
   }
 
   /**
-   * Shows/Hides the HTMLIonProgressBarElement at the top of the page.
+   * Clears the place-search marker and nearby-search markers from the map.
    */
-  private toggleProgressbar() {
-    this.progressBar.classList.toggle("hidden");
+  clearGenericMarkers() {
+    this.gmapsService.clearSearchMarker();
+    this.gmapsService.clearNearbyMarkers();
   }
 
+  /**
+   * Plays the radial-wave visual effect when the user presses the nearby-search floating-action-button.
+   */
   private playNearbySearchEffect() {
     const effect = document.getElementById("nearby-search-effect") as HTMLDivElement;
     effect.classList.remove("animate")
@@ -148,6 +162,10 @@ export class HomeTabPage implements OnInit {
     setTimeout(() => effect.classList.remove("animate"), 1500);
   }
 
+  /**
+   * Called from the page when the user presses the settings icon on the top-right of the page.
+   * Opens the MapsPrefsModalPage for the user to configure their global MapsPrefs.
+   */
   openPrefsModal() {
     this.popupsService.showModal(MapsPrefsModalPage);
   }
