@@ -8,6 +8,7 @@ import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { PopupsService } from 'src/app/services/global/popups.service';
 import { MapsPrefsModalPage } from './maps-prefs-modal/maps-prefs-modal/maps-prefs-modal.page';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
+import { MapsPrefs } from 'src/app/classes/google-maps/MapsPrefs';
 
 /**
  * The page displayed to the user when they select the "Home" tab.
@@ -25,7 +26,8 @@ export class HomeTabPage implements OnInit {
 
   private static gmapsService: GoogleMapsService;
   private static navController: NavController;
-  private static reloadMarkers: boolean = true;
+  private static reloadMarkersOnViewEnter: boolean = false;
+  private static clearSearchMarkerOnViewLeave: boolean = false;
 
   /**
    * Creates a new HomeTabPage
@@ -49,33 +51,35 @@ export class HomeTabPage implements OnInit {
   async ngOnInit() {
     this.gmapsService.initMap("map", () => {
       this.toggleProgressbar();
+      this.reloadSpecialMarkers();
       this.mapFinishedLoading = true;
+      HomeTabPage.reloadMarkersOnViewEnter = true;
     });
   }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
    */
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
     this.progressBar = document.getElementById("progress-bar") as HTMLIonProgressBarElement;
-
-    if(HomeTabPage.reloadMarkers) {
-      if(GlobalServices.mapsPrefsService.prefs.showUserSavedPlaces) {
-        this.gmapsService.pinSavedPlaces();
-      }
-      if(GlobalServices.mapsPrefsService.prefs.showUserReportedPlaces) {
-        this.gmapsService.pinUserReportedPlaces();
-      }
-      if(GlobalServices.mapsPrefsService.prefs.showOtherReportedPlaces) {
-        this.gmapsService.pinOtherReportedPlaces();
-      }
+    if(HomeTabPage.reloadMarkersOnViewEnter) {
+      this.reloadSpecialMarkers();
     }
   }
 
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
   ionViewWillLeave() {
-    this.gmapsService.clearSavedMarkers();
-    this.gmapsService.clearUserReportedMarkers();
-    this.gmapsService.clearOtherReportedMarkers();
+    if(HomeTabPage.clearSearchMarkerOnViewLeave) {
+      this.gmapsService.clearSearchMarker();
+      HomeTabPage.clearSearchMarkerOnViewLeave = false;
+    }
+  }
+
+  private reloadSpecialMarkers() {
+    const prefs: MapsPrefs = GlobalServices.mapsPrefsService.prefs;
+    this.gmapsService.pinSpecialMarkers(prefs.showSavedPlaces, prefs.showSavedReportedPlaces, prefs.showOtherReportedPlaces);
   }
 
   /**
@@ -101,12 +105,14 @@ export class HomeTabPage implements OnInit {
    * @param place The Place to view on the map.
    */
   public static viewSavedPlace(place: Place) {
-    this.reloadMarkers = false;
+    this.reloadMarkersOnViewEnter = false;
+    this.clearSearchMarkerOnViewLeave = true;
+
     const mapPlace: MapPlace = new PlaceFormatter().mapPlaceFromPlace(place);
 
     this.navController.navigateRoot("/main/tabs/home-tab").then(() => {
-      this.gmapsService.viewSavedPlace(mapPlace);
-      setTimeout(() => this.reloadMarkers = true, 1);
+      this.gmapsService.viewPlace(mapPlace);
+      setTimeout(() => this.reloadMarkersOnViewEnter = true, 1);
     });
   }
 

@@ -24,6 +24,7 @@ export class FirebasePlacesService implements OnDestroy {
 
   private subscriptions: Subscription;
   private pFormatter: PlaceFormatter;
+  private reportedPlacesLoaded: boolean;
 
   /**
    * Creates a new FirebasePlacesService.
@@ -32,7 +33,6 @@ export class FirebasePlacesService implements OnDestroy {
   constructor(private authService: FirebaseAuthService, private afs: AngularFirestore) {
     this.subscriptions = new Subscription();
     this.pFormatter = new PlaceFormatter();
-    this.loadReportedPlaces();
   }
 
   ngOnDestroy(): void {
@@ -43,11 +43,16 @@ export class FirebasePlacesService implements OnDestroy {
    * Loads all reported Places from a dedicated Firestore collection.
    * These Places can be pinned on the map if desired by the user.
    */
-  private loadReportedPlaces() {
+  public loadReportedPlaces(onComplete: () => void) {
     const collection: AngularFirestoreCollection<ReportedPlace> = this.afs.collection(FirebasePlacesService.REPORTED_PLACES_COL);
 
     this.subscriptions.add(collection.valueChanges().subscribe(places => {
       FirebasePlacesService._reportedPlaces = places;
+
+      if(!this.reportedPlacesLoaded) {
+        this.reportedPlacesLoaded = true;
+        onComplete();
+      }
     }));
   }
 

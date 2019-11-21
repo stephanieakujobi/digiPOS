@@ -48,6 +48,7 @@
 ion-toast {
   --background: var(--ion-color-dark);
   color: var(--ion-color-secondary);
+  pointer-events: none;
 
   &.header-margin.md {
     transform: translateY(58px);
