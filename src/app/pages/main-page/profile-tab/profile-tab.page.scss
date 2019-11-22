@@ -1,8 +1,35 @@
-.avatar {
+ion-avatar {
   margin: auto;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 150px !important; //any size
-  max-height: 150px !important; //any size
+  width: 100%;
+  height: 100%;
+  max-width: 180px; //any size
+  max-height: 180px; //any size
   padding-top: 5px;
+
+  #default-icon {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    color: var(--ion-color-dark);
+
+    ion-icon[name="contact"] {
+      width: inherit;
+      height: inherit;
+    }
+    ion-icon[name="camera"] {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      padding: 6px;
+      background-color: var(--ion-color-secondary);
+      border: solid var(--ion-color-dark) 3px;
+      border-radius: 50%;
+      transform: scale(1.5);
+    }
+  }
+}
+
+ion-card {
+  border-radius: 20px;
+  pointer-events: none;
 }

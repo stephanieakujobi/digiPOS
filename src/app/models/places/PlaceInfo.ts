@@ -1,5 +1,5 @@
-import { Contact } from './Contact';
 import { Address } from './Address';
+import { Contact } from '../global/Contact';
 
 /**
  * The container representing the information about a Place that was filled in by the user.

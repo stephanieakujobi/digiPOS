@@ -5,16 +5,26 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <!-- <img src="https://pbs.twimg.com/profile_images/2833439682/3d44e6de40db4c108bfef35a5d0fec8f.jpeg" /> -->
 
-  <ion-avatar class="avatar">
-    <img src="https://pbs.twimg.com/profile_images/2833439682/3d44e6de40db4c108bfef35a5d0fec8f.jpeg" />
+  <ion-avatar>
+    <div id="default-icon" (click)="pickImage()" *ngIf="userInfo.profilePicUrl == ''">
+      <ion-icon name="contact"></ion-icon>
+      <ion-icon name="camera"></ion-icon>
+    </div>
   </ion-avatar>
 
   <ion-card>
     <ion-list>
       <ion-item lines="inset">
-        <ion-icon name="contacts" slot="start"></ion-icon>
+        <ion-icon name="person" slot="start"></ion-icon>
         <ion-input [value]="userInfo.name" readonly>
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="inset">
+        <ion-icon name="briefcase" slot="start"></ion-icon>
+        <ion-input [value]="userInfo.jobTitle" readonly>
         </ion-input>
       </ion-item>
 

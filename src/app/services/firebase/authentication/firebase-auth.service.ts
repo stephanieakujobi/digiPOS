@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Subscription, Observable } from 'rxjs';
-import { Contact } from 'src/app/models/places/Contact';
 import { SalesRep } from 'src/app/models/SalesRep';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
+import { SalesRepContact } from 'src/app/models/global/SalesRepContact';
 
 declare var require: any;
 
@@ -60,7 +60,7 @@ export class FirebaseAuthService {
           callback(new CRUDResult(false, "Failed to authenticate."));
         }
         else {
-          this.successfulLogin(results[0].info as Contact, () => callback(new CRUDResult(true, "Authentication successful.")));
+          this.successfulLogin(results[0].info as SalesRepContact, () => callback(new CRUDResult(true, "Authentication successful.")));
         }
       }));
     }
@@ -70,9 +70,9 @@ export class FirebaseAuthService {
    * Called from the tryLogin function when the login attempt was successful.
    * Retreives the user's saved data using their email as the select query.
    * If no saved data exists for this user, a blank document will be created for them.
-   * @param salesRepInfo The retrieved Contact info for the authenticated user.
+   * @param salesRepInfo The retrieved SalesRepContact info for the authenticated user.
    */
-  private successfulLogin(salesRepInfo: Contact, callback: () => void) {
+  private successfulLogin(salesRepInfo: SalesRepContact, callback: () => void) {
     //Create the select query...
     const selectQuery = this.afs.collection<SalesRep>(FirebaseAuthService.SALES_REPS, selectQuery => selectQuery
       .where("info.email", "==", salesRepInfo.email)
@@ -99,10 +99,9 @@ export class FirebaseAuthService {
    * Creates a blank document for the user's data.
    * @param info The Contact info to initialize with the data.
    */
-  private async createSalesRep(info: Contact) {
+  private async createSalesRep(info: SalesRepContact) {
     const newSalesRep = {
       info: info,
-      profilePicUrl: "",
       savedPlaces: []
     };
 

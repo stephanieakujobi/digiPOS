@@ -26,6 +26,7 @@
     "@ionic-native/geolocation": "^5.14.0",
     "@ionic-native/google-maps": "^5.5.0",
     "@ionic-native/http": "^5.16.0",
+    "@ionic-native/image-picker": "^5.17.0",
     "@ionic-native/keyboard": "^5.16.0",
     "@ionic-native/launch-navigator": "^5.17.0",
     "@ionic-native/local-notifications": "^5.16.0",
@@ -47,6 +48,7 @@
     "cordova-plugin-local-notification": "^0.9.0-beta.2",
     "cordova-plugin-nativegeocoder": "^3.2.2",
     "cordova-plugin-nativestorage": "^2.3.2",
+    "cordova-plugin-telerik-imagepicker": "^2.3.3",
     "cordova-plugin-vibration": "^3.1.1",
     "core-js": "^2.5.4",
     "firebase": "^7.2.2",
@@ -108,7 +110,8 @@
         "OKHTTP_VERSION": "3.10.0",
         "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBQffU3Ij5dt5Uc8LYoFQO4q2CDLyyusM8"
       },
-      "cordova-plugin-android-permissions": {}
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-telerik-imagepicker": {}
     },
     "platforms": [
       "browser"
