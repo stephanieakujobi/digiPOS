@@ -25,6 +25,7 @@ import { PopupsService } from './services/global/popups/popups.service';
 import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -51,6 +52,7 @@ import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
     LaunchNavigator,
     LocalNotifications,
     Vibration,
+    AndroidPermissions,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

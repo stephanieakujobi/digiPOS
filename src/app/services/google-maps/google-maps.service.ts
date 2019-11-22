@@ -408,7 +408,7 @@ export class GoogleMapsService implements OnDestroy {
           this.clearNearbyMarkers();
 
           for(let i = 0; i < arrLength; i++) {
-            if(!places[i].isSaved) {
+            if(!places[i].isSaved && !places[i].isReported) {
               this.addPlaceMarker(places[i]);
             }
           }

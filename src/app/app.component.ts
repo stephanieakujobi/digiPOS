@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Environment } from '@ionic-native/google-maps';
 import { MapsPrefsService } from './services/google-maps/preferences/maps-prefs.service';
 import { PlacesPrefsService } from './services/places/preferences/places-prefs.service';
 import { NotifsPrefsService } from './services/notifications/preferences/notifs-prefs.service';
 import { NotifsStorageService } from './services/notifications/storage/notifis-storage.service';
 import { GlobalServices } from './classes/global/GlobalServices';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 
 @Component({
   selector: 'app-root',
@@ -20,30 +19,35 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    mapsPrefsService: MapsPrefsService,
-    placesPrefsService: PlacesPrefsService,
-    notifsPrefsService: NotifsPrefsService,
-    notifsStorage: NotifsStorageService
+    private androidPerms: AndroidPermissions,
+    private mapsPrefsService: MapsPrefsService,
+    private placesPrefsService: PlacesPrefsService,
+    private notifsPrefsService: NotifsPrefsService,
+    private notifsStorage: NotifsStorageService
   ) {
-    GlobalServices.initialize(mapsPrefsService, placesPrefsService, notifsPrefsService, notifsStorage);
     this.initializeApp();
   }
 
-  initializeApp() {
+  private initializeApp() {
     this.platform.ready().then(() => {
-      Environment.setEnv({
-        // Api key for your server
-        // (Make sure the api key should have Website restrictions for your website domain only)
-        //'API_KEY_FOR_BROWSER_RELEASE': 'API-KEY',
-
-        // Api key for local development
-        // (Make sure the api key should have Website restrictions for 'http://localhost' only)
-        'API_KEY_FOR_BROWSER_DEBUG': ''
-      });
       this.statusBar.styleDefault();
       this.splashScreen.hide();
 
+      GlobalServices.initialize(this.mapsPrefsService, this.placesPrefsService, this.notifsPrefsService, this.notifsStorage);
+      this.requestAndroidLocation();
+
       this.platform.backButton.observers.pop();
     });
+  }
+
+  private requestAndroidLocation() {
+    this.androidPerms.checkPermission(this.androidPerms.PERMISSION.ACCESS_FINE_LOCATION).then(
+      result => {
+        if(!result.hasPermission) {
+          this.androidPerms.requestPermission(this.androidPerms.PERMISSION.ACCESS_FINE_LOCATION);
+        }
+      },
+      error => this.androidPerms.requestPermission(this.androidPerms.PERMISSION.ACCESS_FINE_LOCATION)
+    );
   }
 }
