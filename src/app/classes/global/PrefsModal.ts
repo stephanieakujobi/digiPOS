@@ -1,5 +1,5 @@
 import { ModalController } from '@ionic/angular';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { PrefsService } from './PrefsService';
 
 /**

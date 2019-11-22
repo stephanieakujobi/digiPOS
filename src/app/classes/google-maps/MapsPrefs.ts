@@ -5,15 +5,17 @@ export class MapsPrefs {
     public showSavedPlaces: boolean;
     public showSavedReportedPlaces: boolean;
     public showOtherReportedPlaces: boolean;
-    public searchRadiusKm: number
+    public searchRadiusKm: number;
+    public prefMapsApp: string;
 
     /**
      * Creates a new MapsPrefs instance with default settings.
      */
-    public constructor() {
+    public constructor(defaultMapsApp: string) {
         this.showSavedPlaces = true;
         this.showSavedReportedPlaces = true;
         this.showOtherReportedPlaces = true;
         this.searchRadiusKm = 50;
+        this.prefMapsApp = defaultMapsApp;
     }
 }

@@ -16,12 +16,11 @@ import { FirebasePlacesService } from '../firebase/places/firebase-places.servic
 import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { Place } from 'src/app/models/places/Place';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
-import { PopupsService } from '../global/popups.service';
+import { PopupsService } from '../global/popups/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 import { ReportedPlace } from 'src/app/models/places/ReportedPlace';
-import { async } from 'q';
 
 /**
  * The GoogleMapsService provides the functions the app needs for the user interacting with a GooleMap.
@@ -45,7 +44,6 @@ export class GoogleMapsService implements OnDestroy {
 
   /**
    * Creates a new GoogleMapsService.
-   * @param platform The Platform used to detect when the native device is ready for native system calls to be made.
    * @param geolocation The Geolocation used to track the user's device.
    * @param fbpService The FirebasePlacesService used to display Places on the map.
    * @param http The HTTP used to create HTTP requests to the Google Maps API.
@@ -53,7 +51,6 @@ export class GoogleMapsService implements OnDestroy {
    * @param launchNavigator the LaunchNavigator used to launch the user's native maps application when starting a route to a Place on the map.
    */
   constructor(
-    private platform: Platform,
     private geolocation: Geolocation,
     private fbpService: FirebasePlacesService,
     private http: HTTP,
@@ -73,7 +70,6 @@ export class GoogleMapsService implements OnDestroy {
    * @param onComplete The callback function to run when the map has finished initializing.
    */
   public async initMap(mapElementId: string, onComplete: () => void) {
-    await this.platform.ready();
     await this.createMap(mapElementId);
 
     this.fbpService.loadReportedPlaces(() => {
@@ -332,7 +328,7 @@ export class GoogleMapsService implements OnDestroy {
   private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
     let options: LaunchNavigatorOptions = {
       start: `${this.userPos.lat}, ${this.userPos.lng}`,
-      app: this.launchNavigator.APP.GOOGLE_MAPS
+      app: GlobalServices.mapsPrefsService.prefs.prefMapsApp
     }
 
     this.launchNavigator.navigate(placeMarker.place.address, options)

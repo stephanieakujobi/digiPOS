@@ -5,7 +5,7 @@ import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-ba
 import { NotifSeverity } from 'src/app/classes/notifications/NotifSeverity';
 import { NotifsPrefsModalPage } from './notifications-prefs-modal/notifications-prefs-modal.page';
 import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**

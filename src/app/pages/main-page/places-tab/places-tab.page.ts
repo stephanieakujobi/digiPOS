@@ -4,7 +4,7 @@ import { PlacesPrefsModalPage } from './places-prefs/places-prefs-modal.page';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase-places.service';
 import { Place } from 'src/app/models/places/Place';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { ComponentRef, ComponentProps } from '@ionic/core';
 import { HomeTabPage } from '../home-tab/home-tab.page';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';

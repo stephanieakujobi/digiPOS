@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { Place } from 'src/app/models/places/Place';
 import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase-places.service';
 
 /**

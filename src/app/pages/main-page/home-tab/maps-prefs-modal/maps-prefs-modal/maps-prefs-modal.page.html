@@ -38,4 +38,13 @@
       <ion-label slot="end">{{prefs.searchRadiusKm}}km</ion-label>
     </ion-range>
   </ion-item>
+
+  <ion-item lines="none">
+    <ion-label>Preferred maps app:</ion-label>
+    <ion-select interfaceOptions="customPopoverOptions" interface="popover" [(ngModel)]="prefs.prefMapsApp">
+      <ion-select-option *ngFor="let app of launchNavService.availableApps" [value]="app">
+        {{launchNavService.getAppDisplayName(app)}}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
 </ion-content>

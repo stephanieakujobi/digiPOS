@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { PlacesPrefs } from 'src/app/classes/places/PlacesPrefs';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { PrefsModal } from 'src/app/classes/global/PrefsModal';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 

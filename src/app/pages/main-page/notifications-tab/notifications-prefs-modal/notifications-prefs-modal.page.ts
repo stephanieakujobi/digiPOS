@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NotifsPrefs } from 'src/app/classes/notifications/NotifsPrefs';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { PrefsModal } from 'src/app/classes/global/PrefsModal';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 

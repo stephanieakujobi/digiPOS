@@ -57,7 +57,7 @@ export class FirebaseAuthService {
         //A length of 0 means the select query returned no results; authentication failed.
         if(results.length == 0) {
           this.subscriptions.unsubscribe();
-          callback(new CRUDResult(false, "Invalid authentication."));
+          callback(new CRUDResult(false, "Failed to authenticate."));
         }
         else {
           this.successfulLogin(results[0].info as Contact, () => callback(new CRUDResult(true, "Authentication successful.")));

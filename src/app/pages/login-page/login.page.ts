@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
 import { NavController, ToastController } from '@ionic/angular';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**

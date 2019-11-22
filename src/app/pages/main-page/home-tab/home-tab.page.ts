@@ -5,7 +5,7 @@ import { Place } from 'src/app/models/places/Place'
 import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { NavController } from '@ionic/angular';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { MapsPrefsModalPage } from './maps-prefs-modal/maps-prefs-modal/maps-prefs-modal.page';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 import { MapsPrefs } from 'src/app/classes/google-maps/MapsPrefs';
