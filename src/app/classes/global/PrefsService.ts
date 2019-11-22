@@ -5,6 +5,8 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
  * @param T The object serving as the model for user preferences that will be saved and loaded.
  */
 export abstract class PrefsService<T> {
+    private static onUpdatedCallbacks: Function[] = [];
+
     private readonly storageKey: string;
     private _prefs: T;
 
@@ -58,6 +60,10 @@ export abstract class PrefsService<T> {
                 this._prefs = prefs;
             });
 
+        if(didSucceed) {
+            PrefsService.onUpdatedCallbacks.forEach(c => c());
+        }
+
         return didSucceed;
     }
 
@@ -66,6 +72,14 @@ export abstract class PrefsService<T> {
      * Inherited classes should return a new object of type T.
      */
     protected abstract instantiateNewPrefs(): T;
+
+    /**
+     * Call a function when this PrefsService updates the users preferences.
+     * @param callback The function to call.
+     */
+    public static subscribeOnUpdated(callback: Function) {
+        this.onUpdatedCallbacks.push(callback);
+    }
 
     /**
      * The user's current preferences.

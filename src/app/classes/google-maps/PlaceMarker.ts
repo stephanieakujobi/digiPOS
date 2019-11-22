@@ -85,7 +85,7 @@ export class PlaceMarker implements OnDestroy {
             url: iconUrl,
             size: {
                 width: 24,
-                height: 38
+                height: 40
             }
         });
     }

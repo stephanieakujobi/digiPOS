@@ -20,6 +20,5 @@ export class MapsPrefsModalPage extends PrefsModal<MapsPrefs> {
   */
   constructor(modalController: ModalController, prefsService: MapsPrefsService, popupsService: PopupsService, private launchNavService: LaunchNavService) {
     super(modalController, prefsService, popupsService);
-    console.log(this.prefs);
   }
 }

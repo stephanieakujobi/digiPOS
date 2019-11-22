@@ -121,7 +121,7 @@ export class PlacesTabPage {
    * @param event The input event passed, containing the ion-searchbar's value.
    */
   searchPlaces(event: CustomEvent) {
-    const searchQuery = (event.detail.value as string).toLowerCase();
+    const searchQuery = (event.detail.value as string).toLowerCase().trim();
     const elements = Array.from(document.querySelectorAll(".list-item.place")) as HTMLElement[];
     const arrLength = elements.length;
 

@@ -30,7 +30,7 @@ export class MainTabBarPage {
     }
     else {
       MainTabBarPage.updateUnreadNotifsBadge();
-      this.notifsGenerator.subscribeOnNotifGenerated(MainTabBarPage.updateUnreadNotifsBadge);
+      NotifsGeneratorService.subscribeOnNotifGenerated(() => MainTabBarPage.updateUnreadNotifsBadge());
       this.notifsGenerator.watchProcesses();
     }
   }

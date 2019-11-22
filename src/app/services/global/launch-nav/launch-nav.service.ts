@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
+import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 import { Platform } from '@ionic/angular';
-import { ILatLng } from '@ionic-native/google-maps';
+import { ILatLng, LatLng } from '@ionic-native/google-maps';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +37,18 @@ export class LaunchNavService {
     this._defaultApp = LaunchNavService.platformIsIos ? ln.APP.APPLE_MAPS : ln.APP.GOOGLE_MAPS;
 
     this.initialized = true;
+  }
+
+  public launchMapsApp(appName: string, startLocation: ILatLng | LatLng, destinationAddress: string, onError: (error: any) => void) {
+    let options: LaunchNavigatorOptions = {
+      app: appName,
+      start: `${startLocation.lat}, ${startLocation.lng}`
+    }
+
+    this.launchNavigator.navigate(destinationAddress, options)
+      .catch(err => {
+        onError(err);
+      });
   }
 
   public getAppDisplayName(app: string) {

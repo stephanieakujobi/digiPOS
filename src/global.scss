@@ -29,11 +29,8 @@
   display: none;
 }
 
-.sticky-controls-container {
-  position: sticky;
-  top: 0;
+.header-controls {
   background-color: var(--ion-color-primary-tint);
-  z-index: 1;
 
   ion-item {
     --color: white;
@@ -48,6 +45,7 @@
 ion-toast {
   --background: var(--ion-color-dark);
   color: var(--ion-color-secondary);
+  opacity: 0.75;
   pointer-events: none;
 
   &.header-margin.md {

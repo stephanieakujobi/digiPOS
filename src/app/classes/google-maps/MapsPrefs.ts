@@ -10,6 +10,7 @@ export class MapsPrefs {
 
     /**
      * Creates a new MapsPrefs instance with default settings.
+     * @param defaultMapsApp The name of the default native Maps application for the user to launch on their device.
      */
     public constructor(defaultMapsApp: string) {
         this.showSavedPlaces = true;

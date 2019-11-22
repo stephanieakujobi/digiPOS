@@ -1,5 +1,4 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Platform } from '@ionic/angular';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { Subscription } from 'rxjs';
 import {
@@ -18,9 +17,9 @@ import { Place } from 'src/app/models/places/Place';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { PopupsService } from '../global/popups/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
-import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 import { ReportedPlace } from 'src/app/models/places/ReportedPlace';
+import { LaunchNavService } from '../global/launch-nav/launch-nav.service';
 
 /**
  * The GoogleMapsService provides the functions the app needs for the user interacting with a GooleMap.
@@ -48,14 +47,14 @@ export class GoogleMapsService implements OnDestroy {
    * @param fbpService The FirebasePlacesService used to display Places on the map.
    * @param http The HTTP used to create HTTP requests to the Google Maps API.
    * @param popupsService the PopupsService used to display various pop-up messages to the user.
-   * @param launchNavigator the LaunchNavigator used to launch the user's native maps application when starting a route to a Place on the map.
+   * @param launchNavService the LaunchNavService used to launch the user's native maps application when starting a route to a Place on the map.
    */
   constructor(
     private geolocation: Geolocation,
     private fbpService: FirebasePlacesService,
     private http: HTTP,
     private popupsService: PopupsService,
-    private launchNavigator: LaunchNavigator
+    private launchNavService: LaunchNavService
   ) {
     this.mapShouldFollowUser = false;
     this.nearbyMarkers = [];
@@ -326,15 +325,11 @@ export class GoogleMapsService implements OnDestroy {
    * @param placeMarker The PlaceMarker that the user has started a route to.
    */
   private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
-    let options: LaunchNavigatorOptions = {
-      start: `${this.userPos.lat}, ${this.userPos.lng}`,
-      app: GlobalServices.mapsPrefsService.prefs.prefMapsApp
-    }
+    const app: string = GlobalServices.mapsPrefsService.prefs.prefMapsApp;
 
-    this.launchNavigator.navigate(placeMarker.place.address, options)
-      .catch(() => {
-        this.popupsService.showToast("Failed to launch maps - unknown error.")
-      });
+    this.launchNavService.launchMapsApp(app, this.userPos, placeMarker.place.address, () => {
+      this.popupsService.showToast("Failed to launch maps - unknown error.");
+    });
   }
 
   /**

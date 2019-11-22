@@ -7,6 +7,7 @@ import { NotifsPrefsModalPage } from './notifications-prefs-modal/notifications-
 import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service';
 import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
+import { NotifsGeneratorService } from 'src/app/services/notifications/generator/notifs-generator.service';
 
 /**
  * The page displayed to the user when they select the Notifications tab.
@@ -22,7 +23,9 @@ export class NotificationsTabPage {
    * Creates a new NotificationsTabPage.
    * @param popupsService The PopupsService used to display alerts and modals.
    */
-  constructor(private popupsService: PopupsService) { }
+  constructor(private popupsService: PopupsService) { 
+    NotifsGeneratorService.subscribeOnNotifGenerated(() => this.sortNotifs());
+  }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle

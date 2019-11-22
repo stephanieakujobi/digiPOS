@@ -7,6 +7,7 @@ import { Vibration } from '@ionic-native/vibration/ngx';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
+import { NotifsPrefsService } from '../preferences/notifs-prefs.service';
 
 /**
  * The NotifsGeneratorService watches for various events and sends the user Notifications where applicable.
@@ -15,8 +16,8 @@ import { GlobalServices } from 'src/app/classes/global/GlobalServices';
   providedIn: 'root'
 })
 export class NotifsGeneratorService {
+  private static onGeneratedCallbacks: Function[] = [];
   private processes: TriggerProcess[];
-  private onGeneratedCallbacks: Function[];
 
   /**
    * Creates a new NotifsGeneratorService
@@ -32,10 +33,9 @@ export class NotifsGeneratorService {
     private navController: NavController
   ) {
     this.processes = [];
-    this.onGeneratedCallbacks = [];
 
     this.addPlacesNotUpdatedProcess();
-    GlobalServices.notifsPrefsService.subscribeOnUpdated(() => this.watchProcesses());
+    NotifsPrefsService.subscribeOnUpdated(() => this.watchProcesses());
   }
 
   /**
@@ -85,7 +85,7 @@ export class NotifsGeneratorService {
       if(addSuccess) {
         this.sendPushNotification(notif);
         this.vibrateDevice();
-        this.onGeneratedCallbacks.forEach(c => c());
+        NotifsGeneratorService.onGeneratedCallbacks.forEach(c => c());
       }
     }
   }
@@ -131,7 +131,7 @@ export class NotifsGeneratorService {
    * Call a function when this NotifsGeneratorService adds a new Notification.
    * @param callback The function to call.
    */
-  public subscribeOnNotifGenerated(callback: Function) {
+  public static subscribeOnNotifGenerated(callback: Function) {
     this.onGeneratedCallbacks.push(callback);
   }
 }

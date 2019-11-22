@@ -9,6 +9,7 @@ import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { MapsPrefsModalPage } from './maps-prefs-modal/maps-prefs-modal/maps-prefs-modal.page';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 import { MapsPrefs } from 'src/app/classes/google-maps/MapsPrefs';
+import { MapsPrefsService } from 'src/app/services/google-maps/preferences/maps-prefs.service';
 
 /**
  * The page displayed to the user when they select the "Home" tab.
@@ -46,6 +47,8 @@ export class HomeTabPage implements OnInit {
 
     HomeTabPage.gmapsService = this.gmapsService;
     HomeTabPage.navController = this.navController;
+    
+    MapsPrefsService.subscribeOnUpdated(() => this.reloadSpecialMarkers());
   }
 
   async ngOnInit() {
