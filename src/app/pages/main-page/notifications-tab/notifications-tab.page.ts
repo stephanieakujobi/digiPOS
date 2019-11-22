@@ -5,8 +5,9 @@ import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-ba
 import { NotifSeverity } from 'src/app/classes/notifications/NotifSeverity';
 import { NotifsPrefsModalPage } from './notifications-prefs-modal/notifications-prefs-modal.page';
 import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service';
-import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
+import { NotifsGeneratorService } from 'src/app/services/notifications/generator/notifs-generator.service';
 
 /**
  * The page displayed to the user when they select the Notifications tab.
@@ -20,10 +21,11 @@ import { PopupsService } from 'src/app/services/global/popups.service';
 export class NotificationsTabPage {
   /**
    * Creates a new NotificationsTabPage.
-   * @param prefsService The NotifsPrefsService used to update the user's notification preferences when changed.
    * @param popupsService The PopupsService used to display alerts and modals.
    */
-  constructor(private storageService: NotifsStorageService, private prefsService: NotifsPrefsService, private popupsService: PopupsService) { }
+  constructor(private popupsService: PopupsService) { 
+    NotifsGeneratorService.subscribeOnNotifGenerated(() => this.sortNotifs());
+  }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
@@ -81,7 +83,7 @@ export class NotificationsTabPage {
    */
   async toggleNotifRead(notification: Notification, ionItemSliding: IonItemSliding) {
     notification.isRead = !notification.isRead;
-    const toggleSuccess = await this.storageService.saveNotifs(this.notifications);
+    const toggleSuccess = await GlobalServices.notifsStorageService.saveNotifs(this.notifications);
 
     if(toggleSuccess) {
       MainTabBarPage.updateUnreadNotifsBadge();
@@ -98,7 +100,7 @@ export class NotificationsTabPage {
    * @param notifElement The HTMLElement to animate upon deletion.
    */
   async onDeleteNotif(notification: Notification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
-    if(NotifsPrefsService.prefs.askBeforeDelete) {
+    if(GlobalServices.notifsPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Notification", "Are you sure you want to delete this notification?",
         () => this.doDeleteNotif(notification, ionItemSliding, notifElement),
         () => ionItemSliding.close()
@@ -121,7 +123,7 @@ export class NotificationsTabPage {
     notifElement.classList.add("deleting");
 
     setTimeout(async () => {
-      const deleteSuccess = await this.storageService.deleteNotif(notification);
+      const deleteSuccess = await GlobalServices.notifsStorageService.deleteNotif(notification);
       if(deleteSuccess) {
         MainTabBarPage.updateUnreadNotifsBadge();
       }
@@ -174,10 +176,7 @@ export class NotificationsTabPage {
    * Once the user closes the modal, their Notification preferences are saved.
    */
   async openPrefsModal() {
-    this.popupsService.showModal(NotifsPrefsModalPage, null, async data => {
-      const saveSuccess: boolean = await this.prefsService.savePrefs(data);
-      this.popupsService.showToast(saveSuccess ? "Preferences updated." : "Failed to update preferences - unknown error");
-    })
+    this.popupsService.showModal(NotifsPrefsModalPage);
   }
 
   /**

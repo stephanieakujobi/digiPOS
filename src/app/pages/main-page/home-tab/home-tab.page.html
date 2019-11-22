@@ -1,9 +1,19 @@
 <ion-header>
   <ion-toolbar color="primary">
+
+    <ion-buttons slot="end">
+      <ion-button (click)="openPrefsModal()">
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Home</ion-title>
+
   </ion-toolbar>
-  <ion-searchbar id="address-searchbar" placeholder="Find a place..." animated (keyup.enter)="findPlace()" *ngIf="mapFinishedLoading">
+
+  <ion-searchbar class="header-controls" id="places-searchbar" placeholder="Find a place..." animated (keyup.enter)="findPlace()"
+    *ngIf="mapFinishedLoading">
   </ion-searchbar>
+
 </ion-header>
 
 <ion-content>
@@ -20,7 +30,7 @@
     </ion-fab>
 
     <ion-fab id="clear-nearby-search-fab" vertical="bottom" horizontal="end">
-      <ion-fab-button size="small" (click)="gmapsService.clearNearbyMarkers()">
+      <ion-fab-button size="small" (click)="clearGenericMarkers()">
         <ion-icon name="close"></ion-icon>
       </ion-fab-button>
     </ion-fab>
@@ -30,5 +40,7 @@
         <ion-icon name="locate"></ion-icon>
       </ion-fab-button>
     </ion-fab>
+
+    <div id="nearby-search-effect"></div>
   </div>
 </ion-content>

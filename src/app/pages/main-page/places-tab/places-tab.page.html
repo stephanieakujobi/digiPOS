@@ -12,14 +12,12 @@
 
     <ion-title>Saved Places</ion-title>
   </ion-toolbar>
-</ion-header>
 
-<ion-content>
-  <div class="sticky-controls-container {{fbpService.savedPlaces.length == 0 ? 'hidden' : ''}}">
+  <div class="header-controls {{fbpService.savedPlaces.length == 0 ? 'hidden' : ''}}">
 
     <ion-item lines="none">
       <ion-label>Sort By:</ion-label>
-      <ion-select id="sort-by-select" [interfaceOptions]="customPopoverOptions" interface="popover" value="ascending"
+      <ion-select id="sort-by-select" interfaceOptions="customPopoverOptions" interface="popover" value="ascending"
         (ionChange)="sortPlaces()">
         <ion-select-option value="ascending">Ascending</ion-select-option>
         <ion-select-option value="descending">Descending</ion-select-option>
@@ -31,11 +29,14 @@
     </ion-item>
 
     <ion-searchbar type="text" placeholder="Search names or addresses" animated debounce="250"
-      (ionChange)="searchPlace($event)">
+      (ionChange)="searchPlaces($event)">
     </ion-searchbar>
 
   </div>
 
+</ion-header>
+
+<ion-content>
   <ion-list class="ion-item-sliding-list" lines="full">
     <ion-item-sliding *ngFor="let p of fbpService.savedPlaces" #slideItem>
 
@@ -49,13 +50,14 @@
               <span class="place-address">{{p.info.address.addressString}}</span>
             </p>
           </ion-label>
-          
+
           <ion-icon class="list-item-icon" name="cloud-done" color="primary" *ngIf="p.isReported"></ion-icon>
           <ion-icon class="list-item-icon" name="cloud-outline" color="medium" *ngIf="!p.isReported"></ion-icon>
 
           <ion-icon class="list-item-icon" name="star" color="tertiary" *ngIf="p.saveState == 'starred'"></ion-icon>
-          <ion-icon class="list-item-icon" name="star-outline" color="medium" *ngIf="p.saveState != 'starred'"></ion-icon>
-          </ion-item>
+          <ion-icon class="list-item-icon" name="star-outline" color="medium" *ngIf="p.saveState != 'starred'">
+          </ion-icon>
+        </ion-item>
       </div>
 
       <ion-item-options side="start" (ionSwipe)="onDeletePlace(p, slideItem, placeElement)">

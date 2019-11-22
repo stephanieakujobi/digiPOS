@@ -9,6 +9,8 @@ import { ComponentRef, ComponentProps } from '@ionic/core';
   providedIn: 'root'
 })
 export class PopupsService {
+  private activeToast: HTMLIonToastElement;
+
   /**
    * Creates a new PopupsService
    * @param alertController The AlertController used to display alerts to the user.
@@ -40,9 +42,9 @@ export class PopupsService {
    * @param header The header text to display.
    * @param message The message text to display. 
    * @param onYesClicked The callback function to run when the user presses the "yes" button.
-   * @param onNoClicked The callback function to run when the user presses the "no" button.
+   * @param onNoClicked The optional callback function to run when the user presses the "no" button.
    */
-  public async showConfirmationAlert(header: string, message: string, onYesClicked: () => void, onNoClicked: () => void) {
+  public async showConfirmationAlert(header: string, message: string, onYesClicked: () => void, onNoClicked?: () => void) {
     const alert = await this.createAlert(header, message);
     alert.buttons = [
       {
@@ -64,25 +66,27 @@ export class PopupsService {
    * @param message The message to display in the toast.
    */
   public async showToast(message: string, topOfViewport: boolean = false) {
-    this.toastController.dismiss();
+    if(this.activeToast != null) {
+      this.activeToast.dismiss();
+    }
 
-    const toast = await this.toastController.create({
+    this.activeToast = await this.toastController.create({
       message: message,
       duration: 2000,
       position: topOfViewport ? "top" : "bottom",
       cssClass: topOfViewport ? "header-margin" : "tabs-margin"
     });
 
-    await toast.present();
+    await this.activeToast.present();
   }
 
   /**
    * Creates and displays a modal page to the user.
    * @param component The component page reference to display.
    * @param properties Any properties that may be passed to the modal page.
-   * @param onDismissed The callback function to run when the user dismisses the modal page.
+   * @param onDismissed The optional callback function to run when the user dismisses the modal page.
    */
-  public async showModal(component: ComponentRef, properties: ComponentProps<ComponentRef>, onDismissed: (data: any) => void) {
+  public async showModal(component: ComponentRef, properties?: ComponentProps<ComponentRef>, onDismissed?: (data: any) => void) {
     const modal = await this.modalController.create({
       component: component,
       componentProps: properties,
@@ -92,7 +96,9 @@ export class PopupsService {
     await modal.present();
 
     await modal.onWillDismiss().then(({ data }) => {
-      onDismissed(data);
+      if(onDismissed != null) {
+        onDismissed(data);
+      }
     });
   }
 

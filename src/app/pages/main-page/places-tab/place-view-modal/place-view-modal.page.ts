@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { Place } from 'src/app/models/places/Place';
 import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase-places.service';
 
 /**
@@ -79,7 +79,7 @@ export class PlaceViewModalPage {
     const changesWereMade = JSON.stringify(this.place) !== JSON.stringify(this.originalPlace);
 
     if(changesWereMade) {
-      this.popupsService.showConfirmationAlert("Discard Changes", "Are you sure you want to discard your changes?", () => this.discard(), null);
+      this.popupsService.showConfirmationAlert("Discard Changes", "Are you sure you want to discard your changes?", () => this.discard());
     }
     else {
       this.discard();
@@ -135,7 +135,7 @@ export class PlaceViewModalPage {
     if(ownerValues.includes("") || contactPersonValues.includes("") || currentProviderValue == "") {
       this.popupsService.showConfirmationAlert("Missing Information", "Some information about this place is missing. Are you sure you want to report it?",
         () => this.doReportPlace(),
-        null);
+      );
     }
     else {
       this.doReportPlace();

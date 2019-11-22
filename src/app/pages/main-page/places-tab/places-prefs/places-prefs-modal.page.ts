@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { PlacesPrefs } from 'src/app/classes/places/PlacesPrefs';
-import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
+import { PrefsModal } from 'src/app/classes/global/PrefsModal';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The modal page opened when the user presses the settings icon on the top-right of the BusinessesPage.
@@ -12,22 +14,13 @@ import { PlacesPrefsService } from 'src/app/services/places/preferences/places-p
   templateUrl: './places-prefs-modal.page.html',
   styleUrls: ['./places-prefs-modal.page.scss'],
 })
-export class PlacesPrefsModalPage {
-  private prefs: PlacesPrefs;
-
+export class PlacesPrefsModalPage extends PrefsModal<PlacesPrefs> {
   /**
-   * Creates a new BusinessPrefsModalPage
-   * @param modalController The ModalController used to dismis this modal.
+   * Creates a new PlacesPrefsModalPage.
+   * @param modalController The reference to the ModalController that created this modal.
+   * @param popupsService The PopupsService used to show toast messages to the user when updating preferences.
    */
-  constructor(private modalController: ModalController) {
-    this.prefs = PlacesPrefsService.prefs;
-  }
-
-  /**
-   * Called from the page when the user clicks on the "X" button on the top-right of the modal.
-   * Dismisses this modal and returns the user's updated AppBusinessesPrefs.
-   */
-  onCloseButtonClicked() {
-    this.modalController.dismiss(this.prefs);
+  constructor(modalController: ModalController, popupsService: PopupsService) {
+    super(modalController, GlobalServices.placesPrefsService, popupsService);
   }
 }

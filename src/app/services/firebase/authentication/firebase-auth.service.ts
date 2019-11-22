@@ -57,7 +57,7 @@ export class FirebaseAuthService {
         //A length of 0 means the select query returned no results; authentication failed.
         if(results.length == 0) {
           this.subscriptions.unsubscribe();
-          callback(new CRUDResult(false, "Invalid authentication."));
+          callback(new CRUDResult(false, "Failed to authenticate."));
         }
         else {
           this.successfulLogin(results[0].info as Contact, () => callback(new CRUDResult(true, "Authentication successful.")));
@@ -141,7 +141,7 @@ export class FirebaseAuthService {
       result = CRUDResult.USER_NOT_AUTHENTICATED;
     }
     else {
-      await FirebaseAuthService._authedSalesRep.serverRef.update(this.authedSalesRep)
+      await FirebaseAuthService._authedSalesRep.serverRef.update(FirebaseAuthService.authedSalesRep)
         .then(() => result = new CRUDResult(true))
         .catch(() => result = new CRUDResult(false, "Failed to update place - internal server error."));
     }
@@ -160,7 +160,7 @@ export class FirebaseAuthService {
    * The currently authenticated user, if one exists.
    * Can be null.
    */
-  public get authedSalesRep(): SalesRep {
+  public static get authedSalesRep(): SalesRep {
     return FirebaseAuthService._authedSalesRep.localRef;
   }
 }

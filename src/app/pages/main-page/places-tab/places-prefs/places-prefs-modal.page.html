@@ -12,8 +12,8 @@
 </ion-header>
 
 <ion-content>
-  <ion-item lines="full" (click)="prefs.askBeforeDelete = !prefs.askBeforeDelete">
+  <ion-item lines="none">
     <ion-label>Ask before deleting place</ion-label>
-    <ion-checkbox slot="start" id="chk-enable-notifications" checked="{{prefs.askBeforeDelete}}"></ion-checkbox>
+    <ion-checkbox slot="start" [(ngModel)]="prefs.askBeforeDelete"></ion-checkbox>
   </ion-item>
 </ion-content>

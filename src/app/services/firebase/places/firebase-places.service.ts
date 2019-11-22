@@ -24,6 +24,7 @@ export class FirebasePlacesService implements OnDestroy {
 
   private subscriptions: Subscription;
   private pFormatter: PlaceFormatter;
+  private reportedPlacesLoaded: boolean;
 
   /**
    * Creates a new FirebasePlacesService.
@@ -32,7 +33,6 @@ export class FirebasePlacesService implements OnDestroy {
   constructor(private authService: FirebaseAuthService, private afs: AngularFirestore) {
     this.subscriptions = new Subscription();
     this.pFormatter = new PlaceFormatter();
-    this.loadReportedPlaces();
   }
 
   ngOnDestroy(): void {
@@ -43,11 +43,16 @@ export class FirebasePlacesService implements OnDestroy {
    * Loads all reported Places from a dedicated Firestore collection.
    * These Places can be pinned on the map if desired by the user.
    */
-  private loadReportedPlaces() {
+  public loadReportedPlaces(onComplete: () => void) {
     const collection: AngularFirestoreCollection<ReportedPlace> = this.afs.collection(FirebasePlacesService.REPORTED_PLACES_COL);
 
     this.subscriptions.add(collection.valueChanges().subscribe(places => {
       FirebasePlacesService._reportedPlaces = places;
+
+      if(!this.reportedPlacesLoaded) {
+        this.reportedPlacesLoaded = true;
+        onComplete();
+      }
     }));
   }
 
@@ -191,7 +196,7 @@ export class FirebasePlacesService implements OnDestroy {
     else {
       const reportedPlace: ReportedPlace = {
         info: place.info,
-        reportedBy: this.authService.authedSalesRep.info,
+        reportedBy: FirebaseAuthService.authedSalesRep.info,
         dateReported: new Date().toDateString()
       }
 
@@ -253,21 +258,6 @@ export class FirebasePlacesService implements OnDestroy {
     }));
   }
 
-  public placeIsSavedAndReported(place: Place | ReportedPlace): boolean {
-    let isSaved = false;
-    let isReported = false;
-
-    if(!FirebaseAuthService.userIsAuthenticated) {
-      isSaved = this.savedPlaces.filter(p => p.info.address.addressString == place.info.address.addressString).length != 0;
-
-      if(isSaved) {
-        isReported = this.reportedPlaces.filter(p => p.info.address.addressString == place.info.address.addressString).length != 0;
-      }
-    }
-
-    return isReported && isSaved;
-  }
-
   /**
    * Checks if an address string exists in the user's saved Places.
    * @param address the address string to compare.
@@ -313,7 +303,7 @@ export class FirebasePlacesService implements OnDestroy {
    * The user's saved Placees.
    */
   public get savedPlaces(): Place[] {
-    return FirebaseAuthService.userIsAuthenticated ? this.authService.authedSalesRep.savedPlaces : [];
+    return FirebaseAuthService.userIsAuthenticated ? FirebaseAuthService.authedSalesRep.savedPlaces : [];
   }
 
   /**

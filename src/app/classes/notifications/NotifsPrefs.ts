@@ -4,7 +4,7 @@
 export class NotifsPrefs {
     public enableNotifs: boolean;
     public enablePushNotifs: boolean;
-    public vibrateOnNotifReceived: boolean;
+    public enableVibration: boolean;
     public askBeforeDelete: boolean;
 
     /**
@@ -14,7 +14,7 @@ export class NotifsPrefs {
     public constructor() {
         this.enableNotifs = true;
         this.enablePushNotifs = true;
-        this.vibrateOnNotifReceived = true;
+        this.enableVibration = true;
         this.askBeforeDelete = true;
     }
 }

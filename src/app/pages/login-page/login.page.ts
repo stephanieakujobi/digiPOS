@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
 import { NavController, ToastController } from '@ionic/angular';
-import { PopupsService } from 'src/app/services/global/popups.service';
+import { PopupsService } from 'src/app/services/global/popups/popups.service';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The first page the user sees when they launch the app, prompting them to login.
@@ -40,13 +41,14 @@ export class LoginPage {
     const email: string = (document.getElementById("txt-email") as HTMLIonInputElement).value;
     const password: string = (document.getElementById("txt-password") as HTMLIonInputElement).value;
 
-    this.authService.tryLogin(email, password, result => {
+    this.authService.tryLogin(email, password, async result => {
       this.loginProgress.style.opacity = "0";
 
       if(!result.wasSuccessful) {
         this.popupsService.showToast(result.message, true);
       }
       else {
+        await GlobalServices.loadUserData();
         this.navController.navigateForward("/main");
       }
     });
