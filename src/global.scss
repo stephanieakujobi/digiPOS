@@ -86,7 +86,8 @@ ion-list.ion-item-sliding-list {
         transform: translateY(1.5px);
       }
 
-      h2, p {
+      h2,
+      p {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
