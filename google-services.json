@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "37426740755",
+    "firebase_url": "https://capstone-prototype-e67b0.firebaseio.com",
+    "project_id": "capstone-prototype-e67b0",
+    "storage_bucket": "capstone-prototype-e67b0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37426740755:android:8bad8c796ad76fa6c3c9e6",
+        "android_client_info": {
+          "package_name": "com.fusion.digipos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "37426740755-u18m7m50skdhnhcvsq4g6ske1h6q202v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1QRvXojuhKCAOcuFgEs42bcjkIgSrylY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "37426740755-u18m7m50skdhnhcvsq4g6ske1h6q202v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

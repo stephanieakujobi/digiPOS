@@ -4,6 +4,7 @@ import { Subscription, Observable } from 'rxjs';
 import { SalesRep } from 'src/app/models/SalesRep';
 import { CRUDResult } from 'src/app/classes/CRUDResult';
 import { SalesRepContact } from 'src/app/models/global/SalesRepContact';
+import { FirebaseAuthentication } from '@ionic-native/firebase-authentication/ngx';
 
 declare var require: any;
 
@@ -28,7 +29,7 @@ export class FirebaseAuthService {
    * Creates a new FirebaseAuthService
    * @param afs The AngularFirestore used to perform read/write operations on.
    */
-  constructor(private afs: AngularFirestore) { }
+  constructor(private afs: AngularFirestore, private auth: FirebaseAuthentication) { }
 
   /**
    * Attempts to authenticate with the provided credentials and executes a callback function with the result.
@@ -123,8 +124,10 @@ export class FirebaseAuthService {
       };
 
       if(!FirebaseAuthService.userIsAuthenticated) {
-        FirebaseAuthService._userIsAuthenticated = true;
-        callback();
+        this.auth.signInAnonymously().then(() => {
+          FirebaseAuthService._userIsAuthenticated = true;
+          callback();
+        });
       }
     });
   }

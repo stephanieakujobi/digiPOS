@@ -24,8 +24,7 @@ export class ProfileTabPage {
   async pickImage() {
     if(await this.hasImageReadPermission()) {
       this.imagePicker.getPictures({ maximumImagesCount: 1 }).then(
-        results => { },
-        err => { }
+        results => console.log(results)
       );
     }
   }
