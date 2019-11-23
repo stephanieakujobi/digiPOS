@@ -124,10 +124,11 @@ export class FirebaseAuthService {
       };
 
       if(!FirebaseAuthService.userIsAuthenticated) {
-        this.auth.signInAnonymously().then(() => {
-          FirebaseAuthService._userIsAuthenticated = true;
-          callback();
-        });
+        FirebaseAuthService._userIsAuthenticated = true;
+        callback();
+        // this.auth.signInAnonymously().then(() => {
+
+        // });
       }
     });
   }
