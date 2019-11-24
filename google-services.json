@@ -30,6 +30,13 @@
             {
               "client_id": "37426740755-u18m7m50skdhnhcvsq4g6ske1h6q202v.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "37426740755-b262kd85ils1dqp9hmmagbk9gho2cm8k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fusion.digipos"
+              }
             }
           ]
         }

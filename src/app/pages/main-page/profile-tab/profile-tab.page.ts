@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
 import { SalesRepContact } from 'src/app/models/global/SalesRepContact';
-import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 /**
  * The page displayed to the user when they select the "My Profile" tab.
@@ -17,27 +16,7 @@ export class ProfileTabPage {
   /**
    * Creates a new ProfileTabPage
    */
-  constructor(private imagePicker: ImagePicker) {
+  constructor() {
     this.userInfo = FirebaseAuthService.authedSalesRep.info;
-  }
-
-  async pickImage() {
-    if(await this.hasImageReadPermission()) {
-      this.imagePicker.getPictures({ maximumImagesCount: 1 }).then(
-        results => console.log(results)
-      );
-    }
-  }
-
-  private async hasImageReadPermission(): Promise<boolean> {
-    let hasPermission: boolean = await this.imagePicker.hasReadPermission();
-
-    if(!hasPermission) {
-      this.imagePicker.requestReadPermission().then(
-        (result: boolean) => hasPermission = result
-      );
-    }
-
-    return hasPermission;
   }
 }

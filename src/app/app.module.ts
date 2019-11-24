@@ -27,7 +27,6 @@ import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
-import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -56,7 +55,6 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
     LocalNotifications,
     Vibration,
     AndroidPermissions,
-    ImagePicker,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
