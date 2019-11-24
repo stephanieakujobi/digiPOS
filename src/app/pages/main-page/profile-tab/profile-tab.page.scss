@@ -1,8 +1,45 @@
-.avatar {
-  margin: auto;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 150px !important; //any size
-  max-height: 150px !important; //any size
-  padding-top: 5px;
+section#logo-section {
+  padding-top: 20px;
+  background-color: var(--ion-color-primary-shade);
+  box-shadow: inset var(--ion-color-secondary) 0 -16vmin 0;
+  animation: logoSectionIntro 0.5s cubic-bezier(0.65, 0.34, 0.51, 1.67);
+
+  ion-img {
+    width: 50vmin;
+    height: 50vmin;
+    padding: 5vmin;
+    margin: auto;
+    background-color: var(--ion-color-primary-tint);
+    border: solid var(--ion-color-primary-shade) 3vmin;
+    border-radius: 50%;
+    z-index: 1;
+    animation: logoIconIntro 0.5s cubic-bezier(0.65, 0.34, 0.51, 1.67);
+  }
+}
+
+ion-list {
+  background-color: transparent;
+
+  ion-item {
+    padding: 1%;
+    --background: transparent;
+  }
+}
+
+@keyframes logoSectionIntro {
+  from {
+    box-shadow: inset var(--ion-color-secondary) 0 -60vmin 0;
+  }
+  to {
+    box-shadow: inset var(--ion-color-secondary) 0 -16vmin 0;
+  }
+}
+
+@keyframes logoIconIntro {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
 }

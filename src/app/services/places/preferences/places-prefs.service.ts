@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { PlacesPrefs } from 'src/app/classes/Places/PlacesPrefs';
 import { PrefsService } from 'src/app/classes/global/PrefsService';
+import { PlacesPrefs } from 'src/app/classes/places/PlacesPrefs';
 
 /**
  * The PlacesPrefsService handles read/write operations on the user's saved Businesses preferences.

@@ -11,17 +11,24 @@ ion-progress-bar {
   padding: 0 10%;
 
   ion-img {
-    max-height: 30%;
+    min-width: 100px;
+    min-height: 100px;
+    max-width: 30vh;
+    max-height: 30vh;
+    margin: 0 auto;
     margin-bottom: 10%;
-    transform: rotateZ(0deg);
+    transform: rotateZ(0deg) scale(1);
     transition: 0.4s;
   }
 
-  @media screen and (max-height: 411px) {
+  @media (max-height: 500px) {
     ion-img {
-      max-height: 0%;
+      width: 0;
+      height: 0;
+      min-width: 0;
+      min-height: 0;
       margin-bottom: 0%;
-      transform: rotateZ(-180deg);
+      transform: rotateZ(-180deg) scale(0);
     }
   }
 
