@@ -8,6 +8,7 @@ import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { ComponentRef, ComponentProps } from '@ionic/core';
 import { HomeTabPage } from '../home-tab/home-tab.page';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
+import { PlacesPrefs } from 'src/app/classes/places/PlacesPrefs';
 
 /**
  * The page displayed to the user when they select the "Places" tab.
@@ -18,17 +19,22 @@ import { GlobalServices } from 'src/app/classes/global/GlobalServices';
   styleUrls: ['places-tab.page.scss']
 })
 export class PlacesTabPage {
+  private prefs: PlacesPrefs;
+
   /**
    * Creates a new PlaceTabPage.
    * @param fbpService The FirebasePlacesService used to execute CRUD operations on the user's saved Places.
    * @param popupsService The PopupsService used to display alerts, toasts, and modals.
    */
-  constructor(private fbpService: FirebasePlacesService, private popupsService: PopupsService) { }
+  constructor(private fbpService: FirebasePlacesService, private popupsService: PopupsService) { 
+    this.prefs = GlobalServices.placesPrefsService.prefs;
+  }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
    */
   ionViewDidEnter() {
+    this.prefs = GlobalServices.placesPrefsService.prefs;
     this.sortPlaces();
   }
 

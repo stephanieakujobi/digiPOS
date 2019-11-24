@@ -8,6 +8,7 @@ import { NotifsPrefsService } from './services/notifications/preferences/notifs-
 import { NotifsStorageService } from './services/notifications/storage/notifis-storage.service';
 import { GlobalServices } from './classes/global/GlobalServices';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import { NotifsGeneratorService } from './services/notifications/generator/notifs-generator.service';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ export class AppComponent {
     private mapsPrefsService: MapsPrefsService,
     private placesPrefsService: PlacesPrefsService,
     private notifsPrefsService: NotifsPrefsService,
-    private notifsStorage: NotifsStorageService
+    private notifsStorage: NotifsStorageService,
+    private notifsGeneratorService: NotifsGeneratorService
   ) {
     this.initializeApp();
   }
@@ -33,7 +35,7 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
 
-      GlobalServices.initialize(this.mapsPrefsService, this.placesPrefsService, this.notifsPrefsService, this.notifsStorage);
+      GlobalServices.initialize(this.mapsPrefsService, this.placesPrefsService, this.notifsPrefsService, this.notifsStorage, this.notifsGeneratorService);
       this.requestAndroidLocation();
 
       this.platform.backButton.observers.pop();

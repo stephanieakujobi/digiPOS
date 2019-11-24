@@ -7,6 +7,7 @@ import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { ReportedPlace } from 'src/app/models/places/ReportedPlace';
 import { Subscription } from 'rxjs';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The FirebasePlacesService provides real-time data streaming to a Firebase CloudFirestore.
@@ -148,6 +149,7 @@ export class FirebasePlacesService implements OnDestroy {
       }
       else {
         result = new CRUDResult(true, "Place deleted successfully.");
+        GlobalServices.notifsGeneratorService.generatePlaceDeleted(place);
       }
     }
 

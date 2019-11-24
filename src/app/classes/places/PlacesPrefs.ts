@@ -3,6 +3,8 @@
  */
 export class PlacesPrefs {
     public askBeforeDelete: boolean;
+    public showReportedIcons: boolean;
+    public showStarredIcons: boolean;
 
     /**
      * Creates a new PlacesPrefs instance.
@@ -10,5 +12,7 @@ export class PlacesPrefs {
      */
     public constructor() {
         this.askBeforeDelete = true;
+        this.showReportedIcons = true;
+        this.showStarredIcons = true;
     }
 }

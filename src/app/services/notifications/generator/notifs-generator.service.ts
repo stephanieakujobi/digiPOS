@@ -8,6 +8,7 @@ import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 import { NotifsPrefsService } from '../preferences/notifs-prefs.service';
+import { Place } from 'src/app/models/places/Place';
 
 /**
  * The NotifsGeneratorService watches for various events and sends the user Notifications where applicable.
@@ -72,6 +73,14 @@ export class NotifsGeneratorService {
     });
 
     this.processes.push(process);
+  }
+
+  public generatePlaceDeleted(place: Place) {
+    this.addNotification(new Notification(
+      `${place.info.name} was deleted`,
+      `"${place.info.name}" at ${place.info.address.addressString} was deleted from your saved places.`,
+      "info"
+    ));
   }
 
   /**

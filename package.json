@@ -125,10 +125,12 @@
         "OKHTTP_VERSION": "3.10.0",
         "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBQffU3Ij5dt5Uc8LYoFQO4q2CDLyyusM8"
       },
-      "cordova-plugin-firebase-authentication": {},
       "cordova-support-google-services": {},
       "cordova-plugin-androidx": {},
-      "cordova-plugin-androidx-adapter": {}
+      "cordova-plugin-androidx-adapter": {},
+      "cordova-plugin-firebase-authentication": {
+        "FIREBASE_AUTH_VERSION": "18.0.+"
+      }
     },
     "platforms": [
       "browser",

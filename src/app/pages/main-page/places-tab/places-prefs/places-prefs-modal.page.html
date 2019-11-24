@@ -12,8 +12,22 @@
 </ion-header>
 
 <ion-content>
-  <ion-item lines="none">
-    <ion-label>Ask before deleting place</ion-label>
-    <ion-checkbox slot="start" [(ngModel)]="prefs.askBeforeDelete"></ion-checkbox>
-  </ion-item>
+  <ion-list>
+
+    <ion-item lines="none">
+      <ion-label>Ask before deleting place</ion-label>
+      <ion-checkbox slot="start" [(ngModel)]="prefs.askBeforeDelete"></ion-checkbox>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-label>Show reported icons</ion-label>
+      <ion-checkbox slot="start" [(ngModel)]="prefs.showReportedIcons"></ion-checkbox>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-label>Show starred icons</ion-label>
+      <ion-checkbox slot="start" [(ngModel)]="prefs.showStarredIcons"></ion-checkbox>
+    </ion-item>
+
+  </ion-list>
 </ion-content>

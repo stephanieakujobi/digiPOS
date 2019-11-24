@@ -51,12 +51,15 @@
             </p>
           </ion-label>
 
-          <ion-icon class="list-item-icon" name="cloud-done" color="primary" *ngIf="p.isReported"></ion-icon>
-          <ion-icon class="list-item-icon" name="cloud-outline" color="medium" *ngIf="!p.isReported"></ion-icon>
+          <ion-icon class="list-item-icon" name="cloud-done" color="primary"
+            *ngIf="prefs.showReportedIcons && p.isReported"></ion-icon>
+          <ion-icon class="list-item-icon" name="cloud-outline" color="medium"
+            *ngIf="prefs.showReportedIcons && !p.isReported"></ion-icon>
 
-          <ion-icon class="list-item-icon" name="star" color="tertiary" *ngIf="p.saveState == 'starred'"></ion-icon>
-          <ion-icon class="list-item-icon" name="star-outline" color="medium" *ngIf="p.saveState != 'starred'">
-          </ion-icon>
+          <ion-icon class="list-item-icon" name="star" color="tertiary"
+            *ngIf="prefs.showStarredIcons && p.saveState == 'starred'"></ion-icon>
+          <ion-icon class="list-item-icon" name="star-outline" color="medium"
+            *ngIf="prefs.showStarredIcons && p.saveState != 'starred'"></ion-icon>
         </ion-item>
       </div>
 

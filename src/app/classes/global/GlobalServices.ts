@@ -2,6 +2,7 @@ import { MapsPrefsService } from 'src/app/services/google-maps/preferences/maps-
 import { PlacesPrefsService } from 'src/app/services/places/preferences/places-prefs.service'
 import { NotifsPrefsService } from 'src/app/services/notifications/preferences/notifs-prefs.service'
 import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service'
+import { NotifsGeneratorService } from 'src/app/services/notifications/generator/notifs-generator.service';
 
 /**
  * GlobalServices is a static class providing references to the following services that can be used globally across the app:
@@ -12,6 +13,7 @@ export class GlobalServices {
     private static _placesPrefsService: PlacesPrefsService;
     private static _notifsPrefsService: NotifsPrefsService;
     private static _notifsStorageService: NotifsStorageService;
+    private static _notifsGeneratorService: NotifsGeneratorService;
 
     /**
      * Private constructor prevents instantiation of this object.
@@ -29,12 +31,14 @@ export class GlobalServices {
         mapsPrefsService: MapsPrefsService,
         placesPrefsService: PlacesPrefsService,
         notifsPrefsService: NotifsPrefsService,
-        notifsStorageService: NotifsStorageService
+        notifsStorageService: NotifsStorageService,
+        notifsGeneratorService: NotifsGeneratorService
     ) {
         GlobalServices._mapsPrefsService = mapsPrefsService;
         GlobalServices._placesPrefsService = placesPrefsService;
         GlobalServices._notifsPrefsService = notifsPrefsService;
         GlobalServices._notifsStorageService = notifsStorageService;
+        GlobalServices._notifsGeneratorService = notifsGeneratorService;
     }
 
     /**
@@ -73,5 +77,12 @@ export class GlobalServices {
      */
     public static get notifsStorageService(): NotifsStorageService {
         return this._notifsStorageService;
+    }
+
+    /**
+     * The global NotifsStorageService.
+     */
+    public static get notifsGeneratorService(): NotifsGeneratorService {
+        return this._notifsGeneratorService;
     }
 }

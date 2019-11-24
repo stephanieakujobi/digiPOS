@@ -3,6 +3,7 @@ import { NotifsStorageService } from 'src/app/services/notifications/storage/not
 import { NavController } from '@ionic/angular';
 import { FirebaseAuthService } from 'src/app/services/firebase/authentication/firebase-auth.service';
 import { NotifsGeneratorService } from 'src/app/services/notifications/generator/notifs-generator.service';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
  * The wrapper page containing the main tab bar displayed at the bottom of the app after the user successfully logs in.
@@ -17,9 +18,8 @@ export class MainTabBarPage {
   /**
    * Creates a new MainTabBarPage
    * @param navController The NavController used to redirect the user back to the LoginPage if they are not authenticated.
-   * @param notifsGenerator The NotifsGeneratorService used to initialize Notification generation processes.
    */
-  constructor(private navController: NavController, private notifsGenerator: NotifsGeneratorService) { }
+  constructor(private navController: NavController) { }
 
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
@@ -31,7 +31,7 @@ export class MainTabBarPage {
     else {
       MainTabBarPage.updateUnreadNotifsBadge();
       NotifsGeneratorService.subscribeOnNotifGenerated(() => MainTabBarPage.updateUnreadNotifsBadge());
-      this.notifsGenerator.watchProcesses();
+      GlobalServices.notifsGeneratorService.watchProcesses();
     }
   }
 
