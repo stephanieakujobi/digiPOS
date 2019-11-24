@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 import { Platform } from '@ionic/angular';
 import { ILatLng, LatLng } from '@ionic-native/google-maps';
+import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 @Injectable({
   providedIn: 'root'
@@ -39,9 +40,9 @@ export class LaunchNavService {
     this.initialized = true;
   }
 
-  public launchMapsApp(appName: string, startLocation: ILatLng | LatLng, destinationAddress: string, onError: (error: any) => void) {
+  public launchMapsApp(startLocation: ILatLng | LatLng, destinationAddress: string, onError: (error: any) => void) {
     let options: LaunchNavigatorOptions = {
-      app: appName,
+      app: GlobalServices.mapsPrefsService.prefs.prefMapsApp,
       start: `${startLocation.lat}, ${startLocation.lng}`
     }
 

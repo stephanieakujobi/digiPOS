@@ -325,9 +325,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param placeMarker The PlaceMarker that the user has started a route to.
    */
   private async onPlaceMarkerStartRoute(placeMarker: PlaceMarker) {
-    const app: string = GlobalServices.mapsPrefsService.prefs.prefMapsApp;
-
-    this.launchNavService.launchMapsApp(app, this.userPos, placeMarker.place.address, () => {
+    this.launchNavService.launchMapsApp(this.userPos, placeMarker.place.address, () => {
       this.popupsService.showToast("Failed to launch maps - unknown error.");
     });
   }
