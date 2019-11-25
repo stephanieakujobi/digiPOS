@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Injectable } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
 import { MapPlace } from 'src/app/models/google-maps/MapPlace';
 import { Place } from 'src/app/models/places/Place'
