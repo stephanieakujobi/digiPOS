@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, Injectable } from '@angular/core';
 import { GoogleMapsService } from 'src/app/services/google-maps/google-maps.service';
 import { MapPlace } from 'src/app/models/google-maps/MapPlace';
 import { Place } from 'src/app/models/places/Place'
@@ -27,6 +27,7 @@ export class HomeTabPage implements OnInit {
 
   private static gmapsService: GoogleMapsService;
   private static navController: NavController;
+  private static reloadMarkersOnViewEnter: boolean = false;
   private static clearSearchMarkerOnViewLeave: boolean = false;
 
   /**
@@ -55,6 +56,7 @@ export class HomeTabPage implements OnInit {
       this.toggleProgressbar();
       this.reloadSpecialMarkers();
       this.mapFinishedLoading = true;
+      HomeTabPage.reloadMarkersOnViewEnter = true;
     });
   }
 
@@ -63,6 +65,9 @@ export class HomeTabPage implements OnInit {
    */
   async ionViewDidEnter() {
     this.progressBar = document.getElementById("progress-bar") as HTMLIonProgressBarElement;
+    if(HomeTabPage.reloadMarkersOnViewEnter) {
+      // this.reloadSpecialMarkers();
+    }
   }
 
   /**
@@ -113,12 +118,14 @@ export class HomeTabPage implements OnInit {
    * @param place The Place to view on the map.
    */
   public static viewSavedPlace(place: Place) {
+    this.reloadMarkersOnViewEnter = false;
     this.clearSearchMarkerOnViewLeave = true;
 
     const mapPlace: MapPlace = new PlaceFormatter().mapPlaceFromPlace(place);
 
     this.navController.navigateRoot("/main/tabs/home-tab").then(() => {
       this.gmapsService.viewPlace(mapPlace);
+      setTimeout(() => this.reloadMarkersOnViewEnter = true, 1);
     });
   }
 
