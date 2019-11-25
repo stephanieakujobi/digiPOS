@@ -141,6 +141,9 @@ export class PlaceMarker implements OnDestroy {
     public get place(): MapPlace {
         return this._place;
     }
+    public set place(value: MapPlace) {
+        this._place = value;
+    }
 
     /**
      * The Marker associated with this PlaceMarker.

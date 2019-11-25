@@ -22,6 +22,7 @@ import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 export class FirebasePlacesService implements OnDestroy {
   private static readonly REPORTED_PLACES_COL: string = "reported_places";
   private static _reportedPlaces: ReportedPlace[] = [];
+  private static onPlaceUpdatedCallbacks: ((place: Place) => void)[] = [];
 
   private subscriptions: Subscription;
   private pFormatter: PlaceFormatter;
@@ -51,10 +52,18 @@ export class FirebasePlacesService implements OnDestroy {
       FirebasePlacesService._reportedPlaces = places;
 
       if(!this.reportedPlacesLoaded) {
+        this.updateUserReportedPlaces();
         this.reportedPlacesLoaded = true;
         onComplete();
       }
     }));
+  }
+
+  private updateUserReportedPlaces() {
+    for(const sPlace of this.savedPlaces) {
+      sPlace.isReported = this.reportedPlaces.find(p => p.info.address.addressString == sPlace.info.address.addressString) != null;
+    }
+    this.authService.synchronize();
   }
 
   /**
@@ -112,6 +121,7 @@ export class FirebasePlacesService implements OnDestroy {
       }
       else {
         result = new CRUDResult(true, "Place updated successfully.");
+        FirebasePlacesService.onPlaceUpdatedCallbacks.forEach(c => c(updated));
       }
     }
 
@@ -202,11 +212,19 @@ export class FirebasePlacesService implements OnDestroy {
         dateReported: new Date().toDateString()
       }
 
+      const handleResult = (result: CRUDResult) => {
+        if(result.wasSuccessful) {
+          place.isReported = true;
+          FirebasePlacesService.onPlaceUpdatedCallbacks.forEach(c => c(place));
+        }
+        callback(result);
+      }
+
       if(this.reportedAddressExists(place.info.address.addressString)) {
-        this.reportExistingPlace(reportedPlace, result => callback(result));
+        this.reportExistingPlace(reportedPlace, result => handleResult(result));
       }
       else {
-        this.reportNewPlace(reportedPlace, result => callback(result));
+        this.reportNewPlace(reportedPlace, result => handleResult(result));
       }
     }
   }
@@ -219,12 +237,8 @@ export class FirebasePlacesService implements OnDestroy {
    */
   private async reportNewPlace(place: ReportedPlace, callback: (result: CRUDResult) => void) {
     await this.afs.collection(FirebasePlacesService.REPORTED_PLACES_COL).add(place)
-      .then(() => {
-        callback(new CRUDResult(true, "Place reported successfully."));
-      })
-      .catch(() => {
-        callback(new CRUDResult(false, "A network error occurred while reporting place."));
-      });
+      .then(() => callback(new CRUDResult(true, "Place reported successfully.")))
+      .catch(() => callback(new CRUDResult(false, "A network error occurred while reporting place.")));
   }
 
   /**
@@ -299,6 +313,10 @@ export class FirebasePlacesService implements OnDestroy {
     }
 
     return result;
+  }
+
+  public static subscribeOnPlaceUpdated(callback: (place: Place) => void) {
+    this.onPlaceUpdatedCallbacks.push(callback);
   }
 
   /**

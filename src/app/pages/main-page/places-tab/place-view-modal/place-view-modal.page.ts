@@ -151,8 +151,6 @@ export class PlaceViewModalPage {
       this.popupsService.showToast(result.message);
 
       if(result.wasSuccessful) {
-        this.place.isReported = true;
-
         this.modalController.dismiss({
           action: "reported",
           place: this.place

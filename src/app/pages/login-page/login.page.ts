@@ -13,7 +13,7 @@ import { GlobalServices } from 'src/app/classes/global/GlobalServices';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
-  private loginProgress: HTMLIonProgressBarElement;
+  private loginInProgress: boolean; //Interpolated in login.page.html
 
   /**
    * Creates a new LoginPage.
@@ -24,33 +24,28 @@ export class LoginPage {
   constructor(private authService: FirebaseAuthService, private popupsService: PopupsService, private navController: NavController) { }
 
   /**
-   * @see https://ionicframework.com/docs/angular/lifecycle
-   */
-  ionViewDidEnter() {
-    this.loginProgress = document.querySelector("ion-progress-bar");
-  }
-
-  /**
    * A function called from the page when the user submits the login form.
    * Passes the email and password input values to the FirebaseAuthService to authenticate.
    * If authentication is successful, the user will be redirected to the main page, else an authentication error message will be displayed.
    */
   onLoginFormSubmit() {
-    this.loginProgress.style.opacity = "1";
-
     const email: string = (document.getElementById("txt-email") as HTMLIonInputElement).value;
     const password: string = (document.getElementById("txt-password") as HTMLIonInputElement).value;
 
-    this.authService.tryLogin(email, password, async result => {
-      this.loginProgress.style.opacity = "0";
+    if(email != "" && password != "") {
+      this.loginInProgress = true;
 
-      if(!result.wasSuccessful) {
-        this.popupsService.showToast(result.message, true);
-      }
-      else {
-        await GlobalServices.loadUserData();
-        this.navController.navigateForward("/main");
-      }
-    });
+      this.authService.tryLogin(email, password, async result => {
+        this.loginInProgress = false;
+
+        if(!result.wasSuccessful) {
+          this.popupsService.showToast(result.message, true);
+        }
+        else {
+          await GlobalServices.loadUserData();
+          this.navController.navigateForward("/main");
+        }
+      });
+    }
   }
 }

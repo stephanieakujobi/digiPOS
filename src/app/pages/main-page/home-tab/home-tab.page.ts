@@ -66,7 +66,7 @@ export class HomeTabPage implements OnInit {
   async ionViewDidEnter() {
     this.progressBar = document.getElementById("progress-bar") as HTMLIonProgressBarElement;
     if(HomeTabPage.reloadMarkersOnViewEnter) {
-      this.reloadSpecialMarkers();
+      // this.reloadSpecialMarkers();
     }
   }
 
