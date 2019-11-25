@@ -41,26 +41,28 @@ export class NotificationsTabPage {
   sortNotifs() {
     const sortSelect = document.getElementById("sort-by-select") as HTMLIonSelectElement;
 
-    switch(sortSelect.value) {
-      default:
-        this.sortNotifsByNewest();
-        break;
-      case "oldest":
-        this.sortNotifsByOldest();
-        break;
-      case "unread":
-        this.sortNotifsByUnread();
-        break;
-      case "read":
-        this.sortNotifsByRead();
-        break;
+    if(sortSelect != null) {
+      switch(sortSelect.value) {
+        default:
+          this.sortNotifsByNewest();
+          break;
+        case "oldest":
+          this.sortNotifsByOldest();
+          break;
+        case "unread":
+          this.sortNotifsByUnread();
+          break;
+        case "read":
+          this.sortNotifsByRead();
+          break;
 
-      // UNUSED
-      // case "info":
-      // case "alert":
-      // case "error":
-      //   this.sortNotifsBySeverity(sortSelect.value);
-      //   break;
+        // UNUSED
+        // case "info":
+        // case "alert":
+        // case "error":
+        //   this.sortNotifsBySeverity(sortSelect.value);
+        //   break;
+      }
     }
   }
 
@@ -126,25 +128,6 @@ export class NotificationsTabPage {
       deleteNotif();
     }
   }
-
-  // /**
-  //  * Called from onDeleteNotif after it has been confirmed that a Notification can be deleted.
-  //  * Animates the Notification deleting before removing it from storage.
-  //  * @param notification The Notification to delete.
-  //  * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
-  //  * @param notifElement The HTMLElement to animate upon deletion.
-  //  */
-  // private doDeleteNotif(notification: Notification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
-  //   ionItemSliding.close();
-  //   notifElement.classList.add("deleting");
-
-  //   setTimeout(async () => {
-  //     const deleteSuccess = await GlobalServices.notifsStorageService.deleteNotif(notification);
-  //     if(deleteSuccess) {
-  //       MainTabBarPage.updateUnreadNotifsBadge();
-  //     }
-  //   }, 300);
-  // }
 
   /**
    * Sorts all Notifications in the page by the newest "dateReceived" parameter.
