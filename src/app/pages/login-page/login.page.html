@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-progress-bar type="indeterminate" style="opacity: 0;"></ion-progress-bar>
+  <ion-progress-bar type="indeterminate" *ngIf="loginInProgress"></ion-progress-bar>
 
   <form id="login-form" (ngSubmit)="onLoginFormSubmit()">
 
@@ -21,7 +21,7 @@
       <ion-input id="txt-password" type="password" (keyup.enter)="onLoginFormSubmit()"></ion-input>
     </ion-item>
 
-    <ion-button type="submit" expand="block" color="primary">Login</ion-button>
+    <ion-button type="submit" expand="block" color="primary" [disabled]="loginInProgress">Login</ion-button>
 
   </form>
 </ion-content>

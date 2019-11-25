@@ -25,8 +25,8 @@ export class InfoWindow {
             `<h5>${place.name}</h5>`,
             `<p>${place.address}</p>`,
             `<div style="position: absolute; bottom: 20px; width: 91.5%;">`,
-            this.infoWindowButton((place.isSaved ? "Delete" : "Save") + " place", place.isSaved ? "close-circle" : "add-circle"),
-            this.infoWindowButton("Start a route", "navigate"),
+            this.infoWindowButton((place.isSaved ? "Delete" : "Save") + " place", place.isSaved ? "close-circle" : "add-circle", place.isSaved ? "danger" : "primary"),
+            this.infoWindowButton("Start a route", "navigate", "primary"),
             "</div>"
         ].join("");
 
@@ -51,10 +51,11 @@ export class InfoWindow {
      * An internal function used for creating and adding IonButtons to HtmlInfoWindows.
      * @param buttonText The text to display in the IonButton.
      * @param iconName The IonIcon to display in the IconButton.
+     * @param color The color to set the IonButton to.
      * @returns an HTML string representation of an IonButton with an IonIcon.
      */
-    private static infoWindowButton(buttonText: string, iconName: string): string {
-        return `<ion-button expand="block" style="margin-right: 11px;">
+    private static infoWindowButton(buttonText: string, iconName: string, color: string): string {
+        return `<ion-button expand="block" color=${color} style="margin-right: 11px;">
         <ion-icon slot="start" name="${iconName}"></ion-icon>
         ${buttonText}
         </ion-button>`;

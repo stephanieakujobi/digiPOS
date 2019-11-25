@@ -61,6 +61,7 @@ export class GoogleMapsService implements OnDestroy {
     this.specialMarkers = [];
     this.subscriptions = new Subscription();
     this.pFormatter = new PlaceFormatter();
+    FirebasePlacesService.subscribeOnPlaceUpdated(place => this.onSpecialPlaceUpdated(place));
   }
 
   /**
@@ -154,7 +155,7 @@ export class GoogleMapsService implements OnDestroy {
    * @param savedReported Whether to show PlaceMarkers representing the user's saved and reported Places on the map.
    * @param otherReported Whether to show PlaceMarkers representing all other reported Places in the database on the map.
    */
-  public async pinSpecialMarkers(saved: boolean, savedReported: boolean, otherReported: boolean) {
+  public pinSpecialMarkers(saved: boolean, savedReported: boolean, otherReported: boolean) {
     this.clearSpecialMarkers();
 
     if(saved) {
@@ -257,7 +258,7 @@ export class GoogleMapsService implements OnDestroy {
   public async addPlaceMarker(place: MapPlace, cacheReference: boolean = true): Promise<PlaceMarker> {
     const placeMarker = await PlaceMarker.instantiate(this.map, place,
       () => this.onPlaceMarkerSaved(placeMarker),
-      () => this.onPlaceMarkerUnaved(placeMarker),
+      () => this.onPlaceMarkerDeleted(placeMarker),
       () => this.onPlaceMarkerStartRoute(placeMarker),
     );
 
@@ -292,7 +293,12 @@ export class GoogleMapsService implements OnDestroy {
     const place: Place = this.pFormatter.placeFromMapPlace(placeMarker.place);
     const result: CRUDResult = await this.fbpService.addPlace(place);
 
-    this.updatePlaceMarker(result, placeMarker);
+    if(result.wasSuccessful) {
+      placeMarker.place.isSaved = true;
+      this.updatePlaceMarker(placeMarker);
+    }
+
+    this.popupsService.showToast(result.message);
   }
 
   /**
@@ -301,21 +307,25 @@ export class GoogleMapsService implements OnDestroy {
    * If the user's saved Places preferences require confirmation before deleting a Place, then they will be prompted beforehand.
    * @param placeMarker The PlaceMarker that was un-saved.
    */
-  private async onPlaceMarkerUnaved(placeMarker: PlaceMarker) {
+  private async onPlaceMarkerDeleted(placeMarker: PlaceMarker) {
     const place: Place = this.pFormatter.placeFromMapPlace(placeMarker.place);
-    let result: CRUDResult = await this.fbpService.addPlace(place);
+
+    const deleteMarker = async () => {
+      const result: CRUDResult = await this.fbpService.deletePlace(place);
+
+      if(result.wasSuccessful) {
+        placeMarker.place.isSaved = false;
+        await this.updatePlaceMarker(placeMarker);
+      }
+
+      this.popupsService.showToast(result.message);
+    };
 
     if(GlobalServices.placesPrefsService.prefs.askBeforeDelete) {
-      this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
-        async () => {
-          result = await this.fbpService.deletePlace(place);
-          this.updatePlaceMarker(result, placeMarker);
-        }
-      );
+      this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?", async () => deleteMarker());
     }
     else {
-      result = await this.fbpService.deletePlace(place);
-      this.updatePlaceMarker(result, placeMarker);
+      deleteMarker();
     }
   }
 
@@ -333,24 +343,27 @@ export class GoogleMapsService implements OnDestroy {
   /**
    * Removes and re-adds a PlaceMarker based on the success of a provided CRUDResult.
    * Used for when the user saves or un-saves a PlaceMarker.
-   * @param result The CRUDResult operation that was performed.
    * @param placeMarker The PlaceMarker to update.
    */
-  private updatePlaceMarker(result: CRUDResult, placeMarker: PlaceMarker) {
-    if(result.wasSuccessful) {
-      const place: MapPlace = placeMarker.place;
-      place.isSaved = !place.isSaved;
+  private async updatePlaceMarker(placeMarker: PlaceMarker) {
+    const place: MapPlace = placeMarker.place;
 
-      const cachedIndex = this.specialMarkers.indexOf(this.specialMarkers.find(m => m.place.address == place.address));
-      if(cachedIndex != -1) {
-        this.specialMarkers.splice(cachedIndex, 1);
-      }
-
-      placeMarker.remove();
-      this.addPlaceMarker(place);
+    const cachedIndex = this.specialMarkers.indexOf(this.specialMarkers.find(m => m.place.address == place.address));
+    if(cachedIndex != -1) {
+      this.specialMarkers.splice(cachedIndex, 1);
     }
 
-    this.popupsService.showToast(result.message);
+    placeMarker.remove();
+    await this.addPlaceMarker(place);
+  }
+
+  private onSpecialPlaceUpdated(place: Place) {
+    const marker: PlaceMarker = this.specialMarkers.find(m => m.place.address == place.info.address.addressString);
+
+    if(marker != null) {
+      marker.place = this.pFormatter.mapPlaceFromPlace(place);
+      this.updatePlaceMarker(marker);
+    }
   }
 
   /**

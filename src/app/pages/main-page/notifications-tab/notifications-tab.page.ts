@@ -23,7 +23,7 @@ export class NotificationsTabPage {
    * Creates a new NotificationsTabPage.
    * @param popupsService The PopupsService used to display alerts and modals.
    */
-  constructor(private popupsService: PopupsService) { 
+  constructor(private popupsService: PopupsService) {
     NotifsGeneratorService.subscribeOnNotifGenerated(() => this.sortNotifs());
   }
 
@@ -54,11 +54,13 @@ export class NotificationsTabPage {
       case "read":
         this.sortNotifsByRead();
         break;
-      case "info":
-      case "alert":
-      case "error":
-        this.sortNotifsBySeverity(sortSelect.value);
-        break;
+
+      // UNUSED
+      // case "info":
+      // case "alert":
+      // case "error":
+      //   this.sortNotifsBySeverity(sortSelect.value);
+      //   break;
     }
   }
 
@@ -100,35 +102,49 @@ export class NotificationsTabPage {
    * @param notifElement The HTMLElement to animate upon deletion.
    */
   async onDeleteNotif(notification: Notification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
+    const deleteNotif = () => {
+      ionItemSliding.close();
+      notifElement.classList.add("deleting");
+
+      setTimeout(async () => {
+        const deleteSuccess = await GlobalServices.notifsStorageService.deleteNotif(notification);
+
+        if(deleteSuccess) {
+          this.sortNotifs();
+          MainTabBarPage.updateUnreadNotifsBadge();
+        }
+      }, 300);
+    }
+
     if(GlobalServices.notifsPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Notification", "Are you sure you want to delete this notification?",
-        () => this.doDeleteNotif(notification, ionItemSliding, notifElement),
+        () => deleteNotif(),
         () => ionItemSliding.close()
       );
     }
     else {
-      this.doDeleteNotif(notification, ionItemSliding, notifElement);
+      deleteNotif();
     }
   }
 
-  /**
-   * Called from onDeleteNotif after it has been confirmed that a Notification can be deleted.
-   * Animates the Notification deleting before removing it from storage.
-   * @param notification The Notification to delete.
-   * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
-   * @param notifElement The HTMLElement to animate upon deletion.
-   */
-  private doDeleteNotif(notification: Notification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
-    ionItemSliding.close();
-    notifElement.classList.add("deleting");
+  // /**
+  //  * Called from onDeleteNotif after it has been confirmed that a Notification can be deleted.
+  //  * Animates the Notification deleting before removing it from storage.
+  //  * @param notification The Notification to delete.
+  //  * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
+  //  * @param notifElement The HTMLElement to animate upon deletion.
+  //  */
+  // private doDeleteNotif(notification: Notification, ionItemSliding: HTMLIonItemSlidingElement, notifElement: HTMLElement) {
+  //   ionItemSliding.close();
+  //   notifElement.classList.add("deleting");
 
-    setTimeout(async () => {
-      const deleteSuccess = await GlobalServices.notifsStorageService.deleteNotif(notification);
-      if(deleteSuccess) {
-        MainTabBarPage.updateUnreadNotifsBadge();
-      }
-    }, 300);
-  }
+  //   setTimeout(async () => {
+  //     const deleteSuccess = await GlobalServices.notifsStorageService.deleteNotif(notification);
+  //     if(deleteSuccess) {
+  //       MainTabBarPage.updateUnreadNotifsBadge();
+  //     }
+  //   }, 300);
+  // }
 
   /**
    * Sorts all Notifications in the page by the newest "dateReceived" parameter.
@@ -163,14 +179,6 @@ export class NotificationsTabPage {
   }
 
   /**
-   * Sorts all Notifications in the page by their severity level.
-   * @param severity The NotificationSeverity to sort by, of which the matching Notifications will be displayed at the top of the list.
-   */
-  private sortNotifsBySeverity(severity: NotifSeverity) {
-    this.notifications.sort(notif => (notif.severity === severity ? -1 : 1));
-  }
-
-  /**
    * Called from the page when the user presses the settings icon on the navigation bar.
    * Opens a modal page containing the user preferences for Notifications, allowing the user to edit them.
    * Once the user closes the modal, their Notification preferences are saved.
@@ -185,4 +193,13 @@ export class NotificationsTabPage {
   public get notifications(): Notification[] {
     return NotifsStorageService.notifications;
   }
+
+  // UNUSED
+  // /**
+  //  * Sorts all Notifications in the page by their severity level.
+  //  * @param severity The NotificationSeverity to sort by, of which the matching Notifications will be displayed at the top of the list.
+  //  */
+  // private sortNotifsBySeverity(severity: NotifSeverity) {
+  //   this.notifications.sort(notif => (notif.severity === severity ? -1 : 1));
+  // }
 }

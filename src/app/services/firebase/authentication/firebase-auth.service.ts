@@ -41,14 +41,25 @@ export class FirebaseAuthService {
       email = email.trim().replace(/[/\\]/g, ""); //Remove all slashes, leading, and trailing spaces from email string.
       const sha1 = require("sha1"); //Import SHA1 hash algorithm from package dependancy for password hashing.
 
-      const success: boolean = await this.fbAuth.signInWithEmailAndPassword(email, sha1(password)) == "OK";
+      this.fbAuth.signInWithEmailAndPassword(email, sha1(password))
+        .then(() => {
+          this.getUserData(email, (result: CRUDResult) => callback(result));
+        })
+        .catch((err: string) => {
+          let message: string;
 
-      if(!success) {
-        callback(new CRUDResult(false, "Failed to authenticate."));
-      }
-      else {
-        this.getUserData(email, (result: CRUDResult) => callback(result));
-      }
+          if(err.includes("invalid") || err.includes("badly formatted") || err.includes("no user record")) {
+            message = "Invalid authentication info.";
+          }
+          else if(err.includes("login attempts")) {
+            message = "Too many failed login attempts. Try again later."
+          }
+          else {
+            message = "A network error occurred while logging in.";
+          }
+
+          callback(new CRUDResult(false, message));
+        });
     }
   }
 

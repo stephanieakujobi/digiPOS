@@ -26,7 +26,7 @@ export class PlacesTabPage {
    * @param fbpService The FirebasePlacesService used to execute CRUD operations on the user's saved Places.
    * @param popupsService The PopupsService used to display alerts, toasts, and modals.
    */
-  constructor(private fbpService: FirebasePlacesService, private popupsService: PopupsService) { 
+  constructor(private fbpService: FirebasePlacesService, private popupsService: PopupsService) {
     this.prefs = GlobalServices.placesPrefsService.prefs;
   }
 
@@ -152,39 +152,58 @@ export class PlacesTabPage {
    * @param placeElement The HTMLElement to animate upon deletion.
    */
   async onDeletePlace(place: Place, ionItemSliding: HTMLIonItemSlidingElement, placeElement: HTMLElement) {
+    const deletePlace = () => {
+      ionItemSliding.close();
+      placeElement.classList.add("deleting");
+
+      setTimeout(async () => {
+        const result: CRUDResult = await this.fbpService.deletePlace(place);
+
+        if(!result.wasSuccessful) {
+          placeElement.classList.remove("deleting");
+        }
+        else {
+          this.sortPlaces();
+        }
+
+        this.popupsService.showToast(result.message);
+
+      }, 300);
+    }
+
     if(GlobalServices.placesPrefsService.prefs.askBeforeDelete) {
       this.popupsService.showConfirmationAlert("Delete Place", "Are you sure you want to delete this place?",
-        () => this.doDeletePlace(place, ionItemSliding, placeElement),
+        () => deletePlace(),
         () => ionItemSliding.close()
       );
     }
     else {
-      this.doDeletePlace(place, ionItemSliding, placeElement);
+      deletePlace();
     }
   }
 
-  /**
-   * Called from onDeletePlace after it has been confirmed that Place can be deleted.
-   * Animates the Place deleting before removing it from storage.
-   * @param place The Place to delete.
-   * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
-   * @param placeElement The HTMLElement to animate upon deletion.
-   */
-  private doDeletePlace(place: Place, ionItemSliding: HTMLIonItemSlidingElement, placeElement: HTMLElement) {
-    ionItemSliding.close();
-    placeElement.classList.add("deleting");
+  // /**
+  //  * Called from onDeletePlace after it has been confirmed that Place can be deleted.
+  //  * Animates the Place deleting before removing it from storage.
+  //  * @param place The Place to delete.
+  //  * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
+  //  * @param placeElement The HTMLElement to animate upon deletion.
+  //  */
+  // private doDeletePlace(place: Place, ionItemSliding: HTMLIonItemSlidingElement, placeElement: HTMLElement) {
+  //   ionItemSliding.close();
+  //   placeElement.classList.add("deleting");
 
-    setTimeout(async () => {
-      const result: CRUDResult = await this.fbpService.deletePlace(place);
-      this.popupsService.showToast(result.message);
+  //   setTimeout(async () => {
+  //     const result: CRUDResult = await this.fbpService.deletePlace(place);
+  //     this.popupsService.showToast(result.message);
 
-      if(!result.wasSuccessful) {
-        placeElement.classList.remove("deleting");
-      }
+  //     if(!result.wasSuccessful) {
+  //       placeElement.classList.remove("deleting");
+  //     }
 
-      this.sortPlaces();
-    }, 300);
-  }
+  //     this.sortPlaces();
+  //   }, 300);
+  // }
 
   /**
    * Called from the page when the user clicks on a Place.
