@@ -319,7 +319,6 @@ export class GoogleMapsService implements OnDestroy {
 
       if(!result.wasSuccessful) {
         placeMarker.place = this.pFormatter.mapPlaceFromPlace(cachedPlace);
-        // await this.updatePlaceMarker(placeMarker);
       }
 
       this.popupsService.showToast(result.message);
