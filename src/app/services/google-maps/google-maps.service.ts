@@ -311,13 +311,15 @@ export class GoogleMapsService implements OnDestroy {
    */
   private async onPlaceMarkerDeleted(placeMarker: PlaceMarker) {
     const place: Place = this.pFormatter.placeFromMapPlace(placeMarker.place);
+    const cachedPlace: Place = this.pFormatter.clonePlace(place);
 
     const deleteMarker = async () => {
+      placeMarker.place.isSaved = false;
       const result: CRUDResult = await this.fbpService.deletePlace(place);
 
-      if(result.wasSuccessful) {
-        placeMarker.place.isSaved = false;
-        await this.updatePlaceMarker(placeMarker);
+      if(!result.wasSuccessful) {
+        placeMarker.place = this.pFormatter.mapPlaceFromPlace(cachedPlace);
+        // await this.updatePlaceMarker(placeMarker);
       }
 
       this.popupsService.showToast(result.message);

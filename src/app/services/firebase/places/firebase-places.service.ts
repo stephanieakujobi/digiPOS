@@ -80,6 +80,15 @@ export class FirebasePlacesService implements OnDestroy {
     }
     else {
       const newPlace = this.pFormatter.newSavedPlace(place);
+
+      if(place.isReported) {
+        const existingReportedPlace: ReportedPlace = this.reportedPlaces.find(p => p.info.address.addressString == place.info.address.addressString);
+
+        if(existingReportedPlace != null) {
+          newPlace.info = this.pFormatter.clonePlaceInfo(existingReportedPlace);
+        }
+      }
+
       this.savedPlaces.push(newPlace);
 
       const syncResult: CRUDResult = await this.authService.synchronize();
@@ -141,12 +150,12 @@ export class FirebasePlacesService implements OnDestroy {
       result = CRUDResult.PLACE_DOES_NOT_EXIST;
     }
     else {
-      let existingPlace: Place;
+      let cachedPlace: Place;
 
-      this.savedPlaces.filter(b => {
-        if(b.info.address.addressString === place.info.address.addressString) {
-          existingPlace = b;
-          this.savedPlaces.splice(this.savedPlaces.indexOf(b), 1);
+      this.savedPlaces.filter(place => {
+        if(place.info.address.addressString === place.info.address.addressString) {
+          cachedPlace = this.pFormatter.clonePlace(place);
+          this.savedPlaces.splice(this.savedPlaces.indexOf(place), 1);
           return;
         }
       });
@@ -154,12 +163,14 @@ export class FirebasePlacesService implements OnDestroy {
       const syncResult = await this.authService.synchronize();
 
       if(!syncResult.wasSuccessful) {
-        this.savedPlaces.push(existingPlace);
+        this.savedPlaces.push(cachedPlace);
         result = syncResult;
       }
       else {
         result = new CRUDResult(true, "Place deleted successfully.");
-        GlobalServices.notifsGeneratorService.generatePlaceDeleted(place);
+        cachedPlace.saveState = "unsaved";
+        FirebasePlacesService.onPlaceUpdatedCallbacks.forEach(c => c(cachedPlace));
+        GlobalServices.notifsGeneratorService.generatePlaceDeleted(cachedPlace);
       }
     }
 

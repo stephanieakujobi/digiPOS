@@ -1,6 +1,7 @@
 import { Place } from 'src/app/models/places/Place';
 import { MapPlace } from 'src/app/models/google-maps/MapPlace';
 import { ReportedPlace } from 'src/app/models/places/ReportedPlace';
+import { PlaceInfo } from 'src/app/models/places/PlaceInfo';
 
 /**
  * A utility class for providing formatting options for Places and provides conversion operations between a Place and a MapPlace.
@@ -46,29 +47,35 @@ export class PlaceFormatter {
      */
     public clonePlace(place: Place): Place {
         const clone: Place = {
-            info: {
-                name: place.info.name,
-                address: {
-                    addressString: place.info.address.addressString,
-                    position: place.info.address.position
-                },
-                owner: {
-                    name: place.info.owner.name,
-                    email: place.info.owner.email,
-                    phoneNumber: place.info.owner.phoneNumber
-                },
-                contactPerson: {
-                    name: place.info.contactPerson.name,
-                    email: place.info.contactPerson.email,
-                    phoneNumber: place.info.contactPerson.phoneNumber
-                },
-                currentProvider: place.info.currentProvider,
-                notes: place.info.notes,
-            },
+            info: this.clonePlaceInfo(place),
             saveState: place.saveState,
             wasManuallySaved: place.wasManuallySaved,
             isReported: place.isReported
         };
+
+        return clone;
+    }
+
+    public clonePlaceInfo(place: Place | ReportedPlace): PlaceInfo {
+        const clone: PlaceInfo = {
+            name: place.info.name,
+            address: {
+                addressString: place.info.address.addressString,
+                position: place.info.address.position
+            },
+            owner: {
+                name: place.info.owner.name,
+                email: place.info.owner.email,
+                phoneNumber: place.info.owner.phoneNumber
+            },
+            contactPerson: {
+                name: place.info.contactPerson.name,
+                email: place.info.contactPerson.email,
+                phoneNumber: place.info.contactPerson.phoneNumber
+            },
+            currentProvider: place.info.currentProvider,
+            notes: place.info.notes,
+        }
 
         return clone;
     }
@@ -133,23 +140,27 @@ export class PlaceFormatter {
      * @returns a MapPlace with the data from the Place.
      */
     public mapPlaceFromPlace(place: Place): MapPlace {
-        return {
+        const mapPlace: MapPlace = {
             name: place.info.name,
             address: place.info.address.addressString,
             position: place.info.address.position,
             isSaved: place.saveState !== "unsaved",
             isReported: place.isReported
         };
+
+        return mapPlace;
     }
 
     public mapPlaceFromReportedPlace(place: ReportedPlace, isSaved: boolean): MapPlace {
-        return {
+        const mapPlace: MapPlace = {
             name: place.info.name,
             address: place.info.address.addressString,
             position: place.info.address.position,
             isSaved: isSaved,
             isReported: true
         };
+
+        return mapPlace;
     }
 
     /**

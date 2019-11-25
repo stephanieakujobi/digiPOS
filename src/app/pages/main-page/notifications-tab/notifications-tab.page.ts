@@ -41,26 +41,28 @@ export class NotificationsTabPage {
   sortNotifs() {
     const sortSelect = document.getElementById("sort-by-select") as HTMLIonSelectElement;
 
-    switch(sortSelect.value) {
-      default:
-        this.sortNotifsByNewest();
-        break;
-      case "oldest":
-        this.sortNotifsByOldest();
-        break;
-      case "unread":
-        this.sortNotifsByUnread();
-        break;
-      case "read":
-        this.sortNotifsByRead();
-        break;
+    if(sortSelect != null) {
+      switch(sortSelect.value) {
+        default:
+          this.sortNotifsByNewest();
+          break;
+        case "oldest":
+          this.sortNotifsByOldest();
+          break;
+        case "unread":
+          this.sortNotifsByUnread();
+          break;
+        case "read":
+          this.sortNotifsByRead();
+          break;
 
-      // UNUSED
-      // case "info":
-      // case "alert":
-      // case "error":
-      //   this.sortNotifsBySeverity(sortSelect.value);
-      //   break;
+        // UNUSED
+        // case "info":
+        // case "alert":
+        // case "error":
+        //   this.sortNotifsBySeverity(sortSelect.value);
+        //   break;
+      }
     }
   }
 
