@@ -107,7 +107,7 @@ export class PlaceMarker implements OnDestroy {
         );
 
         this.subscriptions.add(this.marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
-            this.infoWindow.open(this.marker);
+            this.showInfoWindow();
         }));
     }
 
@@ -115,8 +115,7 @@ export class PlaceMarker implements OnDestroy {
      * Shows the InfoWindow associated with this PlaceMarker.
      */
     public showInfoWindow() {
-        //The 1ms delay is here because selecting the "view on map" button on a saved Place resulted in the InfoWindow not displaying properly.
-        setTimeout(() => this.infoWindow.open(this.marker), 1);
+        this.infoWindow.open(this.marker)
     }
 
     /**

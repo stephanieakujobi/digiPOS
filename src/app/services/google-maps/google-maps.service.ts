@@ -215,8 +215,7 @@ export class GoogleMapsService implements OnDestroy {
     this.hideAllInfoWindows();
 
     if(existingPM != null) {
-      await this.centerMap(place.position);
-      existingPM.showInfoWindow();
+      await this.centerMap(place.position, 15);
     }
     else {
       await this.addPlaceSearchMarker(place);
@@ -227,9 +226,12 @@ export class GoogleMapsService implements OnDestroy {
    * Hides any InfoWindows showing from all special PlaceMarkers, nearby PlaceMarkers, and the search PlaceMarker.
    */
   private hideAllInfoWindows() {
-    this.specialMarkers.forEach(m => m.hideInfoWindow());
-    this.nearbyMarkers.forEach(m => m.hideInfoWindow());
-
+    for (const marker of this.specialMarkers) {
+      marker.hideInfoWindow();
+    }
+    for (const marker of this.nearbyMarkers) {
+      marker.hideInfoWindow();
+    }
     if(this.searchMarker != null) {
       this.searchMarker.hideInfoWindow();
     }

@@ -113,7 +113,7 @@ export class NotifsGeneratorService {
         launch: true,
         autoClear: true,
         sticky: false,
-        smallIcon: "file://assets/icon"
+        smallIcon: "res://mipmap-mdpi/app_icon"
       });
     }
 
