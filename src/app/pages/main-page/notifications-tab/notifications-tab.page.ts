@@ -2,7 +2,6 @@ import { Component } from "@angular/core";
 import { IonItemSliding } from "@ionic/angular";
 import { Notification } from 'src/app/classes/notifications/Notification';
 import { MainTabBarPage } from 'src/app/pages/main-page/main-tab-bar/main-tab-bar.page';
-import { NotifSeverity } from 'src/app/classes/notifications/NotifSeverity';
 import { NotifsPrefsModalPage } from './notifications-prefs-modal/notifications-prefs-modal.page';
 import { NotifsStorageService } from 'src/app/services/notifications/storage/notifis-storage.service';
 import { PopupsService } from 'src/app/services/global/popups/popups.service';

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { PlaceViewModalPage } from './place-view-modal/place-view-modal.page';
 import { PlacesPrefsModalPage } from './places-prefs/places-prefs-modal.page';
-import { CRUDResult } from 'src/app/classes/CRUDResult';
+import { CRUDResult } from 'src/app/classes/global/CRUDResult';
 import { FirebasePlacesService } from 'src/app/services/firebase/places/firebase-places.service';
 import { Place } from 'src/app/models/places/Place';
 import { PopupsService } from 'src/app/services/global/popups/popups.service';
@@ -19,7 +19,7 @@ import { PlacesPrefs } from 'src/app/classes/places/PlacesPrefs';
   styleUrls: ['places-tab.page.scss']
 })
 export class PlacesTabPage {
-  private prefs: PlacesPrefs;
+  private prefs: PlacesPrefs; //Interpolated in places-tab.page.html
 
   /**
    * Creates a new PlaceTabPage.
@@ -181,29 +181,6 @@ export class PlacesTabPage {
       deletePlace();
     }
   }
-
-  // /**
-  //  * Called from onDeletePlace after it has been confirmed that Place can be deleted.
-  //  * Animates the Place deleting before removing it from storage.
-  //  * @param place The Place to delete.
-  //  * @param ionItemSliding The HTMLIonItemSlidingElement that was swiped to close.
-  //  * @param placeElement The HTMLElement to animate upon deletion.
-  //  */
-  // private doDeletePlace(place: Place, ionItemSliding: HTMLIonItemSlidingElement, placeElement: HTMLElement) {
-  //   ionItemSliding.close();
-  //   placeElement.classList.add("deleting");
-
-  //   setTimeout(async () => {
-  //     const result: CRUDResult = await this.fbpService.deletePlace(place);
-  //     this.popupsService.showToast(result.message);
-
-  //     if(!result.wasSuccessful) {
-  //       placeElement.classList.remove("deleting");
-  //     }
-
-  //     this.sortPlaces();
-  //   }, 300);
-  // }
 
   /**
    * Called from the page when the user clicks on a Place.

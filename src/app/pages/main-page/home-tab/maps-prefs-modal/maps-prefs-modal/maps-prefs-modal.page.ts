@@ -6,6 +6,10 @@ import { PopupsService } from 'src/app/services/global/popups/popups.service';
 import { PrefsModal } from 'src/app/classes/global/PrefsModal';
 import { LaunchNavService } from 'src/app/services/global/launch-nav/launch-nav.service';
 
+/**
+ * The modal page opened when the user presses the settings icon on the top-right of the HomeTabPage.
+ * Displays the user's current saved MapPrefs, allowing them to be rewritten.
+ */
 @Component({
   selector: 'app-maps-prefs-modal',
   templateUrl: './maps-prefs-modal.page.html',

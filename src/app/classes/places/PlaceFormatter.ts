@@ -56,6 +56,11 @@ export class PlaceFormatter {
         return clone;
     }
 
+    /**
+     * Creates a new PlaceInfo instance with the same data copied from an existing Place or ReportedPlace instance.
+     * @param place The existing Place or ReportedPlace to clone.
+     * @returns A copy of the Place's or ReportedPlace's PlaceInfo.
+     */
     public clonePlaceInfo(place: Place | ReportedPlace): PlaceInfo {
         const clone: PlaceInfo = {
             name: place.info.name,
@@ -151,6 +156,11 @@ export class PlaceFormatter {
         return mapPlace;
     }
 
+    /**
+     * Creates a new MapPlace instance with the data from a ReportedPlace instance.
+     * @param place the ReportedPlace to reference.
+     * @returns a MapPlace with the data from the ReportedPlace.
+     */
     public mapPlaceFromReportedPlace(place: ReportedPlace, isSaved: boolean): MapPlace {
         const mapPlace: MapPlace = {
             name: place.info.name,

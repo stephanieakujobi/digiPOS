@@ -78,22 +78,19 @@ export class PlaceViewModalPage {
   async onCloseButtonClicked() {
     const changesWereMade = JSON.stringify(this.place) !== JSON.stringify(this.originalPlace);
 
+    const discard = () => {
+      this.modalController.dismiss({
+        action: "discarded",
+        place: null
+      });
+    }
+
     if(changesWereMade) {
-      this.popupsService.showConfirmationAlert("Discard Changes", "Are you sure you want to discard your changes?", () => this.discard());
+      this.popupsService.showConfirmationAlert("Discard Changes", "Are you sure you want to discard your changes?", () => discard());
     }
     else {
-      this.discard();
+      discard();
     }
-  }
-
-  /**
-   * Dismisses this modal page with no returned Place data.
-   */
-  private discard() {
-    this.modalController.dismiss({
-      action: "discarded",
-      place: null
-    });
   }
 
   /**
@@ -132,31 +129,27 @@ export class PlaceViewModalPage {
     const contactPersonValues = Object.values(this.place.info.contactPerson);
     const currentProviderValue = this.place.info.currentProvider;
 
+    const reportPlace = () => {
+      this.fbpService.reportPlace(this.place, result => {
+        this.popupsService.showToast(result.message);
+
+        if(result.wasSuccessful) {
+          this.modalController.dismiss({
+            action: "reported",
+            place: this.place
+          });
+        }
+      });
+    }
+
     if(ownerValues.includes("") || contactPersonValues.includes("") || currentProviderValue == "") {
       this.popupsService.showConfirmationAlert("Missing Information", "Some information about this place is missing. Are you sure you want to report it?",
-        () => this.doReportPlace(),
+        () => reportPlace()
       );
     }
     else {
-      this.doReportPlace();
+      reportPlace();
     }
-  }
-
-  /**
-   * Called from onReportPlace when it has been confirmed that the Place can be reported.
-   * Uses the FirebaseBusinessService to report the Place.
-   */
-  private doReportPlace() {
-    this.fbpService.reportPlace(this.place, result => {
-      this.popupsService.showToast(result.message);
-
-      if(result.wasSuccessful) {
-        this.modalController.dismiss({
-          action: "reported",
-          place: this.place
-        });
-      }
-    });
   }
 
   /**

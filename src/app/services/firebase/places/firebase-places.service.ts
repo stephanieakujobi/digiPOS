@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { CRUDResult } from 'src/app/classes/CRUDResult';
+import { CRUDResult } from 'src/app/classes/global/CRUDResult';
 import { Place } from 'src/app/models/places/Place';
 import { PlaceSaveState } from 'src/app/classes/places/PlaceSaveState';
 import { FirebaseAuthService } from '../authentication/firebase-auth.service';
@@ -44,6 +44,7 @@ export class FirebasePlacesService implements OnDestroy {
   /**
    * Loads all reported Places from a dedicated Firestore collection.
    * These Places can be pinned on the map if desired by the user.
+   * @param onComplete The callback to run once the reported Places have been loaded.
    */
   public loadReportedPlaces(onComplete: () => void) {
     const collection: AngularFirestoreCollection<ReportedPlace> = this.afs.collection(FirebasePlacesService.REPORTED_PLACES_COL);
@@ -59,6 +60,11 @@ export class FirebasePlacesService implements OnDestroy {
     }));
   }
 
+  /**
+   * Called from loadReportedPlaces.
+   * Compares the user's saved Places with all other reported Places in the database and updates their isReported values if the Place's address has
+   * been reported by any other user.
+   */
   private updateUserReportedPlaces() {
     for(const sPlace of this.savedPlaces) {
       sPlace.isReported = this.reportedPlaces.find(p => p.info.address.addressString == sPlace.info.address.addressString) != null;
@@ -323,6 +329,10 @@ export class FirebasePlacesService implements OnDestroy {
     return result;
   }
 
+  /**
+   * Run the provided callback function when a Place has been updated.
+   * @param callback The callback function to run.
+   */
   public static subscribeOnPlaceUpdated(callback: (place: Place) => void) {
     this.onPlaceUpdatedCallbacks.push(callback);
   }

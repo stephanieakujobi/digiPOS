@@ -6,7 +6,8 @@ import { PrefsModal } from 'src/app/classes/global/PrefsModal';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
- * The NotifsPrefsModalPage is a modal page that contains the various options for users to configure for their Notifications.
+ * The modal page opened when the user presses the settings icon on the top-right of the NotificationsTabPage.
+ * Displays the user's current saved NotifsPrefs, allowing them to be rewritten.
  */
 @Component({
   selector: 'app-notifications-prefs-modal',

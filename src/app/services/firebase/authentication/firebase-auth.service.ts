@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { SalesRep } from 'src/app/models/SalesRep';
-import { CRUDResult } from 'src/app/classes/CRUDResult';
+import { CRUDResult } from 'src/app/classes/global/CRUDResult';
 import { FirebaseAuthentication } from '@ionic-native/firebase-authentication/ngx';
 
 declare var require: any;
@@ -19,13 +19,14 @@ export class FirebaseAuthService {
   private static readonly SALES_REPS: string = "sales_reps";
 
   private static _userIsAuthenticated: boolean = false;
-  private static _authedSalesRep?: IAuthedSalesRep = null;
+  private static _authedSalesRep?: AuthedSalesRep = null;
 
   /**
    * Creates a new FirebaseAuthService
+   * @param fbAuth The FirebaseAuthentication used to connect to Firebase and authenticate the user.
    * @param afs The AngularFirestore used to perform read/write operations on.
    */
-  constructor(private afs: AngularFirestore, private fbAuth: FirebaseAuthentication) { }
+  constructor(private fbAuth: FirebaseAuthentication, private afs: AngularFirestore) { }
 
   /**
    * Attempts to authenticate with the provided credentials and executes a callback function with the result.
@@ -66,8 +67,9 @@ export class FirebaseAuthService {
   /**
    * Called from the tryLogin function when the login attempt was successful.
    * Retreives the user's saved data using their email as the select query.
-   * If no saved data exists for this user, a blank document will be created for them.
+   * If no saved data exists for this user, an error will be returned instead.
    * @param email The retrieved SalesRepContact info for the authenticated user.
+   * @param callback The callback function containing the result of the operation to run.
    */
   private getUserData(email: string, callback: (result: CRUDResult) => void) {
     const subscription = new Subscription();
@@ -93,9 +95,10 @@ export class FirebaseAuthService {
   }
 
   /**
-   * Called from the successfulLogin function when existing saved data for the authenticated user was found.
-   * Loads the user's data and stores them in an Observable for live-updating, and an IAuthedSalesRep for referencing.
+   * Called from the getUserData function when existing saved data for the authenticated user was found.
+   * Loads the user's data and stores them in an Observable for live-updating, and an AuthedSalesRep for referencing.
    * @param id The user's document ID containing their saved data to read from.
+   * @param onComplete The callback to run once the user's data has been assigned.
    */
   private assignAuthedSalesRep(id: string, onComplete: () => void) {
     const subscription = new Subscription();
@@ -154,7 +157,7 @@ export class FirebaseAuthService {
 /**
  * A container object holding both a local reference and server reference to an authenticated SalesRep.
  */
-interface IAuthedSalesRep {
+interface AuthedSalesRep {
   localRef: SalesRep;
   serverRef: AngularFirestoreDocument<SalesRep>;
 }

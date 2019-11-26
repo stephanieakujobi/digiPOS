@@ -14,7 +14,7 @@ import { HTTP, HTTPResponse } from '@ionic-native/http/ngx';
 import { FirebasePlacesService } from '../firebase/places/firebase-places.service';
 import { PlaceFormatter } from 'src/app/classes/places/PlaceFormatter';
 import { Place } from 'src/app/models/places/Place';
-import { CRUDResult } from 'src/app/classes/CRUDResult';
+import { CRUDResult } from 'src/app/classes/global/CRUDResult';
 import { PopupsService } from '../global/popups/popups.service';
 import { PlaceMarker } from 'src/app/classes/google-maps/PlaceMarker';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
@@ -39,6 +39,10 @@ export class GoogleMapsService implements OnDestroy {
   private subscriptions: Subscription;
   private pFormatter: PlaceFormatter;
 
+  /**
+   * The URL to the server containing the Google Maps Server to make Google Maps requests.
+   * @see https://github.com/AdrianoCucci/CPOS-Capstone-Server
+   */
   private readonly apiHost = "https://cpos-capstone-server.herokuapp.com";
 
   /**

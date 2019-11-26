@@ -110,5 +110,5 @@ This project has a server written in associated with it responsible for making G
 [GitHub Repository Link](https://github.com/AdrianoCucci/CPOS-Capstone-Server "Repo title")
 
 When hosting the server, be sure to reference its URL in the value of the global ```apiHost``` string located in:
-[src/app/services/google-maps/google-maps.service.ts](https://github.com/AdrianoCucci/CPOS-Capstone-App/blob/master/src/app/services/google-maps/google-maps.service.ts) on line 42 (without a trailing slash).
+[src/app/services/google-maps/google-maps.service.ts](https://github.com/AdrianoCucci/CPOS-Capstone-App/blob/master/src/app/services/google-maps/google-maps.service.ts) on line 46 (without a trailing slash).
 The Google Maps Service will send HTTP GET requests to this URL, where the server should then return a Google Maps API response.

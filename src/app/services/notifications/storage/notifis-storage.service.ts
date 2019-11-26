@@ -3,7 +3,7 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { Notification } from 'src/app/classes/notifications/Notification';
 
 /**
- * The AppNotifsStorageService provides a way to store Notifications locally on a user's device.
+ * The NotifsStorageService provides a way to store Notifications locally on a user's device.
  */
 @Injectable({
   providedIn: 'root'
@@ -13,13 +13,13 @@ export class NotifsStorageService {
   private static readonly storageKey = "notifications";
 
   /**
-   * Creates a new AppNotifsStorageService instance.
+   * Creates a new NotifsStorageService instance.
    * @param nativeStorage The NativeStorage used to save and load Notifications.
    */
   constructor(private nativeStorage: NativeStorage) { }
 
   /**
-   * Saves the user's notifications onto their device.
+   * Saves the user's Notifications onto their device.
    * @param notifications The array of Notifications to save.
    * @returns A true or false result representing if the save was successful or not respectively.
    */
@@ -36,7 +36,7 @@ export class NotifsStorageService {
   }
 
   /**
-   * Loads the user's notifications stored on their device.
+   * Loads the user's Notifications stored on their device.
    * @returns A true or false result representing if the load was successful or not respectively.
    */
   public async loadNotifs(): Promise<boolean> {

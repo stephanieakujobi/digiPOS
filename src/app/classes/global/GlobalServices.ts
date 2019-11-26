@@ -6,7 +6,7 @@ import { NotifsGeneratorService } from 'src/app/services/notifications/generator
 
 /**
  * GlobalServices is a static class providing references to the following services that can be used globally across the app:
- * MapsPrefsService, PlacesPrefsService, NotifsPrefsService, NotifsStorageService.
+ * MapsPrefsService, PlacesPrefsService, NotifsPrefsService, NotifsStorageService, NotifsGeneratorService.
  */
 export class GlobalServices {
     private static _mapsPrefsService: MapsPrefsService;
@@ -26,6 +26,7 @@ export class GlobalServices {
      * @param placesPrefsService The PlacesPrefsService used to load the user's saved Places preferences.
      * @param notifsPrefsService The NotifsPrefsService used to load the user's saved Notifications preferences.
      * @param notifsStorage The NotifsStorageService used to load the user's saved Notifications on their device.
+     * @param notifsStorage The NotifsGeneratorService used to create Notifications.
      */
     public static initialize(
         mapsPrefsService: MapsPrefsService,

@@ -75,6 +75,10 @@ export class NotifsGeneratorService {
     this.processes.push(process);
   }
 
+  /**
+   * Generate a Notification indicating that a Place was deleted from the user's list of saved Places.
+   * @param place The Place that was deleted.
+   */
   public generatePlaceDeleted(place: Place) {
     this.addNotification(new Notification(
       `${place.info.name} was deleted`,

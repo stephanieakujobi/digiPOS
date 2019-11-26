@@ -6,8 +6,8 @@ import { PrefsModal } from 'src/app/classes/global/PrefsModal';
 import { GlobalServices } from 'src/app/classes/global/GlobalServices';
 
 /**
- * The modal page opened when the user presses the settings icon on the top-right of the BusinessesPage.
- * Displays the user's current saved Businesses preferences, allowing them to be rewritten.
+ * The modal page opened when the user presses the settings icon on the top-right of the PlacesTabPage.
+ * Displays the user's current saved PlacesPrefs, allowing them to be rewritten.
  */
 @Component({
   selector: 'app-places-prefs-modal',
