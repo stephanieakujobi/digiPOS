@@ -22,6 +22,11 @@ export class CRUDResult {
     public static readonly DUPLICATE_PLACE_EXISTS: CRUDResult = new CRUDResult(false, "Failed to save place - address already exists.");
 
     /**
+     * The template result for when internal network operations fail to complete for any generic reason.
+     */
+    public static readonly NETWORK_ERROR: CRUDResult = new CRUDResult(false, "A network error has occurred.");
+
+    /**
      * Creates a new CRUDResult.
      * @param wasSuccessful Whether or not the CRUD operation had completed successfully.
      * @param resultMessage The resulting message for the CRUD operation.

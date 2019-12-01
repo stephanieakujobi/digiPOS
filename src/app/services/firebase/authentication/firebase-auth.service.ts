@@ -81,17 +81,23 @@ export class FirebaseAuthService {
     ).snapshotChanges();
 
     //Execute the select query...
-    subscription.add(selectQuery.subscribe(async queryResults => {
-      subscription.unsubscribe();
+    subscription.add(selectQuery.subscribe(
+      async queryResults => {
+        subscription.unsubscribe();
 
-      //A length of 0 means the select query returned no results; no saved data exists for this user.
-      if(queryResults.length == 0) {
-        callback(new CRUDResult(false, "User data does not exist."))
-      }
-      else {
-        this.assignAuthedSalesRep(queryResults[0].payload.doc.id, () => callback(new CRUDResult(true, "Authentication successful.")));
-      }
-    }));
+        //A length of 0 means the select query returned no results; no saved data exists for this user.
+        if(queryResults.length == 0) {
+          callback(new CRUDResult(false, "User data does not exist."))
+        }
+        else {
+          this.assignAuthedSalesRep(queryResults[0].payload.doc.id,
+            () => callback(new CRUDResult(true, "Authentication successful.")),
+            err => callback(CRUDResult.NETWORK_ERROR)
+          );
+        }
+      },
+      err => callback(CRUDResult.NETWORK_ERROR)
+    ));
   }
 
   /**
@@ -99,24 +105,28 @@ export class FirebaseAuthService {
    * Loads the user's data and stores them in an Observable for live-updating, and an AuthedSalesRep for referencing.
    * @param id The user's document ID containing their saved data to read from.
    * @param onComplete The callback to run once the user's data has been assigned.
+   * @param onComplete The callback to run if an error occurs while assigning the AuthedSalesRep.
    */
-  private assignAuthedSalesRep(id: string, onComplete: () => void) {
+  private assignAuthedSalesRep(id: string, onComplete: () => void, onError: (err: string) => void) {
     const subscription = new Subscription();
     const serverSalesRepRef: AngularFirestoreDocument<SalesRep> = this.afs.doc<SalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
 
-    subscription.add(serverSalesRepRef.valueChanges().subscribe((salesRep: SalesRep) => {
-      subscription.unsubscribe();
+    subscription.add(serverSalesRepRef.valueChanges().subscribe(
+      (salesRep: SalesRep) => {
+        subscription.unsubscribe();
 
-      FirebaseAuthService._authedSalesRep = {
-        localRef: salesRep,
-        serverRef: serverSalesRepRef
-      };
+        FirebaseAuthService._authedSalesRep = {
+          localRef: salesRep,
+          serverRef: serverSalesRepRef
+        };
 
-      if(!FirebaseAuthService.userIsAuthenticated) {
-        FirebaseAuthService._userIsAuthenticated = true;
-        onComplete();
-      }
-    }));
+        if(!FirebaseAuthService.userIsAuthenticated) {
+          FirebaseAuthService._userIsAuthenticated = true;
+          onComplete();
+        }
+      },
+      err => onError(err)
+    ));
   }
 
   /**

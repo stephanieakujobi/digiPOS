@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.fusion.digipos" version="1.0.0" 
-    xmlns="http://www.w3.org/ns/widgets" 
-    xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.fusion.digipos" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>DigiPOS</name>
     <description>DigiPOS is an application developed by Fusion for CPOS. It allows users to find nearby places using services provided by Google Maps and save them under their account, for which they may later navigate to the place to gather information about it and create a sales pitch.</description>
     <content src="index.html" />
@@ -15,8 +13,7 @@
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="3000" />
     <platform name="android">
-        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" 
-            xmlns:android="http://schemas.android.com/apk/res/android">
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
             <application android:networkSecurityConfig="@xml/network_security_config" />
         </edit-config>
         <resource-file src="resources/android/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
