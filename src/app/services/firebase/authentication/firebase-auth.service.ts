@@ -16,14 +16,14 @@ declare var require: any;
   providedIn: 'root'
 })
 export class FirebaseAuthService {
-  private static readonly SALES_REPS: string = "sales_reps";
+  private static readonly SALES_REPS_COL: string = "sales_reps";
 
   private static _userIsAuthenticated: boolean = false;
   private static _authedSalesRep?: AuthedSalesRep = null;
 
   /**
    * Creates a new FirebaseAuthService
-   * @param fbAuth The FirebaseAuthentication used to connect to Firebase and authenticate the user.
+   * @param afAuth The AngularFireAuth used to connect to Firebase and authenticate the user.
    * @param afStore The AngularFirestore used to perform read/write operations on.
    */
   constructor(private afAuth: AngularFireAuth, private afStore: AngularFirestore) { }
@@ -62,7 +62,7 @@ export class FirebaseAuthService {
     const subscription = new Subscription();
 
     //Create the select query...
-    const selectQuery = this.afStore.collection<SalesRep>(FirebaseAuthService.SALES_REPS, selectQuery => selectQuery
+    const selectQuery = this.afStore.collection<SalesRep>(FirebaseAuthService.SALES_REPS_COL, selectQuery => selectQuery
       .where("info.email", "==", email)
       .limit(1)
     ).snapshotChanges();
@@ -96,7 +96,7 @@ export class FirebaseAuthService {
    */
   private assignAuthedSalesRep(id: string, onComplete: () => void, onError: (err: string) => void) {
     const subscription = new Subscription();
-    const serverSalesRepRef: AngularFirestoreDocument<SalesRep> = this.afStore.doc<SalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
+    const serverSalesRepRef: AngularFirestoreDocument<SalesRep> = this.afStore.doc<SalesRep>(`${FirebaseAuthService.SALES_REPS_COL}/${id}`);
 
     subscription.add(serverSalesRepRef.valueChanges().subscribe(
       (salesRep: SalesRep) => {
