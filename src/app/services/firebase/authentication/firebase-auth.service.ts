@@ -3,7 +3,7 @@ import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firest
 import { Subscription } from 'rxjs';
 import { SalesRep } from 'src/app/models/SalesRep';
 import { CRUDResult } from 'src/app/classes/global/CRUDResult';
-import { FirebaseAuthentication } from '@ionic-native/firebase-authentication/ngx';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 declare var require: any;
 
@@ -16,17 +16,17 @@ declare var require: any;
   providedIn: 'root'
 })
 export class FirebaseAuthService {
-  private static readonly SALES_REPS: string = "sales_reps";
+  private static readonly SALES_REPS_COL: string = "sales_reps";
 
   private static _userIsAuthenticated: boolean = false;
   private static _authedSalesRep?: AuthedSalesRep = null;
 
   /**
    * Creates a new FirebaseAuthService
-   * @param fbAuth The FirebaseAuthentication used to connect to Firebase and authenticate the user.
-   * @param afs The AngularFirestore used to perform read/write operations on.
+   * @param afAuth The AngularFireAuth used to connect to Firebase and authenticate the user.
+   * @param afStore The AngularFirestore used to perform read/write operations on.
    */
-  constructor(private fbAuth: FirebaseAuthentication, private afs: AngularFirestore) { }
+  constructor(private afAuth: AngularFireAuth, private afStore: AngularFirestore) { }
 
   /**
    * Attempts to authenticate with the provided credentials and executes a callback function with the result.
@@ -42,23 +42,10 @@ export class FirebaseAuthService {
       email = email.trim().replace(/[/\\]/g, ""); //Remove all slashes, leading, and trailing spaces from email string.
       const sha1 = require("sha1"); //Import SHA1 hash algorithm from package dependancy for password hashing.
 
-      this.fbAuth.signInWithEmailAndPassword(email, sha1(password))
-        .then(() => {
-          this.getUserData(email, (result: CRUDResult) => callback(result));
-        })
-        .catch((err: string) => {
-          let message: string;
-
-          if(err.includes("invalid") || err.includes("badly formatted") || err.includes("no user record")) {
-            message = "Invalid authentication info.";
-          }
-          else if(err.includes("login attempts")) {
-            message = "Too many failed login attempts. Try again later."
-          }
-          else {
-            message = "A network error occurred while logging in.";
-          }
-
+      this.afAuth.auth.signInWithEmailAndPassword(email, sha1(password))
+        .then(() => this.getUserData(email, (result: CRUDResult) => callback(result)))
+        .catch(err => {
+          const message: string = err.code == "auth/too-many-requests" ? "Too many failed login attempts. Please Try again later." : "Invalid authentication info.";
           callback(new CRUDResult(false, message));
         });
     }
@@ -75,7 +62,7 @@ export class FirebaseAuthService {
     const subscription = new Subscription();
 
     //Create the select query...
-    const selectQuery = this.afs.collection<SalesRep>(FirebaseAuthService.SALES_REPS, selectQuery => selectQuery
+    const selectQuery = this.afStore.collection<SalesRep>(FirebaseAuthService.SALES_REPS_COL, selectQuery => selectQuery
       .where("info.email", "==", email)
       .limit(1)
     ).snapshotChanges();
@@ -109,7 +96,7 @@ export class FirebaseAuthService {
    */
   private assignAuthedSalesRep(id: string, onComplete: () => void, onError: (err: string) => void) {
     const subscription = new Subscription();
-    const serverSalesRepRef: AngularFirestoreDocument<SalesRep> = this.afs.doc<SalesRep>(`${FirebaseAuthService.SALES_REPS}/${id}`);
+    const serverSalesRepRef: AngularFirestoreDocument<SalesRep> = this.afStore.doc<SalesRep>(`${FirebaseAuthService.SALES_REPS_COL}/${id}`);
 
     subscription.add(serverSalesRepRef.valueChanges().subscribe(
       (salesRep: SalesRep) => {

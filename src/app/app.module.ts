@@ -19,7 +19,7 @@ import { FIREBASE_CREDENTIALS } from '../credentials/firebase.credentials';
 
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
-import { FirebaseAuthentication } from '@ionic-native/firebase-authentication/ngx';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { FirebaseAuthService } from './services/firebase/authentication/firebase-auth.service';
 import { FirebasePlacesService } from './services/firebase/places/firebase-places.service';
 import { PopupsService } from './services/global/popups/popups.service';
@@ -48,7 +48,7 @@ import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
     PopupsService,
     NativeStorage,
     NativeGeocoder,
-    FirebaseAuthentication,
+    AngularFireAuth,
     FirebaseAuthService,
     FirebasePlacesService,
     LaunchNavigator,
