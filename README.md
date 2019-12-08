@@ -7,7 +7,7 @@ This app will help in keeping track of each and every business they want.
 With the latest technology, reports will be sent to their CRM so that on a management level, they can have an overview of the enitre project
 
 ## Project link
-Clone [GitHub Repository Link](https://github.com/AdrianoCucci/CPOS-Capstone-App "Repo title")
+Clone https://github.com/AdrianoCucci/CPOS-Capstone-App
 
 ## Prerequisite
 
