@@ -88,7 +88,7 @@ After you have a Firebase project, you can add your web app to it.
 ```
 $ npm install firebase @angular/fire --save
 ```
-## Setup Environment Config
+## Setup Firebase
 To initialize Firebase in your app, you need to provide your app’s [Firebase project configuration](https://firebase.google.com/docs/web/setup#config-object). Copy it on src/environments/environment.ts
 ```
 export const environment = {
@@ -105,7 +105,35 @@ export const environment = {
   }
 };
 ```
-## Server
+## Setup Google Maps
+For the application to interact with Google Maps, you will need an API key for both Android and iOS.
+Follow these steps:
+
+1. If you haven't already, [create a Google Console account](https://console.cloud.google.com/).
+2. See [how to setup API keys in the Google Console](https://support.google.com/googleapi/answer/6158862?hl=en).
+3. Create two different API keys for Android an iOS.
+4. Add restrictions to both API keys. 
+   1. For the Android key:
+      1. Under **Application restrictions**, select **Android apps**.
+      2. Under **API restrictions**, select **Restrict key**.
+      3. From the **Select APIs** drop-down list, select **Maps SDK for Android**
+      4. Save your changes to the API key.
+   1. For the iOS key:
+      1. Under **Application restrictions**, select **iOS apps**.
+      2. Under **API restrictions**, select **Restrict key**.
+      3. From the **Select APIs** drop-down list, select **Maps SDK for iOS**
+      4. Save your changes to the API key.
+5. Add both API keys to the application's ```config.xml``` file located in the root directory here:
+   ```
+   <plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm">
+       <variable name="GOOGLE_API_KEY_FOR_ANDROID" value="(YOUR-ANDROID-KEY)" />
+   </plugin>
+   <preference name="GOOGLE_MAPS_ANDROID_API_KEY" value="(YOUR-ANDROID-KEY)" />
+   <preference name="GOOGLE_MAPS_IOS_API_KEY" value="(YOUR-IOS-KEY)" />
+   ```
+Once complete, there is one last API key you must create for the server. See the next step below for details.
+
+## Server Setup
 This project has a server written in associated with it responsible for making Google Maps API requests, which can be found here:
 [GitHub Repository Link](https://github.com/AdrianoCucci/CPOS-Capstone-Server "Repo title")
 
