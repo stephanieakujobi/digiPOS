@@ -1,6 +1,6 @@
 {
   "name": "DigiPOS",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Fusion",
   "scripts": {
     "ng": "ng",
@@ -95,7 +95,7 @@
     "tslint": "~5.15.0",
     "typescript": "~3.4.3"
   },
-  "description": "An Ionic project",
+  "description": "DigiPOS is an application developed by Fusion for CPOS. It allows users to find nearby places using services provided by Google Maps and save them under their account, for which they may later navigate to the place to gather information about it and create a sales pitch.",
   "cordova": {
     "plugins": {
       "cordova-plugin-statusbar": {},
