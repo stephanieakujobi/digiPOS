@@ -24,19 +24,13 @@ The project is started with the regular Ionic commands.
 3. To build the project run `ionic build android` or `ionic build ios`. In order for you to build an iOS app, you need to run on MacOS.
 
 ### Create a Firebase Project
-Before you can add Firebase to your JavaScript app, you need to [create a Firebase project](https://firebase.google.com/docs/web/setup#create-project) to connect to your app.
-
-### Register your app
-After you have a Firebase project, you can add your web app to it.
-
-### Install dependencies
-[@angular/fire](https://github.com/angular/angularfire) is the official Angular library for Firebase, we’ll install both packages:
+1. Before you can add Firebase to the app, you need to [create a Firebase project](https://firebase.google.com/docs/web/setup#create-project).
+2. Install the [@angular/fire](https://github.com/angular/angularfire) dependancy into the project.
 ```
 $ npm install firebase @angular/fire --save
 ```
-### Setup Firebase
-To initialize Firebase in your app, you need to provide your app’s [Firebase project configuration](https://firebase.google.com/docs/web/setup#config-object).
-Once setup, copy the app configuration settings into **src/credentials/firebase.credentials.ts**
+3. To initialize Firebase in the app, you need to provide your [Firebase project configuration](https://firebase.google.com/docs/web/setup#config-object).
+Once setup, copy the app configuration settings into **src/credentials/firebase.credentials.ts**.
 ```
 export const FIREBASE_CREDENTIALS = {
   apiKey: '',
@@ -49,6 +43,7 @@ export const FIREBASE_CREDENTIALS = {
   measurementId: ''
 };
 ```
+
 ### Setup Google Maps
 For the application to interact with Google Maps, you will need an API key for both Android and iOS.
 Follow these steps:
