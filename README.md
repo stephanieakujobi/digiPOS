@@ -14,7 +14,7 @@ With the latest technology, reports will be sent to their CRM so that on a manag
 ```
 $ npm install -g ionic
 ```
-5. Clone this repository using Git.
+5. Clone this repository using the Git CLI.
 ```
 git clone https://github.com/AdrianoCucci/CPOS-Capstone-App.git
 ```
