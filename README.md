@@ -26,11 +26,11 @@ The project is started with the regular Ionic commands.
 3. To build the project run `ionic build android` or `ionic build ios`. In order for you to build an iOS app, you need to run on MacOS.
 
 ### Create a Firebase Project
-1. Before you can add Firebase to the app, you need to [create a Firebase project](https://firebase.google.com/docs/web/setup#create-project).
-2. Install the [@angular/fire](https://github.com/angular/angularfire) dependancy into the project.
+1. Install the [@angular/fire](https://github.com/angular/angularfire) dependancy.
 ```
 $ npm install firebase @angular/fire --save
 ```
+2. [Create a Firebase project](https://firebase.google.com/docs/web/setup#create-project).
 3. To initialize Firebase in the app, you need to provide your [Firebase project configuration](https://firebase.google.com/docs/web/setup#config-object).
 Once setup, copy the app configuration settings into **src/credentials/firebase.credentials.ts**.
 ```
