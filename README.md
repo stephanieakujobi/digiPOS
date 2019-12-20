@@ -7,15 +7,17 @@ With the latest technology, reports will be sent to their CRM so that on a manag
 
 ## Setup the App
 ### Prerequisites
-
-1. Install [Node](https://nodejs.org/en/download/ "Node title") and npm 
-2. Install [Angular CLI](https://cli.angular.io/ "Angular Title")
-3. Install the [Ionic CLI](https://ionicframework.com/docs/installation/cli "Ionic Title")
+1. Install [Git](https://git-scm.com/)
+2. Install [Node](https://nodejs.org/en/download/ "Node title") and npm 
+3. Install [Angular CLI](https://cli.angular.io/ "Angular Title")
+4. Install the [Ionic CLI](https://ionicframework.com/docs/installation/cli "Ionic Title") (See the [Ionic docs](https://ionicframework.com/docs/intro) for more information about the Ionic framework.)
 ```
 $ npm install -g ionic
 ```
-4. See the [Ionic docs](https://ionicframework.com/docs/intro) for more information about the Ionic framework.
-
+5. Clone this repository using Git.
+```
+git clone https://github.com/AdrianoCucci/CPOS-Capstone-App.git
+```
 ### Start an Ionic project 
 The project is started with the regular Ionic commands.
 
