@@ -1,9 +1,9 @@
 # DigiPOS
 DigiPOS is a mobile app to make the life of CPOS's sales representative easier. It enables them to replace the existing paper and pen system with the latest mobile technology. 
-
 This app will help in keeping track of each and every business they want.
-
 With the latest technology, reports will be sent to their CRM so that on a management level, they can have an overview of the enitre project.
+
+DigiPOS was developed in the [Ionic Framework](https://ionicframework.com/), which runs on top of [Angular](https://angular.io/).
 
 ## Setup the App
 ### Prerequisites
