@@ -18,12 +18,6 @@ $ npm install -g ionic
 ```
 git clone https://github.com/AdrianoCucci/CPOS-Capstone-App.git
 ```
-### Start an Ionic project 
-The project is started with the regular Ionic commands.
-
-1. Run `npm install` to install all dependencies.
-2. Run `ionic serve` to start the development environment.
-3. To build the project run `ionic build android` or `ionic build ios`. In order for you to build an iOS app, you need to run on MacOS.
 
 ### Create a Firebase Project
 1. Install the [@angular/fire](https://github.com/angular/angularfire) dependancy.
@@ -86,15 +80,19 @@ The Google Maps Service will send HTTP GET requests to this URL, where the serve
 ### Testing in browser
 The majority of Ionic app development can be spent right in the browser using the following command:
 ```
-$ ionic cordova run browser -l
+$ ionic cordova run browser
 ```
-Note that native mobile-specific features will not function when debugging in the browser.
+Note that native mobile-specific features will not function when debugging in the browser. To use native mobile features, see the next section below.
 
 ### Testing on a real device
 *Note: In the documentation linked below, anything related to "Capaciter" can be ignored. This app uses Cordova features instead.*
 
 1. See the Ionic docs for [how to setup an Android device](https://ionicframework.com/docs/installation/android) and [how to setup an iOS device](https://ionicframework.com/docs/installation/ios).
 2. See the Ionic docs for [how to run on an Android device](https://ionicframework.com/docs/building/android) and [how to run on an iOS device](https://ionicframework.com/docs/building/ios).
+3. Plug in your Android or iOS device and run the following command to run the application on your device:
+```
+ionic cordova run [android/ios]
+```
 
 ### Project Structure
 ```
