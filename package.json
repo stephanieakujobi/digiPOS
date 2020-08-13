@@ -60,7 +60,7 @@
     "firebase": "^7.5.0",
     "phonegap-plugin-multidex": "^1.0.0",
     "rxjs": "~6.5.1",
-    "serialize-javascript": "^2.1.1",
+    "serialize-javascript": "^3.1.0",
     "sha1": "^1.1.1",
     "tslib": "^1.9.0",
     "uk.co.workingedge.phonegap.plugin.launchnavigator": "^5.0.4",
